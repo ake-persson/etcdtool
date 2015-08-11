@@ -21,7 +21,7 @@ Help Options:
 
 ```bash
 git clone https://github.com/mickep76/etcd-export.git
-cd tf
+cd etcd-export
 ./build
 bin/tf --version
 ```
