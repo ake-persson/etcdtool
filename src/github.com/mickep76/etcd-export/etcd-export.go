@@ -42,9 +42,9 @@ func main() {
 		Version  bool    `long:"version" description:"Version"`
 		Format   string  `short:"f" long:"format" description:"Data serialization format YAML, TOML or JSON" default:"YAML"`
 		Output   *string `short:"o" long:"output" description:"Output file (STDOUT)"`
-		EtcdHost *string `long:"etcd-host" description:"Etcd Host"`
-		EtcdPort int     `long:"etcd-port" description:"Etcd Port" default:"2379"`
-		EtcdDir  string  `long:"etcd-dir" description:"Etcd Dir" default:"/"`
+		EtcdHost *string `short:"H" long:"etcd-host" description:"Etcd Host"`
+		EtcdPort int     `short:"p" long:"etcd-port" description:"Etcd Port" default:"2379"`
+		EtcdDir  string  `short:"d" long:"etcd-dir" description:"Etcd Dir" default:"/"`
 	}
 
 	// Parse options.
@@ -68,6 +68,11 @@ func main() {
 		log.SetLevel(log.InfoLevel)
 	}
 
+	// Validate input.
+	if opts.EtcdHost == nil {
+		log.Fatalf("You need to specify Etcd host.")
+	}
+
 	// Get Etcd input.
 	node := []string{fmt.Sprintf("http://%v:%v", *opts.EtcdHost, opts.EtcdPort)}
 	client := etcd.NewClient(node)
@@ -77,20 +82,26 @@ func main() {
 	}
 	data := EtcdMap(res.Node)
 
-	switch opts.Format {
+	switch strings.ToUpper(opts.Format) {
 	case "YAML":
-		s, _ := yaml.Marshal(&data)
-		fmt.Printf("Input data\n%s", string(s))
+		s, err := yaml.Marshal(&data)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		fmt.Println(string(s))
 	case "TOML":
 		s := new(bytes.Buffer)
 		err := toml.NewEncoder(s).Encode(&data)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		fmt.Printf("Input data\n%s", string(s.String()))
+		fmt.Println(string(s.String()))
 	case "JSON":
-		s, _ := json.MarshalIndent(&data, "", "    ")
-		fmt.Printf("Input data\n%s", string(s))
+		s, err := json.MarshalIndent(&data, "", "    ")
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		fmt.Println(string(s), "\n")
 	default:
 		log.Fatal("Unsupported data format, needs to be YAML, JSON or TOML")
 	}
