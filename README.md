@@ -1,7 +1,34 @@
-# Install on Mac OS X.
+# Usage
 
 ```bash
-brew tap update mickep76/funk-gnarge
-brew install etcd-export
+Usage:
+  etcd-export [OPTIONS]
+
+Application Options:
+  -v, --verbose    Verbose
+      --version    Version
+  -f, --format=    Data serialization format YAML, TOML or JSON (YAML)
+  -o, --output=    Output file (STDOUT)
+  -H, --etcd-host= Etcd Host
+  -p, --etcd-port= Etcd Port (2379)
+  -d, --etcd-dir=  Etcd Dir (/)
+
+Help Options:
+  -h, --help       Show this help message
 ```
 
+# Build
+
+```bash
+git clone https://github.com/mickep76/tf.git
+cd tf
+./build
+bin/tf --version
+```
+
+# Install using Homebrew
+
+```bash
+brew tap mickep76/funk-gnarge
+brew install mickep76/funk-gnarge/etcd-export
+```
