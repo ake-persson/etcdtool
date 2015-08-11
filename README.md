@@ -20,7 +20,7 @@ Help Options:
 # Build
 
 ```bash
-git clone https://github.com/mickep76/tf.git
+git clone https://github.com/mickep76/etcd-export.git
 cd tf
 ./build
 bin/tf --version
