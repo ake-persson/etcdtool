@@ -31,6 +31,22 @@ func EtcdMap(root *etcd.Node) map[string]interface{} {
 	return v
 }
 
+// Write output to file.
+func WriteToFile(file string, o []byte) error {
+	w, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write(o)
+	if err != nil {
+		return err
+	}
+
+	w.Close()
+	return nil
+}
+
 func main() {
 	// Set log options.
 	log.SetOutput(os.Stderr)
@@ -88,20 +104,32 @@ func main() {
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		fmt.Println(string(s))
+		if opts.Output == nil {
+			fmt.Println(string(s))
+		} else {
+			WriteToFile(*opts.Output, s)
+		}
 	case "TOML":
 		s := new(bytes.Buffer)
 		err := toml.NewEncoder(s).Encode(&data)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		fmt.Println(string(s.String()))
+		if opts.Output == nil {
+			fmt.Println(string(s.String()))
+		} else {
+			WriteToFile(*opts.Output, s.Bytes())
+		}
 	case "JSON":
 		s, err := json.MarshalIndent(&data, "", "    ")
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		fmt.Println(string(s), "\n")
+		if opts.Output == nil {
+			fmt.Println(string(s))
+		} else {
+			WriteToFile(*opts.Output, s)
+		}
 	default:
 		log.Fatal("Unsupported data format, needs to be YAML, JSON or TOML")
 	}
