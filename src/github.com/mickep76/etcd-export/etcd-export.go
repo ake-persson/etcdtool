@@ -89,7 +89,7 @@ func main() {
 		}
 		fmt.Printf("Input data\n%s", string(s.String()))
 	case "JSON":
-		s, _ := json.Marshal(&data)
+		s, _ := json.MarshalIndent(&data, "", "    ")
 		fmt.Printf("Input data\n%s", string(s))
 	default:
 		log.Fatal("Unsupported data format, needs to be YAML, JSON or TOML")
