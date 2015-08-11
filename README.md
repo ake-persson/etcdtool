@@ -23,7 +23,7 @@ Help Options:
 git clone https://github.com/mickep76/etcd-export.git
 cd etcd-export
 ./build
-bin/tf --version
+bin/etcd-export --version
 ```
 
 # Install using Homebrew

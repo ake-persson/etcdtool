@@ -59,7 +59,7 @@ func main() {
 
 	// Print version.
 	if opts.Version {
-		fmt.Printf("tf %s\n", Version)
+		fmt.Printf("etcd-export %s\n", Version)
 		os.Exit(0)
 	}
 
