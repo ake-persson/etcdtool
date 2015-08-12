@@ -11,9 +11,6 @@ import (
 	"github.com/mickep76/iodatafmt"
 )
 
-// Import
-// Migrate
-
 // EtcdMap creates a nested data structure from a Etcd node.
 func EtcdMap(root *etcd.Node) map[string]interface{} {
 	v := make(map[string]interface{})
@@ -30,17 +27,6 @@ func EtcdMap(root *etcd.Node) map[string]interface{} {
 	}
 	return v
 }
-
-// Import data.
-/*
-func Import(k string, r map[string]interface{}) error {
-
-	// Map create dir
-	// Otherwise set key
-
-	_, err := client.Set("/global-test/domain", string(global.Domain), 0)
-}
-*/
 
 func main() {
 	// Set log options.
@@ -90,9 +76,11 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	// Get Etcd input.
+	// Setup Etcd client.
 	node := []string{fmt.Sprintf("http://%v:%v", *opts.EtcdNode, opts.EtcdPort)}
 	client := etcd.NewClient(node)
+
+	// Export data.
 	res, err := client.Get(opts.EtcdDir, true, true)
 	if err != nil {
 		log.Fatal(err.Error())

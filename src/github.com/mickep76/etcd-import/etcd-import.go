@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"reflect"
-	//	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	etcd "github.com/coreos/go-etcd/etcd"
@@ -14,7 +13,6 @@ import (
 
 // Import data.
 func Import(client *etcd.Client, dir string, d map[string]interface{}) error {
-
 	for k, v := range d {
 		if reflect.ValueOf(v).Kind() == reflect.Map {
 			fmt.Printf("%s/%s/\n", dir, k)
@@ -30,7 +28,6 @@ func Import(client *etcd.Client, dir string, d map[string]interface{}) error {
 		}
 	}
 
-	//	_, err := client.Set("/global-test/domain", string(global.Domain), 0)
 	return nil
 }
 
@@ -86,6 +83,7 @@ func main() {
 	node := []string{fmt.Sprintf("http://%v:%v", *opts.EtcdNode, opts.EtcdPort)}
 	client := etcd.NewClient(node)
 
+	// Import data.
 	d, err := iodatafmt.Load(*opts.Input, f)
 	if err != nil {
 		log.Fatal(err.Error())
