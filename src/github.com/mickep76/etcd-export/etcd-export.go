@@ -51,7 +51,7 @@ func main() {
 	var opts struct {
 		Verbose  bool    `short:"v" long:"verbose" description:"Verbose"`
 		Version  bool    `long:"version" description:"Version"`
-		Format   string  `short:"f" long:"format" description:"Data serialization format YAML, TOML or JSON" default:"YAML"`
+		Format   string  `short:"f" long:"format" description:"Data serialization format YAML, TOML or JSON" default:"JSON"`
 		Output   *string `short:"o" long:"output" description:"Output file (STDOUT)"`
 		EtcdNode *string `short:"n" long:"etcd-node" description:"Etcd Node"`
 		EtcdPort int     `short:"p" long:"etcd-port" description:"Etcd Port" default:"2379"`
