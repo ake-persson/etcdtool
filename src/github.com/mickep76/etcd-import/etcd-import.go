@@ -3,33 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
-	"reflect"
 
 	log "github.com/Sirupsen/logrus"
 	etcd "github.com/coreos/go-etcd/etcd"
 	flags "github.com/jessevdk/go-flags"
+	"github.com/mickep76/etcdmap"
 	"github.com/mickep76/iodatafmt"
 )
-
-// Import data.
-func Import(client *etcd.Client, dir string, d map[string]interface{}) error {
-	for k, v := range d {
-		if reflect.ValueOf(v).Kind() == reflect.Map {
-			fmt.Printf("%s/%s/\n", dir, k)
-			if _, err := client.CreateDir(dir+"/"+k, 0); err != nil {
-				log.Fatal(err.Error())
-			}
-			Import(client, dir+"/"+k, v.(map[string]interface{}))
-		} else {
-			fmt.Printf("%s/%s: %s\n", dir, k, v)
-			if _, err := client.Set(dir+"/"+k, v.(string), 0); err != nil {
-				log.Fatal(err.Error())
-			}
-		}
-	}
-
-	return nil
-}
 
 func main() {
 	// Set log options.
@@ -44,7 +24,7 @@ func main() {
 		Input    *string `short:"i" long:"input" description:"Input file (STDOUT)"`
 		EtcdNode *string `short:"n" long:"etcd-node" description:"Etcd Node"`
 		EtcdPort int     `short:"p" long:"etcd-port" description:"Etcd Port" default:"2379"`
-		EtcdDir  string  `short:"d" long:"etcd-dir" description:"Etcd Dir" default:"/"`
+		//		EtcdDir  string  `short:"d" long:"etcd-dir" description:"Etcd Dir" default:"/"`
 	}
 
 	// Parse options.
@@ -89,5 +69,7 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	Import(client, "", d)
+	if err = etcdmap.CreateMap(client, "", d); err != nil {
+		log.Fatal(err.Error())
+	}
 }

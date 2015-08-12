@@ -7,11 +7,18 @@
 
 
 
+## func CreateMap
+``` go
+func CreateMap(client *etcd.Client, dir string, d map[string]interface{}) error
+```
+CreateMap create Etcd directory structure using a map[string]interface{}.
+
+
 ## func Map
 ``` go
 func Map(root *etcd.Node) map[string]interface{}
 ```
-Map creates a nested data structure from a Etcd node.
+Map creates a map[string]interface{} from a Etcd directory.
 
 
 

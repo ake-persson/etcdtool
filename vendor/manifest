@@ -53,7 +53,7 @@
 		{
 			"importpath": "github.com/mickep76/etcdmap",
 			"repository": "https://github.com/mickep76/etcdmap",
-			"revision": "68dc0a42274368a90e0df5d9682e474d2f1b70b3",
+			"revision": "1039b5ee90db66d5eb3da87a5d8d3513dc56598e",
 			"branch": "master"
 		},
 		{
