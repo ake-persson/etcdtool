@@ -1,4 +1,4 @@
-# Usage
+# Usage Etcd Export
 
 ```bash
 Usage:
@@ -9,7 +9,26 @@ Application Options:
       --version    Version
   -f, --format=    Data serialization format YAML, TOML or JSON (YAML)
   -o, --output=    Output file (STDOUT)
-  -H, --etcd-host= Etcd Host
+  -n, --etcd-node= Etcd Node
+  -p, --etcd-port= Etcd Port (2379)
+  -d, --etcd-dir=  Etcd Dir (/)
+
+Help Options:
+  -h, --help       Show this help message
+```
+
+# Usage Etcd Import
+
+```bash
+Usage:
+  etcd-import [OPTIONS]
+
+Application Options:
+  -v, --verbose    Verbose
+      --version    Version
+  -f, --format=    Data serialization format YAML, TOML or JSON (JSON)
+  -i, --input=     Input file (STDOUT)
+  -n, --etcd-node= Etcd Node
   -p, --etcd-port= Etcd Port (2379)
   -d, --etcd-dir=  Etcd Dir (/)
 
@@ -30,9 +49,5 @@ bin/etcd-export --version
 
 ```bash
 brew tap mickep76/funk-gnarge
-brew install mickep76/funk-gnarge/etcd-export
+brew install etcd-export
 ```
-
-# TODO
-
-- Add etcd-import utility
