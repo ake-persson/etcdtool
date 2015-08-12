@@ -3,30 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	etcd "github.com/coreos/go-etcd/etcd"
 	flags "github.com/jessevdk/go-flags"
+	"github.com/mickep76/etcdmap"
 	"github.com/mickep76/iodatafmt"
 )
-
-// EtcdMap creates a nested data structure from a Etcd node.
-func EtcdMap(root *etcd.Node) map[string]interface{} {
-	v := make(map[string]interface{})
-
-	for _, n := range root.Nodes {
-		keys := strings.Split(n.Key, "/")
-		k := keys[len(keys)-1]
-		if n.Dir {
-			v[k] = make(map[string]interface{})
-			v[k] = EtcdMap(n)
-		} else {
-			v[k] = n.Value
-		}
-	}
-	return v
-}
 
 func main() {
 	// Set log options.
@@ -85,7 +68,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	d := EtcdMap(res.Node)
+	d := etcdmap.Map(res.Node)
 
 	// Write output.
 	if opts.Output != nil {

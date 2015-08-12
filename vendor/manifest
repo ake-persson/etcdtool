@@ -51,6 +51,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/mickep76/etcdmap",
+			"repository": "https://github.com/mickep76/etcdmap",
+			"revision": "68dc0a42274368a90e0df5d9682e474d2f1b70b3",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/mickep76/iodatafmt",
 			"repository": "https://github.com/mickep76/iodatafmt",
 			"revision": "59ffc80835fd66a87ff6fe1d2285ac674b44a376",
