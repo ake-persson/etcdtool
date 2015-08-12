@@ -1,18 +1,18 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 
-	"github.com/BurntSushi/toml"
 	log "github.com/Sirupsen/logrus"
 	etcd "github.com/coreos/go-etcd/etcd"
 	flags "github.com/jessevdk/go-flags"
-	"gopkg.in/yaml.v2"
+	"github.com/mickep76/iodatafmt"
 )
+
+// Import
+// Migrate
 
 // EtcdMap creates a nested data structure from a Etcd node.
 func EtcdMap(root *etcd.Node) map[string]interface{} {
@@ -31,21 +31,16 @@ func EtcdMap(root *etcd.Node) map[string]interface{} {
 	return v
 }
 
-// Write output to file.
-func WriteToFile(file string, o []byte) error {
-	w, err := os.Create(file)
-	if err != nil {
-		return err
-	}
+// Import data.
+/*
+func Import(k string, r map[string]interface{}) error {
 
-	_, err = w.Write(o)
-	if err != nil {
-		return err
-	}
+	// Map create dir
+	// Otherwise set key
 
-	w.Close()
-	return nil
+	_, err := client.Set("/global-test/domain", string(global.Domain), 0)
 }
+*/
 
 func main() {
 	// Set log options.
@@ -58,7 +53,7 @@ func main() {
 		Version  bool    `long:"version" description:"Version"`
 		Format   string  `short:"f" long:"format" description:"Data serialization format YAML, TOML or JSON" default:"YAML"`
 		Output   *string `short:"o" long:"output" description:"Output file (STDOUT)"`
-		EtcdHost *string `short:"H" long:"etcd-host" description:"Etcd Host"`
+		EtcdNode *string `short:"n" long:"etcd-node" description:"Etcd Node"`
 		EtcdPort int     `short:"p" long:"etcd-port" description:"Etcd Port" default:"2379"`
 		EtcdDir  string  `short:"d" long:"etcd-dir" description:"Etcd Dir" default:"/"`
 	}
@@ -85,52 +80,29 @@ func main() {
 	}
 
 	// Validate input.
-	if opts.EtcdHost == nil {
+	if opts.EtcdNode == nil {
 		log.Fatalf("You need to specify Etcd host.")
 	}
 
+	// Get data format.
+	f, err := iodatafmt.Format(opts.Format)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 	// Get Etcd input.
-	node := []string{fmt.Sprintf("http://%v:%v", *opts.EtcdHost, opts.EtcdPort)}
+	node := []string{fmt.Sprintf("http://%v:%v", *opts.EtcdNode, opts.EtcdPort)}
 	client := etcd.NewClient(node)
 	res, err := client.Get(opts.EtcdDir, true, true)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	data := EtcdMap(res.Node)
+	d := EtcdMap(res.Node)
 
-	switch strings.ToUpper(opts.Format) {
-	case "YAML":
-		s, err := yaml.Marshal(&data)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		if opts.Output == nil {
-			fmt.Println(string(s))
-		} else {
-			WriteToFile(*opts.Output, s)
-		}
-	case "TOML":
-		s := new(bytes.Buffer)
-		err := toml.NewEncoder(s).Encode(&data)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		if opts.Output == nil {
-			fmt.Println(string(s.String()))
-		} else {
-			WriteToFile(*opts.Output, s.Bytes())
-		}
-	case "JSON":
-		s, err := json.MarshalIndent(&data, "", "    ")
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		if opts.Output == nil {
-			fmt.Println(string(s))
-		} else {
-			WriteToFile(*opts.Output, s)
-		}
-	default:
-		log.Fatal("Unsupported data format, needs to be YAML, JSON or TOML")
+	// Write output.
+	if opts.Output != nil {
+		iodatafmt.Write(*opts.Output, d, f)
+	} else {
+		iodatafmt.Print(d, f)
 	}
 }

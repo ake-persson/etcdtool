@@ -34,7 +34,7 @@
 		{
 			"importpath": "github.com/coreos/go-etcd/etcd",
 			"repository": "https://github.com/coreos/go-etcd",
-			"revision": "9847b93751a5fbaf227b893d172cee0104ac6427",
+			"revision": "ae9c884b259b094bf0d5df886307e080f5392a72",
 			"branch": "master",
 			"path": "/etcd"
 		},
@@ -48,6 +48,12 @@
 			"importpath": "github.com/jessevdk/go-flags",
 			"repository": "https://github.com/jessevdk/go-flags",
 			"revision": "1b89bf73cd2c3a911d7b2a279ab085c4a18cf539",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mickep76/iodatafmt",
+			"repository": "https://github.com/mickep76/iodatafmt",
+			"revision": "59ffc80835fd66a87ff6fe1d2285ac674b44a376",
 			"branch": "master"
 		},
 		{
