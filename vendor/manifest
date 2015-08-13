@@ -34,7 +34,7 @@
 		{
 			"importpath": "github.com/coreos/go-etcd/etcd",
 			"repository": "https://github.com/coreos/go-etcd",
-			"revision": "ae9c884b259b094bf0d5df886307e080f5392a72",
+			"revision": "e7a55efcbf98ec66b314a8b93693fb9fd60f4483",
 			"branch": "master",
 			"path": "/etcd"
 		},
@@ -53,7 +53,7 @@
 		{
 			"importpath": "github.com/mickep76/etcdmap",
 			"repository": "https://github.com/mickep76/etcdmap",
-			"revision": "1039b5ee90db66d5eb3da87a5d8d3513dc56598e",
+			"revision": "e96827bc23e7bea20d71794cec42f899f060d99f",
 			"branch": "master"
 		},
 		{

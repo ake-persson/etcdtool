@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	etcd "github.com/coreos/go-etcd/etcd"
@@ -24,7 +25,7 @@ func main() {
 		Input    *string `short:"i" long:"input" description:"Input file (STDOUT)"`
 		EtcdNode *string `short:"n" long:"etcd-node" description:"Etcd Node"`
 		EtcdPort int     `short:"p" long:"etcd-port" description:"Etcd Port" default:"2379"`
-		//		EtcdDir  string  `short:"d" long:"etcd-dir" description:"Etcd Dir" default:"/"`
+		EtcdDir  string  `short:"d" long:"etcd-dir" description:"Etcd Dir" default:"/"`
 	}
 
 	// Parse options.
@@ -69,7 +70,7 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	if err = etcdmap.CreateMap(client, "", d); err != nil {
+	if err = etcdmap.MapCreate(client, strings.TrimRight(opts.EtcdDir, "/"), d); err != nil {
 		log.Fatal(err.Error())
 	}
 }

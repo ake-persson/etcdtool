@@ -25,13 +25,13 @@ func Map(root *etcd.Node) map[string]interface{} {
 }
 
 // CreateMap create Etcd directory structure using a map[string]interface{}.
-func CreateMap(client *etcd.Client, dir string, d map[string]interface{}) error {
+func MapCreate(client *etcd.Client, dir string, d map[string]interface{}) error {
 	for k, v := range d {
 		if reflect.ValueOf(v).Kind() == reflect.Map {
 			if _, err := client.CreateDir(dir+"/"+k, 0); err != nil {
 				return err
 			}
-			CreateMap(client, dir+"/"+k, v.(map[string]interface{}))
+			MapCreate(client, dir+"/"+k, v.(map[string]interface{}))
 		} else {
 			if _, err := client.Set(dir+"/"+k, v.(string), 0); err != nil {
 				return err
