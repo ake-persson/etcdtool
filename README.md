@@ -17,7 +17,7 @@ Help Options:
   -h, --help       Show this help message
 ```
 
-You can also set a env. variable for the Etcd node and port.
+You can also set an env. variable for the Etcd node and port.
 
 ```bash
 export ETCD_CONN="http://etcd1.example.com:2379"
@@ -53,7 +53,7 @@ bin/etcd-export --version
 
 ## Test
 
-Configure Docker on your Linux or Mac OS X host.
+First configure Docker on your Linux or Mac OS X host.
 
 ```bash
 ./init-etcd.sh start
