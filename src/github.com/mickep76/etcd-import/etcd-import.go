@@ -28,6 +28,9 @@ func main() {
 	log.SetOutput(os.Stderr)
 	log.SetLevel(log.WarnLevel)
 
+	// Get connection env variable.
+	conn := getEnv()
+
 	// Options.
 	var opts struct {
 		Verbose  bool    `short:"v" long:"verbose" description:"Verbose"`
@@ -61,7 +64,7 @@ func main() {
 	}
 
 	// Validate input.
-	if opts.EtcdNode == nil {
+	if len(conn) < 1 && opts.EtcdNode == nil {
 		log.Fatalf("You need to specify Etcd host.")
 	}
 
@@ -72,8 +75,7 @@ func main() {
 	}
 
 	// Setup Etcd client.
-	conn := getEnv()
-	if opts.EtcdNode == nil {
+	if opts.EtcdNode != nil {
 		conn = []string{fmt.Sprintf("http://%v:%v", *opts.EtcdNode, opts.EtcdPort)}
 	}
 	client := etcd.NewClient(conn)

@@ -45,6 +45,16 @@ cd etcd-export
 bin/etcd-export --version
 ```
 
+## Test
+
+Configure Docker on your Linux or Mac OS X host.
+
+```bash
+./init-etcd.sh start
+eval "$(./init-etcd.sh env)"
+etcd-export
+```
+
 # Install using Homebrew
 
 ```bash
