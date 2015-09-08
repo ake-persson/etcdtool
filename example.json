@@ -1,0 +1,17 @@
+{
+    "example": {
+        "groupname": "staff",
+        "users": {
+            "0": {
+                "first_name": "John",
+                "last_name": "Doe",
+                "username": "jdoe"
+            },
+            "1": {
+                "first_name": "Leonard",
+                "last_name": "Nimoy",
+                "username": "lnemoy"
+            }
+        }
+    }
+}
