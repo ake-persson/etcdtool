@@ -12,6 +12,17 @@ import (
 	"github.com/mickep76/iodatafmt"
 )
 
+func getEnv() []string {
+	for _, e := range os.Environ() {
+		a := strings.Split(e, "=")
+		if a[0] == "ETCD_CONN" {
+			return []string{a[1]}
+		}
+	}
+
+	return []string{}
+}
+
 func main() {
 	// Set log options.
 	log.SetOutput(os.Stderr)
@@ -61,8 +72,11 @@ func main() {
 	}
 
 	// Setup Etcd client.
-	node := []string{fmt.Sprintf("http://%v:%v", *opts.EtcdNode, opts.EtcdPort)}
-	client := etcd.NewClient(node)
+	conn := getEnv()
+	if opts.EtcdNode == nil {
+		conn = []string{fmt.Sprintf("http://%v:%v", *opts.EtcdNode, opts.EtcdPort)}
+	}
+	client := etcd.NewClient(conn)
 
 	// Import data.
 	d, err := iodatafmt.Load(*opts.Input, f)
@@ -70,7 +84,7 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	if err = etcdmap.MapCreate(client, strings.TrimRight(opts.EtcdDir, "/"), d); err != nil {
+	if err = etcdmap.CreateMap(client, strings.TrimRight(opts.EtcdDir, "/"), d); err != nil {
 		log.Fatal(err.Error())
 	}
 }

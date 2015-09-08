@@ -10,13 +10,13 @@
 		{
 			"importpath": "github.com/Sirupsen/logrus",
 			"repository": "https://github.com/Sirupsen/logrus",
-			"revision": "9c060de643590dae45da9d7c26276463bfc46fa0",
+			"revision": "82c8de1af23b25ba5a468d801f29077f4f483bce",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/bugsnag/bugsnag-go",
 			"repository": "https://github.com/bugsnag/bugsnag-go",
-			"revision": "13fd6b8acda029830ef9904df6b63be0a83369d0",
+			"revision": "9ee24c1db7e2c5b87e7228acb3e587a35124a041",
 			"branch": "master"
 		},
 		{
@@ -34,7 +34,7 @@
 		{
 			"importpath": "github.com/coreos/go-etcd/etcd",
 			"repository": "https://github.com/coreos/go-etcd",
-			"revision": "e7a55efcbf98ec66b314a8b93693fb9fd60f4483",
+			"revision": "126041ef7b24a28359a12f8bf7f6a7db6756113d",
 			"branch": "master",
 			"path": "/etcd"
 		},
@@ -47,13 +47,13 @@
 		{
 			"importpath": "github.com/jessevdk/go-flags",
 			"repository": "https://github.com/jessevdk/go-flags",
-			"revision": "1b89bf73cd2c3a911d7b2a279ab085c4a18cf539",
+			"revision": "1acbbaff2f347c412a0c7884873bd72cc9c1f5b4",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/mickep76/etcdmap",
 			"repository": "https://github.com/mickep76/etcdmap",
-			"revision": "e96827bc23e7bea20d71794cec42f899f060d99f",
+			"revision": "01d94b1d7632f49934f4f1d317870e73e21d5bf4",
 			"branch": "master"
 		},
 		{

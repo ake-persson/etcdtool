@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	etcd "github.com/coreos/go-etcd/etcd"
@@ -10,6 +11,17 @@ import (
 	"github.com/mickep76/etcdmap"
 	"github.com/mickep76/iodatafmt"
 )
+
+func getEnv() []string {
+	for _, e := range os.Environ() {
+		a := strings.Split(e, "=")
+		if a[0] == "ETCD_CONN" {
+			return []string{a[1]}
+		}
+	}
+
+	return []string{}
+}
 
 func main() {
 	// Set log options.
@@ -60,8 +72,11 @@ func main() {
 	}
 
 	// Setup Etcd client.
-	node := []string{fmt.Sprintf("http://%v:%v", *opts.EtcdNode, opts.EtcdPort)}
-	client := etcd.NewClient(node)
+	conn := getEnv()
+	if opts.EtcdNode == nil {
+		conn = []string{fmt.Sprintf("http://%v:%v", *opts.EtcdNode, opts.EtcdPort)}
+	}
+	client := etcd.NewClient(conn)
 
 	// Export data.
 	res, err := client.Get(opts.EtcdDir, true, true)
