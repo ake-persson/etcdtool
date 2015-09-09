@@ -1,96 +1,65 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
 	"os"
-	"strings"
 
-	log "github.com/Sirupsen/logrus"
 	etcd "github.com/coreos/go-etcd/etcd"
-	flags "github.com/jessevdk/go-flags"
 	"github.com/mickep76/etcdmap"
 	"github.com/mickep76/iodatafmt"
+
+	"github.com/mickep76/common"
 )
 
-func getEnv() []string {
-	for _, e := range os.Environ() {
-		a := strings.Split(e, "=")
-		if a[0] == "ETCD_CONN" {
-			return []string{a[1]}
-		}
-	}
-
-	return []string{}
-}
-
 func main() {
-	// Set log options.
-	log.SetOutput(os.Stderr)
-	log.SetLevel(log.WarnLevel)
-
 	// Get connection env variable.
-	conn := getEnv()
+	conn := common.GetEnv()
 
 	// Options.
-	var opts struct {
-		Verbose  bool    `short:"v" long:"verbose" description:"Verbose"`
-		Version  bool    `long:"version" description:"Version"`
-		Format   string  `short:"f" long:"format" description:"Data serialization format YAML, TOML or JSON" default:"JSON"`
-		Output   *string `short:"o" long:"output" description:"Output file (STDOUT)"`
-		EtcdNode *string `short:"n" long:"etcd-node" description:"Etcd Node"`
-		EtcdPort int     `short:"p" long:"etcd-port" description:"Etcd Port" default:"2379"`
-		EtcdDir  string  `short:"d" long:"etcd-dir" description:"Etcd Dir" default:"/"`
-	}
-
-	// Parse options.
-	if _, err := flags.Parse(&opts); err != nil {
-		ferr := err.(*flags.Error)
-		if ferr.Type == flags.ErrHelp {
-			os.Exit(0)
-		} else {
-			log.Fatal(err.Error())
-		}
-	}
+	version := flag.Bool("version", false, "Version")
+	node := flag.String("node", "", "Etcd node")
+	port := flag.String("port", "2379", "Etcd port")
+	dir := flag.String("dir", "/", "Etcd directory")
+	format := flag.String("format", "JSON", "Data serialization format YAML, TOML or JSON")
+	output := flag.String("output", "", "Output file")
+	flag.Parse()
 
 	// Print version.
-	if opts.Version {
-		fmt.Printf("etcd-export %s\n", Version)
+	if *version {
+		fmt.Printf("etcd-export %s\n", common.Version)
 		os.Exit(0)
 	}
 
-	// Set verbose.
-	if opts.Verbose {
-		log.SetLevel(log.InfoLevel)
-	}
-
 	// Validate input.
-	if len(conn) < 1 && opts.EtcdNode == nil {
-		log.Fatalf("You need to specify Etcd host.")
+	if len(conn) < 1 && node == nil {
+		log.Fatalf("You need to specify Etcd node.")
 	}
 
 	// Get data format.
-	f, err := iodatafmt.Format(opts.Format)
+	f, err := iodatafmt.Format(*format)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
 	// Setup Etcd client.
-	if opts.EtcdNode != nil {
-		conn = []string{fmt.Sprintf("http://%v:%v", *opts.EtcdNode, opts.EtcdPort)}
+	if *node != "" {
+		conn = []string{fmt.Sprintf("http://%v:%v", *node, *port)}
 	}
 	client := etcd.NewClient(conn)
 
 	// Export data.
-	res, err := client.Get(opts.EtcdDir, true, true)
+	res, err := client.Get(*dir, true, true)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	d := etcdmap.Map(res.Node)
+	m := etcdmap.Map(res.Node)
 
 	// Write output.
-	if opts.Output != nil {
-		iodatafmt.Write(*opts.Output, d, f)
+	if *output != "" {
+		iodatafmt.Write(*output, m, f)
 	} else {
-		iodatafmt.Print(d, f)
+		iodatafmt.Print(m, f)
 	}
 }

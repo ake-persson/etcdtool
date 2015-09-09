@@ -4,7 +4,6 @@ package etcdmap
 import (
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 
 	"encoding/json"
@@ -70,76 +69,50 @@ func Map(root *etcd.Node) map[string]interface{} {
 	return v
 }
 
-// CreateStruct creates a Etcd directory based on a struct.
-func CreateStruct(client *etcd.Client, dir string, s interface{}) error {
-	// Yes this is a hack, so what it works.
-	// Marshal struct to JSON
-	j, err := json.Marshal(&s)
-	if err != nil {
-		return err
+// Create Etcd directory structure from a map, slice or struct.
+func Create(client *etcd.Client, path string, val reflect.Value) error {
+	switch val.Kind() {
+	case reflect.Struct:
+		for i := 0; i < val.NumField(); i++ {
+			t := val.Type().Field(i)
+			k := t.Tag.Get("etcd")
+			if err := Create(client, path+"/"+k, val.Field(i)); err != nil {
+				return err
+			}
+		}
+	case reflect.Map:
+		for _, k := range val.MapKeys() {
+			v := val.MapIndex(k)
+			if err := Create(client, path+"/"+k.String(), v); err != nil {
+				return err
+			}
+		}
+	case reflect.Slice:
+		for i := 0; i < val.Len(); i++ {
+			Create(client, fmt.Sprintf("%s/%d", path, i), val.Index(i))
+		}
+	case reflect.String:
+		if _, err := client.Set(path, val.String(), 0); err != nil {
+			return err
+		}
+	case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Float32, reflect.Float64:
+		if _, err := client.Set(path, fmt.Sprintf("%v", val.Interface()), 0); err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("unsupported type: %s for path: %s", val.Kind(), path)
 	}
 
-	// Yes this is a hack, so what it works.
-	// Unmarshal JSON to map[string]interface{}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(j, &m); err != nil {
-		return err
-	}
-
-	return CreateMap(client, dir, m)
+	return nil
 }
 
-// CreateJSON creates a Etcd directory based on JSON byte[].
+// CreateJSON Etcd directory structure from JSON.
 func CreateJSON(client *etcd.Client, dir string, j []byte) error {
 	m := make(map[string]interface{})
 	if err := json.Unmarshal(j, &m); err != nil {
 		return err
 	}
 
-	return CreateMap(client, dir, m)
-}
-
-// CreateMap creates a Etcd directory based on map[string]interface{}.
-func CreateMap(client *etcd.Client, dir string, d map[string]interface{}) error {
-	for k, v := range d {
-		if reflect.ValueOf(v).Kind() == reflect.Map {
-			if _, err := client.CreateDir(dir+"/"+k, 0); err != nil {
-				return err
-			}
-			CreateMap(client, dir+"/"+k, v.(map[string]interface{}))
-		} else if reflect.ValueOf(v).Kind() == reflect.Slice {
-			CreateMapSlice(client, dir+"/"+k, v.([]interface{}))
-		} else if reflect.ValueOf(v).Kind() == reflect.String {
-			if _, err := client.Set(dir+"/"+k, v.(string), 0); err != nil {
-				return err
-			}
-		} else {
-			return fmt.Errorf("unsupported type: %s for key: %s", reflect.ValueOf(v).Kind(), k)
-		}
-	}
-
-	return nil
-}
-
-// CreateMapSlice creates a Etcd directory based on []interface{}.
-func CreateMapSlice(client *etcd.Client, dir string, d []interface{}) error {
-	for i, v := range d {
-		istr := strconv.Itoa(i)
-		if reflect.ValueOf(v).Kind() == reflect.Map {
-			if _, err := client.CreateDir(dir+"/"+istr, 0); err != nil {
-				return err
-			}
-			CreateMap(client, dir+"/"+istr, v.(map[string]interface{}))
-		} else if reflect.ValueOf(v).Kind() == reflect.Slice {
-			CreateMapSlice(client, dir+"/"+istr, v.([]interface{}))
-		} else if reflect.ValueOf(v).Kind() == reflect.String {
-			if _, err := client.Set(dir+"/"+istr, v.(string), 0); err != nil {
-				return err
-			}
-		} else {
-			return fmt.Errorf("unsupported type: %s for key: %d", reflect.ValueOf(v).Kind(), i)
-		}
-	}
-
-	return nil
+	return Create(client, dir, reflect.ValueOf(m))
 }

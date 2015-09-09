@@ -8,30 +8,6 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/Sirupsen/logrus",
-			"repository": "https://github.com/Sirupsen/logrus",
-			"revision": "82c8de1af23b25ba5a468d801f29077f4f483bce",
-			"branch": "master"
-		},
-		{
-			"importpath": "github.com/bugsnag/bugsnag-go",
-			"repository": "https://github.com/bugsnag/bugsnag-go",
-			"revision": "9ee24c1db7e2c5b87e7228acb3e587a35124a041",
-			"branch": "master"
-		},
-		{
-			"importpath": "github.com/bugsnag/osext",
-			"repository": "https://github.com/bugsnag/osext",
-			"revision": "0dd3f918b21bec95ace9dc86c7e70266cfc5c702",
-			"branch": "master"
-		},
-		{
-			"importpath": "github.com/bugsnag/panicwrap",
-			"repository": "https://github.com/bugsnag/panicwrap",
-			"revision": "e5f9854865b9778a45169fc249e99e338d4d6f27",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/coreos/go-etcd/etcd",
 			"repository": "https://github.com/coreos/go-etcd",
 			"revision": "126041ef7b24a28359a12f8bf7f6a7db6756113d",
@@ -39,21 +15,9 @@
 			"path": "/etcd"
 		},
 		{
-			"importpath": "github.com/getsentry/raven-go",
-			"repository": "https://github.com/getsentry/raven-go",
-			"revision": "74c334d7b8aaa4fd1b4fc6aa428c36fed1699e28",
-			"branch": "master"
-		},
-		{
-			"importpath": "github.com/jessevdk/go-flags",
-			"repository": "https://github.com/jessevdk/go-flags",
-			"revision": "1acbbaff2f347c412a0c7884873bd72cc9c1f5b4",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/mickep76/etcdmap",
 			"repository": "https://github.com/mickep76/etcdmap",
-			"revision": "01d94b1d7632f49934f4f1d317870e73e21d5bf4",
+			"revision": "3dc145c669a773963370d390afd50a89c36cfc97",
 			"branch": "master"
 		},
 		{
@@ -63,15 +27,9 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/tobi/airbrake-go",
-			"repository": "https://github.com/tobi/airbrake-go",
-			"revision": "5b5e269e1bc398d43f67e43dafff3414a59cd5a2",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/ugorji/go/codec",
 			"repository": "https://github.com/ugorji/go",
-			"revision": "5abd4e96a45c386928ed2ca2a7ef63e2533e18ec",
+			"revision": "5c83d75b24f35bd4b4a03bdfba76a2cbcce76e36",
 			"branch": "master",
 			"path": "/codec"
 		},
