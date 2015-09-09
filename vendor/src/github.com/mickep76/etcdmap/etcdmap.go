@@ -71,7 +71,22 @@ func Map(root *etcd.Node) map[string]interface{} {
 
 // Create Etcd directory structure from a map, slice or struct.
 func Create(client *etcd.Client, path string, val reflect.Value) error {
+	// fmt.Printf("# %s : %s : %s\n", path, val.Kind(), val.Type())
+
 	switch val.Kind() {
+	case reflect.Ptr:
+		orig := val.Elem()
+		if !orig.IsValid() {
+			return nil
+		}
+		if err := Create(client, path, orig); err != nil {
+			return err
+		}
+	case reflect.Interface:
+		orig := val.Elem()
+		if err := Create(client, path, orig); err != nil {
+			return err
+		}
 	case reflect.Struct:
 		for i := 0; i < val.NumField(); i++ {
 			t := val.Type().Field(i)

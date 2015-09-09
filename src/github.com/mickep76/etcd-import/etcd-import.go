@@ -50,7 +50,7 @@ func main() {
 	}
 
 	// Setup Etcd client.
-	if *node == "" {
+	if *node != "" {
 		conn = []string{fmt.Sprintf("http://%v:%v", *node, *port)}
 	}
 	client := etcd.NewClient(conn)

@@ -17,7 +17,7 @@
 		{
 			"importpath": "github.com/mickep76/etcdmap",
 			"repository": "https://github.com/mickep76/etcdmap",
-			"revision": "3dc145c669a773963370d390afd50a89c36cfc97",
+			"revision": "87c4403f69d72d43abc584a638d78958ce22e3b4",
 			"branch": "master"
 		},
 		{
@@ -29,7 +29,7 @@
 		{
 			"importpath": "github.com/ugorji/go/codec",
 			"repository": "https://github.com/ugorji/go",
-			"revision": "5c83d75b24f35bd4b4a03bdfba76a2cbcce76e36",
+			"revision": "44024c561b3b217e190440d74b97dd254f8e52e8",
 			"branch": "master",
 			"path": "/codec"
 		},
