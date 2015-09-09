@@ -1,20 +1,13 @@
 # Usage Etcd Export
 
 ```bash
-Usage:
-  etcd-export [OPTIONS]
-
-Application Options:
-  -v, --verbose    Verbose
-      --version    Version
-  -f, --format=    Data serialization format YAML, TOML or JSON (JSON)
-  -o, --output=    Output file (STDOUT)
-  -n, --etcd-node= Etcd Node
-  -p, --etcd-port= Etcd Port (2379)
-  -d, --etcd-dir=  Etcd Dir (/)
-
-Help Options:
-  -h, --help       Show this help message
+Usage of bin/etcd-export:
+  -dir="/": Etcd directory
+  -format="JSON": Data serialization format YAML, TOML or JSON
+  -node="": Etcd node
+  -output="": Output file
+  -port="2379": Etcd port
+  -version=false: Version
 ```
 
 You can also set an env. variable for the Etcd node and port.
@@ -26,21 +19,16 @@ export ETCD_CONN="http://etcd1.example.com:2379"
 # Usage Etcd Import
 
 ```bash
-Usage:
-  etcd-import [OPTIONS]
-
-Application Options:
-  -v, --verbose    Verbose
-      --version    Version
-  -f, --format=    Data serialization format YAML, TOML or JSON (JSON)
-  -i, --input=     Input file (STDOUT)
-  -n, --etcd-node= Etcd Node
-  -p, --etcd-port= Etcd Port (2379)
-  -d, --etcd-dir=  Etcd Dir (/)
-
-Help Options:
-  -h, --help       Show this help message
+Usage of bin/etcd-import:
+  -dir="/": Etcd directory
+  -format="JSON": Data serialization format YAML, TOML or JSON
+  -input="": Input file
+  -node="": Etcd node
+  -port="2379": Etcd port
+  -version=false: Version
 ```
+
+You can also provide input by using STDIN.
 
 # Build
 
@@ -60,6 +48,7 @@ First configure Docker on your Linux or Mac OS X host.
 eval "$(./init-etcd.sh env)"
 bin/etcd-import -i example.json
 bin/etcd-export -f toml
+bin/etcd-export | bin/etcd-import -dir /test
 ```
 
 # Install using Homebrew
