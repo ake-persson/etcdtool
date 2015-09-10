@@ -43,7 +43,7 @@ Usage of bin/etcd-export:
   -version=false: Version
 ```
 
-You can also set an env. variable for the Etcd node and port.
+> You can also set an env. variable for the Etcd node and port.
 
 ```bash
 export ETCD_CONN="http://etcd1.example.com:2379"
@@ -61,7 +61,7 @@ Usage of bin/etcd-import:
   -version=false: Version
 ```
 
-You can also provide input by using STDIN.
+> You can also provide input by using STDIN.
 
 # Build
 
