@@ -102,23 +102,3 @@ bin/etcd-export | bin/etcd-import -dir /test
 brew tap mickep76/funk-gnarge
 brew install etcd-export
 ```
-
-# TODO
-
-- Add support for TLS.
-- Maybe make it one application with positional argument like import/export.
-- Option to recursively delete data for a directory.
-- Support import of lists directly, not needing a hash:
-
-```json
-[
-    { "username": "jblack", "first_name": "John", "last_name": "Blackbeard" },
-    { "username": "ltrier", "first_name": "Lars", "last_name": "Von Trier" }
-]
-```
-
-This will now generate:
-
-```
-json: cannot unmarshal array into Go value of type map[string]interface {}
-```
