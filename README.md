@@ -16,6 +16,12 @@ You can also set an env. variable for the Etcd node and port.
 export ETCD_CONN="http://etcd1.example.com:2379"
 ```
 
+# Use cases
+
+- Backup/Restore in a format which is not database or version specific.
+- Migration of data from production to testing.
+- Store authorative configuration in Git and use etcd-import to populate Etcd.
+
 # Usage Etcd Import
 
 ```bash
