@@ -20,7 +20,7 @@
 }
 ```      
 
-**Etcd Result:**
+**Result in Etcd:**
 
 ```
 users/0/username: jblack
@@ -116,5 +116,5 @@ brew install etcd-export
 This will now generate:
 
 ```
-2015/09/10 10:21:15 json: cannot unmarshal array into Go value of type map[string]interface {}
+json: cannot unmarshal array into Go value of type map[string]interface {}
 ```
