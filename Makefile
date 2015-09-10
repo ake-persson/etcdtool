@@ -1,7 +1,7 @@
 NAME=etcd-export
-SRCDIR=src/github.com/mickep76/${NAME}
+SRCDIR=src/github.com/mickep76
 TMPDIR=.build
-VERSION:=$(shell awk -F '"' '/Version/ {print $$2}' ${SRCDIR}/../common/version.go)
+VERSION:=$(shell awk -F '"' '/Version/ {print $$2}' ${SRCDIR}/common/version.go)
 RELEASE:=$(shell date -u +%Y%m%d%H%M)
 ARCH:=$(shell uname -p)
 

@@ -56,7 +56,7 @@ func main() {
 	client := etcd.NewClient(conn)
 
 	// Import data.
-	m := make(map[string]interface{})
+	var m interface{}
 	if (fi.Mode() & os.ModeCharDevice) == 0 {
 		b, _ := ioutil.ReadAll(os.Stdin)
 		var err error

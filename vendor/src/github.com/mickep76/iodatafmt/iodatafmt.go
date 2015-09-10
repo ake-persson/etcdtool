@@ -28,8 +28,8 @@ const (
 )
 
 // Unmarshal YAML/JSON/TOML serialized data.
-func Unmarshal(b []byte, f DataFmt) (map[string]interface{}, error) {
-	d := make(map[string]interface{})
+func Unmarshal(b []byte, f DataFmt) (interface{}, error) {
+	var d interface{}
 
 	switch f {
 	case YAML:
@@ -52,7 +52,7 @@ func Unmarshal(b []byte, f DataFmt) (map[string]interface{}, error) {
 }
 
 // Marshal YAML/JSON/TOML serialized data.
-func Marshal(d map[string]interface{}, f DataFmt) ([]byte, error) {
+func Marshal(d interface{}, f DataFmt) ([]byte, error) {
 	switch f {
 	case YAML:
 		b, err := yaml.Marshal(&d)
@@ -110,7 +110,7 @@ func FileFormat(fn string) (DataFmt, error) {
 }
 
 // Load a file with serialized data.
-func Load(fn string, f DataFmt) (map[string]interface{}, error) {
+func Load(fn string, f DataFmt) (interface{}, error) {
 	if _, err := os.Stat(fn); os.IsNotExist(err) {
 		return nil, errors.New("file doesn't exist")
 	}
