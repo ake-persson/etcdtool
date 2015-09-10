@@ -1,3 +1,10 @@
+# Use cases
+
+- Backup/Restore in a format which is not database or version specific.
+- Migration of data from production to testing.
+- Store authorative configuration in Git and use etcd-import to populate Etcd.
+- Copy data from one directory to another.
+
 # Usage Etcd Export
 
 ```bash
@@ -15,13 +22,6 @@ You can also set an env. variable for the Etcd node and port.
 ```bash
 export ETCD_CONN="http://etcd1.example.com:2379"
 ```
-
-# Use cases
-
-- Backup/Restore in a format which is not database or version specific.
-- Migration of data from production to testing.
-- Store authorative configuration in Git and use etcd-import to populate Etcd.
-- Copy data from one directory to another.
 
 # Usage Etcd Import
 
@@ -58,7 +58,7 @@ bin/etcd-export -f toml
 bin/etcd-export | bin/etcd-import -dir /test
 ```
 
-# Install using Homebrew
+# Install using Homebrew on Mac OS X
 
 ```bash
 brew tap mickep76/funk-gnarge
