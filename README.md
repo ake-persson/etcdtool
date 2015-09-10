@@ -46,6 +46,14 @@ cd etcd-export
 bin/etcd-export --version
 ```
 
+# Build RPM
+
+```bash
+sudo yum install -y rpm-build
+make rpm
+sudo rpm -i etcd-export-<version>-<release>.rpm
+```
+
 ## Test
 
 First configure Docker on your Linux or Mac OS X host.
