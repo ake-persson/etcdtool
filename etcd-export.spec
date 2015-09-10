@@ -23,4 +23,4 @@ cp %{sources}/bin/* %{buildroot}/usr/bin
 
 %files
 %defattr(-,root,root)
-/usr/bin/%{name}
+/usr/bin/*
