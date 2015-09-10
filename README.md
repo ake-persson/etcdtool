@@ -7,7 +7,7 @@
 
 # Caveats
 
-## Etcd doesn't support list's, this is handled by using the index as the key:
+- Etcd doesn't support list's, this is handled by using the index as the key:
 
 **JSON Input:**
 
