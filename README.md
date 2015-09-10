@@ -5,6 +5,32 @@
 - Store authorative configuration in Git and use etcd-import to populate Etcd.
 - Copy data from one directory to another.
 
+# Caveats
+
+## Etcd doesn't support list's, this is handled by using the index as the key:
+
+**JSON Input:**
+
+```json
+{
+    "users": [
+        { "username": "jblack", "first_name": "John", "last_name": "Blackbeard" },
+        { "username": "ltrier", "first_name": "Lars", "last_name": "Von Trier" }
+    ]
+}
+```      
+
+**Etcd Result:**
+
+```
+users/0/username: jblack
+users/0/first_name: John
+users/0/last_name: Blackbeard
+users/1/username: ltrier
+users/1/first_name: Ludwig
+users/1/last_name: Von Treimer
+```
+
 # Usage Etcd Export
 
 ```bash
