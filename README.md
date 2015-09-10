@@ -21,6 +21,7 @@ export ETCD_CONN="http://etcd1.example.com:2379"
 - Backup/Restore in a format which is not database or version specific.
 - Migration of data from production to testing.
 - Store authorative configuration in Git and use etcd-import to populate Etcd.
+- Copy data from one directory to another.
 
 # Usage Etcd Import
 
@@ -63,3 +64,9 @@ bin/etcd-export | bin/etcd-import -dir /test
 brew tap mickep76/funk-gnarge
 brew install etcd-export
 ```
+
+# TODO
+
+- Add support for TLS.
+- Maybe make it one application with positional argument like import/export.
+- Option to recursively delete data for a directory.
