@@ -33,8 +33,8 @@ func main() {
 	}
 
 	// Validate input.
-	if len(conn) < 1 && node == nil {
-		log.Fatalf("You need to specify Etcd node.")
+	if len(conn) < 1 && *node == "" {
+		log.Fatalf("You need to specify Etcd host.")
 	}
 
 	// Get data format.
