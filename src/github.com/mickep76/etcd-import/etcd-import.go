@@ -76,7 +76,9 @@ func main() {
 	}
 
 	if *delete {
-		client.Delete(strings.TrimRight(*dir, "/"), true)
+		if _, err := client.Delete(strings.TrimRight(*dir, "/"), true); err != nil {
+			log.Fatalf(err.Error())
+		}
 	}
 
 	if err = etcdmap.Create(client, strings.TrimRight(*dir, "/"), reflect.ValueOf(m)); err != nil {

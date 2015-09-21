@@ -63,12 +63,8 @@ type encDriver interface {
 	EncodeRawExt(re *RawExt, e *Encoder)
 	EncodeExt(v interface{}, xtag uint64, ext Ext, e *Encoder)
 	EncodeArrayStart(length int)
-	EncodeArrayEnd()
-	EncodeArrayEntrySeparator()
 	EncodeMapStart(length int)
-	EncodeMapEnd()
-	EncodeMapEntrySeparator()
-	EncodeMapKVSeparator()
+	EncodeEnd()
 	EncodeString(c charEncoding, v string)
 	EncodeSymbol(v string)
 	EncodeStringBytes(c charEncoding, v []byte)
@@ -77,13 +73,13 @@ type encDriver interface {
 	//encStringRunes(c charEncoding, v []rune)
 }
 
+type encDriverAsis interface {
+	EncodeAsis(v []byte)
+}
+
 type encNoSeparator struct{}
 
-func (_ encNoSeparator) EncodeMapEnd()              {}
-func (_ encNoSeparator) EncodeArrayEnd()            {}
-func (_ encNoSeparator) EncodeArrayEntrySeparator() {}
-func (_ encNoSeparator) EncodeMapEntrySeparator()   {}
-func (_ encNoSeparator) EncodeMapKVSeparator()      {}
+func (_ encNoSeparator) EncodeEnd() {}
 
 type encStructFieldBytesV struct {
 	b []byte
@@ -303,8 +299,8 @@ func (f encFnInfo) rawExt(rv reflect.Value) {
 }
 
 func (f encFnInfo) ext(rv reflect.Value) {
-	// if this is a struct and it was addressable, then pass the address directly (not the value)
-	if rv.CanAddr() && rv.Kind() == reflect.Struct {
+	// if this is a struct|array and it was addressable, then pass the address directly (not the value)
+	if k := rv.Kind(); (k == reflect.Struct || k == reflect.Array) && rv.CanAddr() {
 		rv = rv.Addr()
 	}
 	f.ee.EncodeExt(rv.Interface(), f.xfTag, f.xfFn, f.e)
@@ -314,7 +310,16 @@ func (f encFnInfo) getValueForMarshalInterface(rv reflect.Value, indir int8) (v 
 	if indir == 0 {
 		v = rv.Interface()
 	} else if indir == -1 {
-		v = rv.Addr().Interface()
+		// If a non-pointer was passed to Encode(), then that value is not addressable.
+		// Take addr if addresable, else copy value to an addressable value.
+		if rv.CanAddr() {
+			v = rv.Addr().Interface()
+		} else {
+			rv2 := reflect.New(rv.Type())
+			rv2.Elem().Set(rv)
+			v = rv2.Interface()
+			// fmt.Printf("rv.Type: %v, rv2.Type: %v, v: %v\n", rv.Type(), rv2.Type(), v)
+		}
 	} else {
 		for j := int8(0); j < indir; j++ {
 			if rv.IsNil() {
@@ -337,14 +342,7 @@ func (f encFnInfo) selferMarshal(rv reflect.Value) {
 func (f encFnInfo) binaryMarshal(rv reflect.Value) {
 	if v, proceed := f.getValueForMarshalInterface(rv, f.ti.bmIndir); proceed {
 		bs, fnerr := v.(encoding.BinaryMarshaler).MarshalBinary()
-		if fnerr != nil {
-			panic(fnerr)
-		}
-		if bs == nil {
-			f.ee.EncodeNil()
-		} else {
-			f.ee.EncodeStringBytes(c_RAW, bs)
-		}
+		f.e.marshal(bs, fnerr, false, c_RAW)
 	}
 }
 
@@ -352,14 +350,14 @@ func (f encFnInfo) textMarshal(rv reflect.Value) {
 	if v, proceed := f.getValueForMarshalInterface(rv, f.ti.tmIndir); proceed {
 		// debugf(">>>> encoding.TextMarshaler: %T", rv.Interface())
 		bs, fnerr := v.(encoding.TextMarshaler).MarshalText()
-		if fnerr != nil {
-			panic(fnerr)
-		}
-		if bs == nil {
-			f.ee.EncodeNil()
-		} else {
-			f.ee.EncodeStringBytes(c_UTF8, bs)
-		}
+		f.e.marshal(bs, fnerr, false, c_UTF8)
+	}
+}
+
+func (f encFnInfo) jsonMarshal(rv reflect.Value) {
+	if v, proceed := f.getValueForMarshalInterface(rv, f.ti.jmIndir); proceed {
+		bs, fnerr := v.(jsonMarshaler).MarshalJSON()
+		f.e.marshal(bs, fnerr, true, c_UTF8)
 	}
 }
 
@@ -464,7 +462,6 @@ func (f encFnInfo) kSlice(rv reflect.Value) {
 	}
 
 	e := f.e
-	sep := !e.be
 	if l > 0 {
 		for rtelem.Kind() == reflect.Ptr {
 			rtelem = rtelem.Elem()
@@ -478,47 +475,19 @@ func (f encFnInfo) kSlice(rv reflect.Value) {
 			fn = e.getEncFn(rtelemid, rtelem, true, true)
 		}
 		// TODO: Consider perf implication of encoding odd index values as symbols if type is string
-		if sep {
-			for j := 0; j < l; j++ {
-				if j > 0 {
-					if ti.mbs {
-						if j%2 == 0 {
-							f.ee.EncodeMapEntrySeparator()
-						} else {
-							f.ee.EncodeMapKVSeparator()
-						}
-					} else {
-						f.ee.EncodeArrayEntrySeparator()
-					}
+		for j := 0; j < l; j++ {
+			if f.seq == seqTypeChan {
+				if rv2, ok2 := rv.Recv(); ok2 {
+					e.encodeValue(rv2, fn)
 				}
-				if f.seq == seqTypeChan {
-					if rv2, ok2 := rv.Recv(); ok2 {
-						e.encodeValue(rv2, fn)
-					}
-				} else {
-					e.encodeValue(rv.Index(j), fn)
-				}
-			}
-		} else {
-			for j := 0; j < l; j++ {
-				if f.seq == seqTypeChan {
-					if rv2, ok2 := rv.Recv(); ok2 {
-						e.encodeValue(rv2, fn)
-					}
-				} else {
-					e.encodeValue(rv.Index(j), fn)
-				}
+			} else {
+				e.encodeValue(rv.Index(j), fn)
 			}
 		}
+
 	}
 
-	if sep {
-		if ti.mbs {
-			f.ee.EncodeMapEnd()
-		} else {
-			f.ee.EncodeArrayEnd()
-		}
-	}
+	f.ee.EncodeEnd()
 }
 
 func (f encFnInfo) kStruct(rv reflect.Value) {
@@ -588,60 +557,30 @@ func (f encFnInfo) kStruct(rv reflect.Value) {
 	}
 
 	// debugf(">>>> kStruct: newlen: %v", newlen)
-	sep := !e.be
+	// sep := !e.be
 	ee := f.ee //don't dereference everytime
-	if sep {
-		if toMap {
-			ee.EncodeMapStart(newlen)
-			// asSymbols := e.h.AsSymbols&AsSymbolStructFieldNameFlag != 0
-			asSymbols := e.h.AsSymbols == AsSymbolDefault || e.h.AsSymbols&AsSymbolStructFieldNameFlag != 0
-			for j := 0; j < newlen; j++ {
-				kv = fkvs[j]
-				if j > 0 {
-					ee.EncodeMapEntrySeparator()
-				}
-				if asSymbols {
-					ee.EncodeSymbol(kv.k)
-				} else {
-					ee.EncodeString(c_UTF8, kv.k)
-				}
-				ee.EncodeMapKVSeparator()
-				e.encodeValue(kv.v, encFn{})
+
+	if toMap {
+		ee.EncodeMapStart(newlen)
+		// asSymbols := e.h.AsSymbols&AsSymbolStructFieldNameFlag != 0
+		asSymbols := e.h.AsSymbols == AsSymbolDefault || e.h.AsSymbols&AsSymbolStructFieldNameFlag != 0
+		for j := 0; j < newlen; j++ {
+			kv = fkvs[j]
+			if asSymbols {
+				ee.EncodeSymbol(kv.k)
+			} else {
+				ee.EncodeString(c_UTF8, kv.k)
 			}
-			ee.EncodeMapEnd()
-		} else {
-			ee.EncodeArrayStart(newlen)
-			for j := 0; j < newlen; j++ {
-				kv = fkvs[j]
-				if j > 0 {
-					ee.EncodeArrayEntrySeparator()
-				}
-				e.encodeValue(kv.v, encFn{})
-			}
-			ee.EncodeArrayEnd()
+			e.encodeValue(kv.v, encFn{})
 		}
 	} else {
-		if toMap {
-			ee.EncodeMapStart(newlen)
-			// asSymbols := e.h.AsSymbols&AsSymbolStructFieldNameFlag != 0
-			asSymbols := e.h.AsSymbols == AsSymbolDefault || e.h.AsSymbols&AsSymbolStructFieldNameFlag != 0
-			for j := 0; j < newlen; j++ {
-				kv = fkvs[j]
-				if asSymbols {
-					ee.EncodeSymbol(kv.k)
-				} else {
-					ee.EncodeString(c_UTF8, kv.k)
-				}
-				e.encodeValue(kv.v, encFn{})
-			}
-		} else {
-			ee.EncodeArrayStart(newlen)
-			for j := 0; j < newlen; j++ {
-				kv = fkvs[j]
-				e.encodeValue(kv.v, encFn{})
-			}
+		ee.EncodeArrayStart(newlen)
+		for j := 0; j < newlen; j++ {
+			kv = fkvs[j]
+			e.encodeValue(kv.v, encFn{})
 		}
 	}
+	ee.EncodeEnd()
 
 	// do not use defer. Instead, use explicit pool return at end of function.
 	// defer has a cost we are trying to avoid.
@@ -677,11 +616,8 @@ func (f encFnInfo) kMap(rv reflect.Value) {
 	l := rv.Len()
 	f.ee.EncodeMapStart(l)
 	e := f.e
-	sep := !e.be
 	if l == 0 {
-		if sep {
-			f.ee.EncodeMapEnd()
-		}
+		f.ee.EncodeEnd()
 		return
 	}
 	var asSymbols bool
@@ -731,35 +667,13 @@ func (f encFnInfo) kMap(rv reflect.Value) {
 			e2.MustEncode(k)
 			mksbv[i].v = k
 			mksbv[i].b = mksv[l:]
+			// fmt.Printf(">>>>> %s\n", mksv[l:])
 		}
 		sort.Sort(encStructFieldBytesVslice(mksbv))
 		for j := range mksbv {
-			if j > 0 {
-				ee.EncodeMapEntrySeparator()
-			}
-			e.w.writeb(mksbv[j].b)
-			ee.EncodeMapKVSeparator()
+			e.asis(mksbv[j].b)
 			e.encodeValue(rv.MapIndex(mksbv[j].v), valFn)
 		}
-		ee.EncodeMapEnd()
-	} else if sep {
-		for j := range mks {
-			if j > 0 {
-				ee.EncodeMapEntrySeparator()
-			}
-			if keyTypeIsString {
-				if asSymbols {
-					ee.EncodeSymbol(mks[j].String())
-				} else {
-					ee.EncodeString(c_UTF8, mks[j].String())
-				}
-			} else {
-				e.encodeValue(mks[j], keyFn)
-			}
-			ee.EncodeMapKVSeparator()
-			e.encodeValue(rv.MapIndex(mks[j]), valFn)
-		}
-		ee.EncodeMapEnd()
 	} else {
 		for j := range mks {
 			if keyTypeIsString {
@@ -774,6 +688,7 @@ func (f encFnInfo) kMap(rv reflect.Value) {
 			e.encodeValue(rv.MapIndex(mks[j]), valFn)
 		}
 	}
+	ee.EncodeEnd()
 }
 
 // --------------------------------------------------
@@ -797,15 +712,19 @@ type rtidEncFn struct {
 // An Encoder writes an object to an output stream in the codec format.
 type Encoder struct {
 	// hopefully, reduce derefencing cost by laying the encWriter inside the Encoder
-	e  encDriver
+	e encDriver
+	// NOTE: Encoder shouldn't call it's write methods,
+	// as the handler MAY need to do some coordination.
 	w  encWriter
 	s  []rtidEncFn
 	be bool // is binary encoding
+	js bool // is json handle
 
 	wi ioEncWriter
 	wb bytesEncWriter
 	h  *BasicHandle
 
+	as encDriverAsis
 	hh Handle
 	f  map[uintptr]encFn
 	b  [scratchByteArrayLen]byte
@@ -827,7 +746,9 @@ func NewEncoder(w io.Writer, h Handle) *Encoder {
 	}
 	e.wi.w = ww
 	e.w = &e.wi
+	_, e.js = h.(*JsonHandle)
 	e.e = h.newEncDriver(e)
+	e.as, _ = e.e.(encDriverAsis)
 	return e
 }
 
@@ -844,7 +765,9 @@ func NewEncoderBytes(out *[]byte, h Handle) *Encoder {
 	}
 	e.wb.b, e.wb.out = in, out
 	e.w = &e.wb
+	_, e.js = h.(*JsonHandle)
 	e.e = h.newEncDriver(e)
+	e.as, _ = e.e.(encDriverAsis)
 	return e
 }
 
@@ -874,9 +797,9 @@ func NewEncoderBytes(out *[]byte, h Handle) *Encoder {
 // The empty values (for omitempty option) are false, 0, any nil pointer
 // or interface value, and any array, slice, map, or string of length zero.
 //
-// Anonymous fields are encoded inline if the struct tag is "effectively" blank
-// i.e. it is not present or does not have any parameters specified.
-// Else they are encoded as regular fields.
+// Anonymous fields are encoded inline except:
+//    - the struct tag specifies a replacement name (first value)
+//    - the field is of an interface type
 //
 // Examples:
 //
@@ -887,6 +810,9 @@ func NewEncoderBytes(out *[]byte, h Handle) *Encoder {
 //          Field2 int      `codec:"myName"`       //Use key "myName" in encode stream
 //          Field3 int32    `codec:",omitempty"`   //use key "Field3". Omit if empty.
 //          Field4 bool     `codec:"f4,omitempty"` //use key "f4". Omit if empty.
+//          io.Reader                              //use key "Reader".
+//          MyStruct        `codec:"my1"           //use key "my1".
+//          MyStruct                               //inline it
 //          ...
 //      }
 //
@@ -896,8 +822,9 @@ func NewEncoderBytes(out *[]byte, h Handle) *Encoder {
 //      }
 //
 // The mode of encoding is based on the type of the value. When a value is seen:
+//   - If a Selfer, call its CodecEncodeSelf method
 //   - If an extension is registered for it, call that extension function
-//   - If it implements BinaryMarshaler, call its MarshalBinary() (data []byte, err error)
+//   - If it implements encoding.(Binary|Text|JSON)Marshaler, call its Marshal(Binary|Text|JSON) method
 //   - Else encode it based on its reflect.Kind
 //
 // Note that struct field names and keys in map[string]XXX will be treated as symbols.
@@ -1012,12 +939,15 @@ func (e *Encoder) encode(iv interface{}) {
 
 	default:
 		// canonical mode is not supported for fastpath of maps (but is fine for slices)
+		const checkCodecSelfer1 = true // in case T is passed, where *T is a Selfer, still checkCodecSelfer
 		if e.h.Canonical {
 			if !fastpathEncodeTypeSwitchSlice(iv, e) {
-				e.encodeI(iv, false, false)
+				e.encodeI(iv, false, checkCodecSelfer1)
 			}
-		} else if !fastpathEncodeTypeSwitch(iv, e) {
-			e.encodeI(iv, false, false)
+		} else {
+			if !fastpathEncodeTypeSwitch(iv, e) {
+				e.encodeI(iv, false, checkCodecSelfer1)
+			}
 		}
 	}
 }
@@ -1107,6 +1037,10 @@ func (e *Encoder) getEncFn(rtid uintptr, rt reflect.Type, checkFastpath, checkCo
 	} else if supportMarshalInterfaces && e.be && ti.bm {
 		fi.encFnInfoX = &encFnInfoX{e: e, ti: ti}
 		fn.f = (encFnInfo).binaryMarshal
+	} else if supportMarshalInterfaces && !e.be && e.js && ti.jm {
+		//If JSON, we should check JSONMarshal before textMarshal
+		fi.encFnInfoX = &encFnInfoX{e: e, ti: ti}
+		fn.f = (encFnInfo).jsonMarshal
 	} else if supportMarshalInterfaces && !e.be && ti.tm {
 		fi.encFnInfoX = &encFnInfoX{e: e, ti: ti}
 		fn.f = (encFnInfo).textMarshal
@@ -1151,7 +1085,7 @@ func (e *Encoder) getEncFn(rtid uintptr, rt reflect.Type, checkFastpath, checkCo
 				fn.f = (encFnInfo).kFloat32
 			case reflect.Int, reflect.Int8, reflect.Int64, reflect.Int32, reflect.Int16:
 				fn.f = (encFnInfo).kInt
-			case reflect.Uint8, reflect.Uint64, reflect.Uint, reflect.Uint32, reflect.Uint16:
+			case reflect.Uint8, reflect.Uint64, reflect.Uint, reflect.Uint32, reflect.Uint16, reflect.Uintptr:
 				fn.f = (encFnInfo).kUint
 			case reflect.Invalid:
 				fn.f = (encFnInfo).kInvalid
@@ -1194,6 +1128,27 @@ func (e *Encoder) getEncFn(rtid uintptr, rt reflect.Type, checkFastpath, checkCo
 		e.s = append(e.s, rtidEncFn{rtid, fn})
 	}
 	return
+}
+
+func (e *Encoder) marshal(bs []byte, fnerr error, asis bool, c charEncoding) {
+	if fnerr != nil {
+		panic(fnerr)
+	}
+	if bs == nil {
+		e.e.EncodeNil()
+	} else if asis {
+		e.asis(bs)
+	} else {
+		e.e.EncodeStringBytes(c, bs)
+	}
+}
+
+func (e *Encoder) asis(v []byte) {
+	if e.as == nil {
+		e.w.writeb(v)
+	} else {
+		e.as.EncodeAsis(v)
+	}
 }
 
 func (e *Encoder) errorf(format string, params ...interface{}) {

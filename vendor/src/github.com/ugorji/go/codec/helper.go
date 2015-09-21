@@ -186,6 +186,14 @@ const (
 
 type seqType uint8
 
+// mirror json.Marshaler and json.Unmarshaler here, so we don't import the encoding/json package
+type jsonMarshaler interface {
+	MarshalJSON() ([]byte, error)
+}
+type jsonUnmarshaler interface {
+	UnmarshalJSON([]byte) error
+}
+
 const (
 	_ seqType = iota
 	seqTypeArray
@@ -216,6 +224,9 @@ var (
 
 	textMarshalerTyp   = reflect.TypeOf((*encoding.TextMarshaler)(nil)).Elem()
 	textUnmarshalerTyp = reflect.TypeOf((*encoding.TextUnmarshaler)(nil)).Elem()
+
+	jsonMarshalerTyp   = reflect.TypeOf((*jsonMarshaler)(nil)).Elem()
+	jsonUnmarshalerTyp = reflect.TypeOf((*jsonUnmarshaler)(nil)).Elem()
 
 	selferTyp = reflect.TypeOf((*Selfer)(nil)).Elem()
 
@@ -471,9 +482,9 @@ type structFieldInfo struct {
 	toArray   bool // if field is _struct, is the toArray set?
 }
 
-func (si *structFieldInfo) isZero() bool {
-	return si.encName == "" && len(si.is) == 0 && si.i == 0 && !si.omitEmpty && !si.toArray
-}
+// func (si *structFieldInfo) isZero() bool {
+// 	return si.encName == "" && len(si.is) == 0 && si.i == 0 && !si.omitEmpty && !si.toArray
+// }
 
 // rv returns the field of the struct.
 // If anonymous, it returns an Invalid
@@ -593,6 +604,11 @@ type typeInfo struct {
 	tmIndir   int8 // number of indirections to get to textMarshaler type
 	tunmIndir int8 // number of indirections to get to textUnmarshaler type
 
+	jm        bool // base type (T or *T) is a jsonMarshaler
+	junm      bool // base type (T or *T) is a jsonUnmarshaler
+	jmIndir   int8 // number of indirections to get to jsonMarshaler type
+	junmIndir int8 // number of indirections to get to jsonUnmarshaler type
+
 	cs      bool // base type (T or *T) is a Selfer
 	csIndir int8 // number of indirections to get to Selfer type
 
@@ -668,6 +684,12 @@ func getTypeInfo(rtid uintptr, rt reflect.Type) (pti *typeInfo) {
 	if ok, indir = implementsIntf(rt, textUnmarshalerTyp); ok {
 		ti.tunm, ti.tunmIndir = true, indir
 	}
+	if ok, indir = implementsIntf(rt, jsonMarshalerTyp); ok {
+		ti.jm, ti.jmIndir = true, indir
+	}
+	if ok, indir = implementsIntf(rt, jsonUnmarshalerTyp); ok {
+		ti.junm, ti.junmIndir = true, indir
+	}
 	if ok, indir = implementsIntf(rt, selferTyp); ok {
 		ti.cs, ti.csIndir = true, indir
 	}
@@ -731,11 +753,12 @@ func rgetTypeInfo(rt reflect.Type, indexstack []int, fnameToHastag map[string]bo
 		// if anonymous and there is no struct tag (or it's blank)
 		// and its a struct (or pointer to struct), inline it.
 		var doInline bool
-		if f.Anonymous {
+		if f.Anonymous && f.Type.Kind() != reflect.Interface {
 			doInline = stag == ""
 			if !doInline {
 				si = parseStructFieldInfo("", stag)
-				doInline = si.isZero()
+				doInline = si.encName == ""
+				// doInline = si.isZero()
 				// fmt.Printf(">>>> doInline for si.isZero: %s: %v\n", f.Name, doInline)
 			}
 		}
@@ -803,7 +826,8 @@ func panicToErr(err *error) {
 // }
 
 func isMutableKind(k reflect.Kind) (v bool) {
-	return k == reflect.Int ||
+	return false ||
+		k == reflect.Int ||
 		k == reflect.Int8 ||
 		k == reflect.Int16 ||
 		k == reflect.Int32 ||
@@ -813,6 +837,7 @@ func isMutableKind(k reflect.Kind) (v bool) {
 		k == reflect.Uint16 ||
 		k == reflect.Uint32 ||
 		k == reflect.Uint64 ||
+		k == reflect.Uintptr ||
 		k == reflect.Float32 ||
 		k == reflect.Float64 ||
 		k == reflect.Bool ||

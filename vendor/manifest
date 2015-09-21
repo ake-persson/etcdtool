@@ -10,7 +10,7 @@
 		{
 			"importpath": "github.com/coreos/go-etcd/etcd",
 			"repository": "https://github.com/coreos/go-etcd",
-			"revision": "126041ef7b24a28359a12f8bf7f6a7db6756113d",
+			"revision": "de3514f25635bbfb024fdaf2a8d5f67378492675",
 			"branch": "master",
 			"path": "/etcd"
 		},
@@ -29,7 +29,7 @@
 		{
 			"importpath": "github.com/ugorji/go/codec",
 			"repository": "https://github.com/ugorji/go",
-			"revision": "44024c561b3b217e190440d74b97dd254f8e52e8",
+			"revision": "1d5269ed4e89d423d40362a0914e1c99adb13cc8",
 			"branch": "master",
 			"path": "/codec"
 		},
