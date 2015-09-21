@@ -25,6 +25,7 @@ func main() {
 
 	// Options.
 	version := flag.Bool("version", false, "Version")
+	delete := flag.Bool("delete", false, "Delete entry before import")
 	node := flag.String("node", "", "Etcd node")
 	port := flag.String("port", "2379", "Etcd port")
 	dir := flag.String("dir", "/", "Etcd directory")
@@ -72,6 +73,10 @@ func main() {
 		}
 	} else {
 		log.Fatal("No input provided")
+	}
+
+	if *delete {
+		client.Delete(strings.TrimRight(*dir, "/"), true)
 	}
 
 	if err = etcdmap.Create(client, strings.TrimRight(*dir, "/"), reflect.ValueOf(m)); err != nil {
