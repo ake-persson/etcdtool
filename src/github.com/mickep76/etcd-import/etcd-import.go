@@ -29,7 +29,7 @@ func main() {
 	delete := flag.Bool("delete", false, "Delete entry before import")
 	node := flag.String("node", "", "Etcd node")
 	port := flag.String("port", "2379", "Etcd port")
-	dir := flag.String("dir", "/", "Etcd directory")
+	dir := flag.String("dir", "", "Etcd directory")
 	format := flag.String("format", "JSON", "Data serialization format YAML, TOML or JSON")
 	input := flag.String("input", "", "Input file")
 	flag.Parse()
@@ -43,6 +43,10 @@ func main() {
 	// Validate input.
 	if len(conn) < 1 && *node == "" {
 		log.Fatalf("You need to specify Etcd host.")
+	}
+
+	if *dir == "" {
+		log.Fatalf("You need to specify Etcd dir.")
 	}
 
 	// Get data format.

@@ -21,7 +21,7 @@ func main() {
 	force := flag.Bool("force", false, "Force delete without asking")
 	node := flag.String("node", "", "Etcd node")
 	port := flag.String("port", "2379", "Etcd port")
-	dir := flag.String("dir", "/", "Etcd directory")
+	dir := flag.String("dir", "", "Etcd directory")
 	flag.Parse()
 
 	// Print version.
@@ -33,6 +33,10 @@ func main() {
 	// Validate input.
 	if len(conn) < 1 && *node == "" {
 		log.Fatalf("You need to specify Etcd host.")
+	}
+
+	if *dir == "" {
+		log.Fatalf("You need to specify Etcd dir.")
 	}
 
 	// Setup Etcd client.
