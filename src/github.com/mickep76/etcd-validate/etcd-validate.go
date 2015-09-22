@@ -73,9 +73,9 @@ func main() {
 		}
 
 		if !result.Valid() {
-			fmt.Printf("### %s ###\n", e)
+			fmt.Printf("\n%s/%s\n", *dir, e)
 			for _, e := range result.Errors() {
-				fmt.Printf("- %s: %s\n", e.Field(), e.Description())
+				fmt.Printf("  - %s: %s\n", e.Field(), e.Description())
 			}
 		}
 	}
