@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"regexp"
 	"strings"
 
 	etcd "github.com/coreos/go-etcd/etcd"
@@ -52,10 +53,12 @@ func main() {
 		log.Fatalf("You need to specify Etcd dir.")
 	}
 
-	if *schema == "" {
-		s := fmt.Sprintf("/schemas/%s/schema", *dir)
-		schema = &s
-	}
+	/*
+		if *schema == "" {
+			s := fmt.Sprintf("/schemas/%s/schema", *dir)
+			schema = &s
+		}
+	*/
 
 	// Get data format.
 	f, err := iodatafmt.Format(*format)
@@ -68,6 +71,36 @@ func main() {
 		conn = []string{fmt.Sprintf("http://%v:%v", *node, *port)}
 	}
 	client := etcd.NewClient(conn)
+
+	// TODO: Use struct for Routes
+	if !*noValidate && *schema == "" {
+		// Get routes.
+		res, err := client.Get("/routes", true, true)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		routes := etcdmap.Map(res.Node)
+
+		for _, v := range routes {
+			switch reflect.ValueOf(v).Kind() {
+			case reflect.Map:
+				var vm map[string]interface{}
+				vm = v.(map[string]interface{})
+				match, err := regexp.MatchString(vm["regexp"].(string), *dir)
+				if err != nil {
+					panic(err)
+				}
+				if match {
+					*schema = vm["schema"].(string)
+					break
+				}
+			}
+		}
+
+		if *schema == "" {
+			log.Fatalf("Couldn't determine schema to use for directory: %s", *dir)
+		}
+	}
 
 	// Import data.
 	var m interface{}

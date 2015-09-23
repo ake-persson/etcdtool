@@ -62,6 +62,8 @@ case ${CMD} in
         ;;
     'env')
 	echo "export ETCD_CONN=\"http://${IP}:5001\""
+	echo "export ETCDCTL_PEERS=\"http://${IP}:5001\""
+	echo "export ETCDCTL_ENDPOINT=\"http://${IP}:5001\""
 	echo "# Run the following to export the environment"
 	echo "# eval \"\$(./init-etcd.sh env)\""
 

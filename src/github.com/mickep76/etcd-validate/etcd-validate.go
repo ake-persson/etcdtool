@@ -31,7 +31,7 @@ func main() {
 	node := flag.String("node", "", "Etcd node")
 	port := flag.String("port", "2379", "Etcd port")
 	dir := flag.String("dir", "", "Etcd directory")
-	schema := flag.String("schema", "", "Etcd key for JSON schema (default \"/schemas/<dir>/schema\")")
+	schema := flag.String("schema", "", "Etcd key for JSON schema")
 	flag.Parse()
 
 	// Print version.
@@ -78,7 +78,10 @@ func main() {
 			case reflect.Map:
 				var vm map[string]interface{}
 				vm = v.(map[string]interface{})
-				match, _ := regexp.MatchString(vm["regexp"].(string), *dir)
+				match, err := regexp.MatchString(vm["regexp"].(string), *dir)
+				if err != nil {
+					panic(err)
+				}
 				if match {
 					*schema = vm["schema"].(string)
 					break
@@ -89,8 +92,6 @@ func main() {
 		if *schema == "" {
 			log.Fatalf("Couldn't determine schema to use for directory: %s", *dir)
 		}
-
-		fmt.Println(*schema)
 	}
 
 	// Get JSON Schema.

@@ -1,0 +1,17 @@
+{
+    "servers": {
+		"ntp1.site1.example.com": {
+			"options": "minpoll 3 maxpoll 7"
+		},
+		"ntp2.site1.example.com": {
+			"options": "minpoll 3 maxpoll 7"
+		},
+		"ntp3.site1.example.com": {
+			"options": "minpoll 3 maxpoll 7"
+		}
+    },
+    "driftfile": "/var/lib/ntp/drift",
+    "enable_stats": "true",
+    "statsdir": "/var/log/ntpstats",
+    "statistics": "loopstats peerstats"
+}

@@ -67,11 +67,20 @@ Usage of bin/etcd-import:
 
 > You can also provide input by using STDIN.
 
-
+# Using Etcd Validate
 
 ```
-etcdctl --peers http://etcd1:5001 mkdir /schemas
-etcdctl --peers http://etcd1:5001 set /host/schema "$(cat ~/host.json)"
+./init-etcd.sh start
+eval $(./init-etcd.sh env)
+etcdctl mkdir /schemas
+etcdctl set /schemas/ntp "$(cat examples/ntpd/schema.json)"
+etcdctl mkdir /routes
+bin/etcd-import -input examples/ntpd/routes.json -dir /routes -no-validate
+etcdctl mkdir /ntp/site1
+etcdctl mkdir /ntp/site2
+bin/etcd-import -input examples/ntpd/ntpd-site1.json -dir /ntp/site1
+bin/etcd-import -input examples/ntpd/ntpd-site2.json -dir /ntp/site2
+bin/etcd-export /ntp
 ```
 
 # Build
