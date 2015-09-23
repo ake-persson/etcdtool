@@ -67,6 +67,13 @@ Usage of bin/etcd-import:
 
 > You can also provide input by using STDIN.
 
+
+
+```
+etcdctl --peers http://etcd1:5001 mkdir /schemas
+etcdctl --peers http://etcd1:5001 set /host/schema "$(cat ~/host.json)"
+```
+
 # Build
 
 ```bash

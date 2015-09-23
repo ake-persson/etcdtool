@@ -12,6 +12,7 @@ import (
 	etcd "github.com/coreos/go-etcd/etcd"
 	"github.com/mickep76/etcdmap"
 	"github.com/mickep76/iodatafmt"
+	jsonschema "github.com/xeipuuv/gojsonschema"
 
 	"github.com/mickep76/common"
 )
@@ -32,6 +33,8 @@ func main() {
 	dir := flag.String("dir", "", "Etcd directory")
 	format := flag.String("format", "JSON", "Data serialization format YAML, TOML or JSON")
 	input := flag.String("input", "", "Input file")
+	noValidate := flag.Bool("no-validate", false, "No validate")
+	schema := flag.String("schema", "", "Etcd key for JSON schema (default \"/schemas/<dir>/schema\")")
 	flag.Parse()
 
 	// Print version.
@@ -47,6 +50,11 @@ func main() {
 
 	if *dir == "" {
 		log.Fatalf("You need to specify Etcd dir.")
+	}
+
+	if *schema == "" {
+		s := fmt.Sprintf("/schemas/%s/schema", *dir)
+		schema = &s
 	}
 
 	// Get data format.
@@ -80,6 +88,30 @@ func main() {
 		log.Fatal("No input provided")
 	}
 
+	// Validate input.
+	if !*noValidate {
+
+		// Get JSON Schema.
+		res, err := client.Get(*schema, false, false)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		schemaLoader := jsonschema.NewStringLoader(res.Node.Value)
+		docLoader := jsonschema.NewGoLoader(m)
+
+		result, err := jsonschema.Validate(schemaLoader, docLoader)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		if !result.Valid() {
+			for _, e := range result.Errors() {
+				fmt.Printf("  - %s: %s\n", e.Field(), e.Description())
+			}
+		}
+	}
+
+	// Delete dir.
 	if *delete {
 		if !*force {
 			fmt.Printf("Remove path: %s? [yes|no]", strings.TrimRight(*dir, "/"))
