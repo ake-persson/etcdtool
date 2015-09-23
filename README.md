@@ -1,6 +1,6 @@
-# Etcd-Export/Import
+# Etcd-Export/Import/Validate
 
-Export/Import Etcd directory as JSON/YAML/TOML.
+Export/Import Etcd directory as JSON/YAML/TOML, and validate directory using JSON schema.
 
 # Use cases
 
@@ -8,6 +8,7 @@ Export/Import Etcd directory as JSON/YAML/TOML.
 - Migration of data from production to testing.
 - Store authorative configuration in Git and use etcd-import to populate Etcd.
 - Copy data from one directory to another.
+- Validate directory entries using JSON schema.
 
 # Caveats
 
@@ -52,22 +53,52 @@ Usage of bin/etcd-export:
 ```bash
 export ETCD_CONN="http://etcd1.example.com:2379"
 ```
-n/etcd-import -input examples/ntpd/ntpd-site2.json -dir /ntp/site2
+
 # Usage Etcd Import
 
 ```bash
 Usage of bin/etcd-import:
-  -dir="/": Etcd directory
-  -format="JSON": Data serialization format YAML, TOML or JSON
-  -input="": Input file
-  -node="": Etcd node
-  -port="2379": Etcd port
-  -version=false: Version
+  -delete
+    	Delete entry before import
+  -dir string
+    	Etcd directory
+  -force
+    	Force delete without asking
+  -format string
+    	Data serialization format YAML, TOML or JSON (default "JSON")
+  -input string
+    	Input file
+  -no-validate
+    	No validate
+  -node string
+    	Etcd node
+  -port string
+    	Etcd port (default "2379")
+  -schema string
+    	Etcd key for JSON schema (default "/schemas/<dir>/schema")
+  -version
+    	Version
 ```
 
 > You can also provide input by using STDIN.
 
-# Using Etcd Validate
+# Usage Etcd Validate
+
+```bash
+Usage of bin/etcd-validate:
+  -dir string
+    	Etcd directory
+  -node string
+    	Etcd node
+  -port string
+    	Etcd port (default "2379")
+  -schema string
+    	Etcd key for JSON schema
+  -version
+    	Version
+```
+
+## Example
 
 ```
 ./init-etcd.sh start
