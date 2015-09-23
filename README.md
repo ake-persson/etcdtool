@@ -98,6 +98,13 @@ bin/etcd-import -input examples/ntpd/ntpd-site2.json -dir /ntp/site2
 bin/etcd-export -dir /ntp
 ```
 
+Skipping validation and validate afterwards.
+
+```bash
+bin/etcd-import -input examples/ntpd/ntpd-site2.json -dir /ntp/site2 -no-validate
+bin/etcd-validate -dir /ntp -schema /schemas/ntp
+```
+
 # Usage Etcd Validate
 
 ```bash
