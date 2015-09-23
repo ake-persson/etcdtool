@@ -98,7 +98,7 @@ func main() {
 		}
 
 		if *schema == "" {
-			log.Fatalf("Couldn't determine schema to use for directory: %s", *dir)
+			log.Fatalf("Couldn't determine schema to use for directory (use -no-validate to skip this): %s", *dir)
 		}
 	}
 

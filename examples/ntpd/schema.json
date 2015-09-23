@@ -17,9 +17,9 @@
 	"properties": {
 		"servers": {
 			"type": "object",
-			"format": "hostname",
+    		"additionalProperties": false,
 			"patternProperties": {
-            	".+": {
+                "^[a-z0-9-.]+$": {
 					"type": "object",
 					"required": [ "options" ],
                 	"additionalProperties": false,

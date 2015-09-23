@@ -52,7 +52,7 @@ Usage of bin/etcd-export:
 ```bash
 export ETCD_CONN="http://etcd1.example.com:2379"
 ```
-
+n/etcd-import -input examples/ntpd/ntpd-site2.json -dir /ntp/site2
 # Usage Etcd Import
 
 ```bash
@@ -80,7 +80,7 @@ etcdctl mkdir /ntp/site1
 etcdctl mkdir /ntp/site2
 bin/etcd-import -input examples/ntpd/ntpd-site1.json -dir /ntp/site1
 bin/etcd-import -input examples/ntpd/ntpd-site2.json -dir /ntp/site2
-bin/etcd-export /ntp
+bin/etcd-export -dir /ntp
 ```
 
 # Build
