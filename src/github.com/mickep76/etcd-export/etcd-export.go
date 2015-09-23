@@ -19,9 +19,9 @@ func main() {
 
 	// Options.
 	version := flag.Bool("version", false, "Version")
-	node := flag.String("node", "", "Etcd node")
-	port := flag.String("port", "2379", "Etcd port")
-	dir := flag.String("dir", "/", "Etcd directory")
+	node := flag.String("node", "", "etcd node")
+	port := flag.String("port", "2379", "etcd port")
+	dir := flag.String("dir", "/", "etcd directory")
 	format := flag.String("format", "JSON", "Data serialization format YAML, TOML or JSON")
 	output := flag.String("output", "", "Output file")
 	flag.Parse()
@@ -34,7 +34,7 @@ func main() {
 
 	// Validate input.
 	if len(conn) < 1 && *node == "" {
-		log.Fatalf("You need to specify Etcd host.")
+		log.Fatalf("You need to specify etcd host.")
 	}
 
 	// Get data format.
@@ -43,7 +43,7 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	// Setup Etcd client.
+	// Setup etcd client.
 	if *node != "" {
 		conn = []string{fmt.Sprintf("http://%v:%v", *node, *port)}
 	}

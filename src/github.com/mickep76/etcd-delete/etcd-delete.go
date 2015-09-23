@@ -19,9 +19,9 @@ func main() {
 	// Options.
 	version := flag.Bool("version", false, "Version")
 	force := flag.Bool("force", false, "Force delete without asking")
-	node := flag.String("node", "", "Etcd node")
-	port := flag.String("port", "2379", "Etcd port")
-	dir := flag.String("dir", "", "Etcd directory")
+	node := flag.String("node", "", "etcd node")
+	port := flag.String("port", "2379", "etcd port")
+	dir := flag.String("dir", "", "etcd directory")
 	flag.Parse()
 
 	// Print version.
@@ -32,14 +32,14 @@ func main() {
 
 	// Validate input.
 	if len(conn) < 1 && *node == "" {
-		log.Fatalf("You need to specify Etcd host.")
+		log.Fatalf("You need to specify etcd host.")
 	}
 
 	if *dir == "" {
-		log.Fatalf("You need to specify Etcd dir.")
+		log.Fatalf("You need to specify etcd dir.")
 	}
 
-	// Setup Etcd client.
+	// Setup etcd client.
 	if *node != "" {
 		conn = []string{fmt.Sprintf("http://%v:%v", *node, *port)}
 	}

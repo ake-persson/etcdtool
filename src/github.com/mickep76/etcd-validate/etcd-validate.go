@@ -28,10 +28,10 @@ func main() {
 
 	// Options.
 	version := flag.Bool("version", false, "Version")
-	node := flag.String("node", "", "Etcd node")
-	port := flag.String("port", "2379", "Etcd port")
-	dir := flag.String("dir", "", "Etcd directory")
-	schema := flag.String("schema", "", "Etcd key for JSON schema")
+	node := flag.String("node", "", "etcd node")
+	port := flag.String("port", "2379", "etcd port")
+	dir := flag.String("dir", "", "etcd directory")
+	schema := flag.String("schema", "", "etcd key for JSON schema")
 	flag.Parse()
 
 	// Print version.
@@ -42,11 +42,11 @@ func main() {
 
 	// Validate input.
 	if len(conn) < 1 && *node == "" {
-		log.Fatalf("You need to specify Etcd host.")
+		log.Fatalf("You need to specify etcd host.")
 	}
 
 	if *dir == "" {
-		log.Fatalf("You need to specify Etcd dir.")
+		log.Fatalf("You need to specify etcd dir.")
 	}
 
 	/*
@@ -58,7 +58,7 @@ func main() {
 
 	// TODO: Check dir is a dir and not a key
 
-	// Setup Etcd client.
+	// Setup etcd client.
 	if *node != "" {
 		conn = []string{fmt.Sprintf("http://%v:%v", *node, *port)}
 	}
@@ -101,7 +101,7 @@ func main() {
 	}
 	schemaLoader := jsonschema.NewStringLoader(res.Node.Value)
 
-	// Get Etcd dir.
+	// Get etcd dir.
 	res2, err2 := client.Get(*dir, true, true)
 	if err2 != nil {
 		log.Fatal(err2.Error())

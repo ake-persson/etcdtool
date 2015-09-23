@@ -1,18 +1,18 @@
-# Etcd-Export/Import/Validate
+# etcd-Export/Import/Validate
 
-Export/Import Etcd directory as JSON/YAML/TOML and validate directory using JSON schema.
+Export/Import etcd directory as JSON/YAML/TOML and validate directory using JSON schema.
 
 # Use cases
 
 - Backup/Restore in a format which is not database or version specific.
 - Migration of data from production to testing.
-- Store authorative configuration in Git and use etcd-import to populate Etcd.
+- Store authorative configuration in Git and use etcd-import to populate etcd.
 - Copy data from one directory to another.
 - Validate directory entries using JSON schema.
 
 # Caveats
 
-- Etcd doesn't support list's, this is handled by using the index as the key:
+- etcd doesn't support list's, this is handled by using the index as the key:
 
 **JSON Input:**
 
@@ -25,7 +25,7 @@ Export/Import Etcd directory as JSON/YAML/TOML and validate directory using JSON
 }
 ```      
 
-**Result in Etcd:**
+**Result in etcd:**
 
 ```
 users/0/username: jblack
@@ -36,32 +36,32 @@ users/1/first_name: Ludwig
 users/1/last_name: Von Treimer
 ```
 
-# Usage Etcd Export
+# Usage etcd Export
 
 ```bash
 Usage of bin/etcd-export:
-  -dir="/": Etcd directory
+  -dir="/": etcd directory
   -format="JSON": Data serialization format YAML, TOML or JSON
-  -node="": Etcd node
+  -node="": etcd node
   -output="": Output file
-  -port="2379": Etcd port
+  -port="2379": etcd port
   -version=false: Version
 ```
 
-> You can also set an env. variable for the Etcd node and port.
+> You can also set an env. variable for the etcd node and port.
 
 ```bash
 export ETCD_CONN="http://etcd1.example.com:2379"
 ```
 
-# Usage Etcd Import
+# Usage etcd Import
 
 ```bash
 Usage of bin/etcd-import:
   -delete
     	Delete entry before import
   -dir string
-    	Etcd directory
+    	etcd directory
   -force
     	Force delete without asking
   -format string
@@ -71,11 +71,11 @@ Usage of bin/etcd-import:
   -no-validate
     	No validate using JSON schema
   -node string
-    	Etcd node
+    	etcd node
   -port string
-    	Etcd port (default "2379")
+    	etcd port (default "2379")
   -schema string
-    	Etcd key for JSON schema
+    	etcd key for JSON schema
   -version
     	Version
 ```
@@ -105,18 +105,18 @@ bin/etcd-import -input examples/ntpd/ntpd-site2.json -dir /ntp/site2 -no-validat
 bin/etcd-validate -dir /ntp -schema /schemas/ntp
 ```
 
-# Usage Etcd Validate
+# Usage etcd Validate
 
 ```bash
 Usage of bin/etcd-validate:
   -dir string
-    	Etcd directory
+    	etcd directory
   -node string
-    	Etcd node
+    	etcd node
   -port string
-    	Etcd port (default "2379")
+    	etcd port (default "2379")
   -schema string
-    	Etcd key for JSON schema
+    	etcd key for JSON schema
   -version
     	Version
 ```
