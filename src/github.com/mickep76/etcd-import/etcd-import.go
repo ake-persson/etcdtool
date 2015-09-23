@@ -141,6 +141,7 @@ func main() {
 			for _, e := range result.Errors() {
 				fmt.Printf("  - %s: %s\n", e.Field(), e.Description())
 			}
+			os.Exit(1)
 		}
 	}
 
