@@ -34,8 +34,8 @@ func main() {
 	dir := flag.String("dir", "", "Etcd directory")
 	format := flag.String("format", "JSON", "Data serialization format YAML, TOML or JSON")
 	input := flag.String("input", "", "Input file")
-	noValidate := flag.Bool("no-validate", false, "No validate")
-	schema := flag.String("schema", "", "Etcd key for JSON schema (default \"/schemas/<dir>/schema\")")
+	noValidate := flag.Bool("no-validate", false, "No validate using JSON schema")
+	schema := flag.String("schema", "", "Etcd key for JSON schema")
 	flag.Parse()
 
 	// Print version.

@@ -1,6 +1,6 @@
 # Etcd-Export/Import/Validate
 
-Export/Import Etcd directory as JSON/YAML/TOML, and validate directory using JSON schema.
+Export/Import Etcd directory as JSON/YAML/TOML and validate directory using JSON schema.
 
 # Use cases
 
@@ -69,25 +69,7 @@ Usage of bin/etcd-import:
   -input string
     	Input file
   -no-validate
-    	No validate
-  -node string
-    	Etcd node
-  -port string
-    	Etcd port (default "2379")
-  -schema string
-    	Etcd key for JSON schema (default "/schemas/<dir>/schema")
-  -version
-    	Version
-```
-
-> You can also provide input by using STDIN.
-
-# Usage Etcd Validate
-
-```bash
-Usage of bin/etcd-validate:
-  -dir string
-    	Etcd directory
+    	No validate using JSON schema
   -node string
     	Etcd node
   -port string
@@ -97,6 +79,8 @@ Usage of bin/etcd-validate:
   -version
     	Version
 ```
+
+> You can also provide input by using STDIN.
 
 ## Example
 
@@ -112,6 +96,22 @@ etcdctl mkdir /ntp/site2
 bin/etcd-import -input examples/ntpd/ntpd-site1.json -dir /ntp/site1
 bin/etcd-import -input examples/ntpd/ntpd-site2.json -dir /ntp/site2
 bin/etcd-export -dir /ntp
+```
+
+# Usage Etcd Validate
+
+```bash
+Usage of bin/etcd-validate:
+  -dir string
+    	Etcd directory
+  -node string
+    	Etcd node
+  -port string
+    	Etcd port (default "2379")
+  -schema string
+    	Etcd key for JSON schema
+  -version
+    	Version
 ```
 
 # Build
