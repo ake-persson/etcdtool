@@ -36,7 +36,7 @@ users/1/first_name: Ludwig
 users/1/last_name: Von Treimer
 ```
 
-# Usage etcd Export
+# Usage etcd-export
 
 ```bash
 Usage of ./bin/etcd-export:
@@ -58,7 +58,7 @@ Usage of ./bin/etcd-export:
 export ETCD_PEERS="http://etcd1.example.com:2379"
 ```
 
-# Usage etcd Import
+# Usage etcd-import
 
 ```bash
 Usage of ./bin/etcd-import:
@@ -122,6 +122,18 @@ Usage of ./bin/etcd-delete:
     	Force delete without asking
   -peers string
     	Comma separated list of etcd nodes (default "127.0.0.1:4001,127.0.0.1:2379")
+  -version
+    	Version
+```
+
+# Usage etcd-tree
+
+```bash
+Usage of bin/etcd-tree:
+  -dir string
+    	etcd directory
+  -peers string
+    	Comma separated list of etcd nodes (default "http://192.168.99.100:5001")
   -version
     	Version
 ```
