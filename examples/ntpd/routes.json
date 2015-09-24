@@ -1,8 +1,0 @@
-{
-	"ntpd": {
-		"path": "/ntp/site/{name}",
-		"regexp": "^/ntp/[a-z0-9]+$",
-		"desc": "NTP configuration",
-		"schema": "/schemas/ntp"
-	}
-}
