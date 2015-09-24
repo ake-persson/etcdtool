@@ -21,20 +21,22 @@ func Tree(root *etcd.Node, indent string) {
 		keys := strings.Split(n.Key, "/")
 		k := keys[len(keys)-1]
 
-		if i == root.Nodes.Len()-1 {
-			fmt.Printf("%s└── %s/\n", indent, k)
-		} else {
-			fmt.Printf("%s├── %s/\n", indent, k)
-		}
-
 		if n.Dir {
 			if i == root.Nodes.Len()-1 {
+				fmt.Printf("%s└── %s/\n", indent, k)
 				Tree(n, indent+"    ")
 			} else {
+				fmt.Printf("%s├── %s/\n", indent, k)
 				Tree(n, indent+"│   ")
 			}
 			numDirs++
 		} else {
+			if i == root.Nodes.Len()-1 {
+				fmt.Printf("%s└── %s\n", indent, k)
+			} else {
+				fmt.Printf("%s├── %s\n", indent, k)
+			}
+
 			numKeys++
 		}
 	}
