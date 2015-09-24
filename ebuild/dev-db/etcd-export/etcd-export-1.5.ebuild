@@ -38,5 +38,7 @@ src_install() {
 	dobin ${GOPATH}/bin/etcd-export
 	dobin ${GOPATH}/bin/etcd-import
 	dobin ${GOPATH}/bin/etcd-delete
+	dobin ${GOPATH}/bin/etcd-tree
+	dobin ${GOPATH}/bin/etcd-validate
 	eend ${?}
 }
