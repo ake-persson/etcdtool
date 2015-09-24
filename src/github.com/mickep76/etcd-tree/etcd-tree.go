@@ -12,27 +12,33 @@ import (
 	"github.com/mickep76/common"
 )
 
+var numDirs int
+var numKeys int
+
 // Tree
 func Tree(root *etcd.Node, indent string) {
-	for _, n := range root.Nodes {
+	for i, n := range root.Nodes {
 		keys := strings.Split(n.Key, "/")
 		k := keys[len(keys)-1]
-		if n.Dir {
-			fmt.Printf("%s├── %s/\n", indent, k)
-			Tree(n, indent+"│   ")
+
+		if i == root.Nodes.Len()-1 {
+			fmt.Printf("%s└── %s/\n", indent, k)
 		} else {
-			fmt.Printf("%s├── %s\n", indent, k)
+			fmt.Printf("%s├── %s/\n", indent, k)
+		}
+
+		if n.Dir {
+			if i == root.Nodes.Len()-1 {
+				Tree(n, indent+"    ")
+			} else {
+				Tree(n, indent+"│   ")
+			}
+			numDirs++
+		} else {
+			numKeys++
 		}
 	}
 }
-
-/*
-├── postfix
-│   ├── LICENSE
-│   ├── TLS_LICENSE
-│   ├── access
-│   ├── aliases
-*/
 
 func main() {
 	// Options.
@@ -61,6 +67,9 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	numDirs = 0
+	numKeys = 0
 	fmt.Println(strings.TrimRight(*dir, "/") + "/")
 	Tree(res.Node, "")
+	fmt.Printf("\n%d directories, %d keys\n", numDirs, numKeys)
 }
