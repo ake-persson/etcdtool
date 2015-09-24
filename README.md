@@ -1,4 +1,4 @@
-# etcd-Export/Import/Validate
+# etcd-Export/Import/Validate/Delete/Tree
 
 Export/Import etcd directory as JSON/YAML/TOML and validate directory using JSON schema.
 
