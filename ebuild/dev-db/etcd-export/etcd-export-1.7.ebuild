@@ -40,5 +40,6 @@ src_install() {
 	dobin ${GOPATH}/bin/etcd-delete
 	dobin ${GOPATH}/bin/etcd-tree
 	dobin ${GOPATH}/bin/etcd-validate
+	dobin ${GOPATH}/bin/etcd-edit
 	eend ${?}
 }

@@ -138,6 +138,38 @@ Usage of bin/etcd-tree:
     	Version
 ```
 
+# Usage etcd-edit
+
+```
+Usage of ./bin/etcd-edit:
+  -delete
+    	Delete entry before import
+  -dir string
+    	etcd directory (default "/")
+  -editor string
+    	Editor (default "vim")
+  -force
+    	Force delete without asking
+  -format string
+    	Data serialization format YAML, TOML or JSON (default "JSON")
+  -no-validate
+    	Skip validation using JSON schema
+  -peers string
+    	Comma separated list of etcd nodes (default "http://192.168.99.100:5001")
+  -schema string
+    	etcd key for JSON schema
+  -tmp-file string
+    	Temporary file (default ".etcd-edit.swp")
+  -version
+    	Version
+```
+
+> You can also set an env. variable for the editor.
+
+```bash
+export EDITOR=emacs
+```
+
 # Build
 
 ```bash
