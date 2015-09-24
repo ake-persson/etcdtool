@@ -34,7 +34,7 @@ func main() {
 	dir := flag.String("dir", "", "etcd directory")
 	format := flag.String("format", "JSON", "Data serialization format YAML, TOML or JSON")
 	input := flag.String("input", "", "Input file")
-	noValidate := flag.Bool("no-validate", false, "No validate using JSON schema")
+	noValidate := flag.Bool("no-validate", false, "Skip validation using JSON schema")
 	schema := flag.String("schema", "", "etcd key for JSON schema")
 	flag.Parse()
 
@@ -162,6 +162,12 @@ func main() {
 		log.Printf("Removed path: %s", strings.TrimRight(*dir, "/"))
 	}
 
+	// Create dir.
+	if _, err := client.CreateDir(*dir, 0); err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	// Import data.
 	if err = etcdmap.Create(client, strings.TrimRight(*dir, "/"), reflect.ValueOf(m)); err != nil {
 		log.Fatal(err.Error())
 	}

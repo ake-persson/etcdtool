@@ -89,10 +89,7 @@ Usage of bin/etcd-import:
 eval $(./init-etcd.sh env)
 etcdctl mkdir /schemas
 etcdctl set /schemas/ntp "$(cat examples/ntp/ntp_schema.json)"
-etcdctl mkdir /routes
 bin/etcd-import -input examples/ntp/routes.json -dir /routes -no-validate
-etcdctl mkdir /ntp/site1
-etcdctl mkdir /ntp/site2
 bin/etcd-import -input examples/ntp/ntp-site1.json -dir /ntp/site1
 bin/etcd-import -input examples/ntp/ntp-site2.json -dir /ntp/site2
 bin/etcd-export -dir /ntp
