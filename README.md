@@ -133,7 +133,7 @@ Usage of bin/etcd-tree:
   -dir string
     	etcd directory
   -peers string
-    	Comma separated list of etcd nodes (default "http://192.168.99.100:5001")
+    	Comma separated list of etcd nodes (default "127.0.0.1:4001,127.0.0.1:2379")
   -version
     	Version
 ```
