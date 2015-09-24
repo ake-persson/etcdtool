@@ -1,0 +1,6 @@
+{
+    "ntp": {
+        "regexp": "^/ntp$",
+        "schema": "/schemas/ntp"
+    }
+}

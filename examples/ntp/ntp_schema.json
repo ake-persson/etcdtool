@@ -1,0 +1,47 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "NTP configuration",
+	"definitions": {
+		"boolean": {
+			"type": "string",
+			"enum": [ "true", "false" ]
+		},
+		"filepath": {
+			"type": "string",
+			"pattern": "^(.+)/([^/]+)$"
+		}
+	},
+	"type": "object",
+	"required": [ "servers", "driftfile" ],
+	"additionalProperties": false,
+	"properties": {
+		"servers": {
+			"type": "object",
+			"additionalProperties": false,
+			"patternProperties": {
+				"^[a-z0-9-.]+$": {
+					"type": "object",
+					"required": [ "options" ],
+					"additionalProperties": false,
+					"properties": {
+						"options": {
+							"type": "string"
+						}
+					}
+				}
+			}
+		},
+		"driftfile": {
+			"$ref": "#/definitions/filepath"
+		},
+		"enable_stats": {
+			"$ref": "#/definitions/boolean"
+		},
+		"statsdir": {
+			"$ref": "#/definitions/filepath"
+		},
+		"statistics": {
+			"type": "string"
+		}
+	}
+}
