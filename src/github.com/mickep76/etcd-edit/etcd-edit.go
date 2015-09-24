@@ -157,11 +157,11 @@ func main() {
 			log.Fatalf(err.Error())
 		}
 		log.Printf("Removed path: %s", strings.TrimRight(*dir, "/"))
-	}
 
-	// Create dir.
-	if _, err := client.CreateDir(*dir, 0); err != nil {
-		log.Fatalf(err.Error())
+		// Create dir.
+		if _, err := client.CreateDir(*dir, 0); err != nil {
+			log.Fatalf(err.Error())
+		}
 	}
 
 	// Import data.
