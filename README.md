@@ -39,25 +39,29 @@ users/1/last_name: Von Treimer
 # Usage etcd Export
 
 ```bash
-Usage of bin/etcd-export:
-  -dir="/": etcd directory
-  -format="JSON": Data serialization format YAML, TOML or JSON
-  -node="": etcd node
-  -output="": Output file
-  -port="2379": etcd port
-  -version=false: Version
+Usage of ./bin/etcd-export:
+  -dir string
+    	etcd directory (default "/")
+  -format string
+    	Data serialization format YAML, TOML or JSON (default "JSON")
+  -output string
+    	Output file
+  -peers string
+    	Comma separated list of etcd nodes (default "127.0.0.1:4001,127.0.0.1:2379")
+  -version
+    	Version
 ```
 
 > You can also set an env. variable for the etcd node and port.
 
 ```bash
-export ETCD_CONN="http://etcd1.example.com:2379"
+export ETCD_PEERS="http://etcd1.example.com:2379"
 ```
 
 # Usage etcd Import
 
 ```bash
-Usage of bin/etcd-import:
+Usage of ./bin/etcd-import:
   -delete
     	Delete entry before import
   -dir string
@@ -69,11 +73,9 @@ Usage of bin/etcd-import:
   -input string
     	Input file
   -no-validate
-    	No validate using JSON schema
-  -node string
-    	etcd node
-  -port string
-    	etcd port (default "2379")
+    	Skip validation using JSON schema
+  -peers string
+    	Comma separated list of etcd nodes (default "127.0.0.1:4001,127.0.0.1:2379")
   -schema string
     	etcd key for JSON schema
   -version
@@ -96,18 +98,30 @@ bin/etcd-export -dir /ntp
 bin/etcd-validate -dir /ntp
 ```
 
-# Usage etcd Validate
+# Usage etcd-validate
 
 ```bash
-Usage of bin/etcd-validate:
+Usage of ./bin/etcd-validate:
   -dir string
     	etcd directory
-  -node string
-    	etcd node
-  -port string
-    	etcd port (default "2379")
+  -peers string
+    	Comma separated list of etcd nodes (default "127.0.0.1:4001,127.0.0.1:2379")
   -schema string
     	etcd key for JSON schema
+  -version
+    	Version
+```
+
+# Usage etcd-delete
+
+```bash
+Usage of ./bin/etcd-delete:
+  -dir string
+    	etcd directory
+  -force
+    	Force delete without asking
+  -peers string
+    	Comma separated list of etcd nodes (default "127.0.0.1:4001,127.0.0.1:2379")
   -version
     	Version
 ```

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	etcd "github.com/coreos/go-etcd/etcd"
 	"github.com/mickep76/etcdmap"
@@ -14,13 +15,9 @@ import (
 )
 
 func main() {
-	// Get connection env variable.
-	conn := common.GetEnv()
-
 	// Options.
 	version := flag.Bool("version", false, "Version")
-	node := flag.String("node", "", "etcd node")
-	port := flag.String("port", "2379", "etcd port")
+	peers := flag.String("peers", common.GetEnv(), "Comma separated list of etcd nodes")
 	dir := flag.String("dir", "/", "etcd directory")
 	format := flag.String("format", "JSON", "Data serialization format YAML, TOML or JSON")
 	output := flag.String("output", "", "Output file")
@@ -32,11 +29,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Validate input.
-	if len(conn) < 1 && *node == "" {
-		log.Fatalf("You need to specify etcd host.")
-	}
-
 	// Get data format.
 	f, err := iodatafmt.Format(*format)
 	if err != nil {
@@ -44,10 +36,7 @@ func main() {
 	}
 
 	// Setup etcd client.
-	if *node != "" {
-		conn = []string{fmt.Sprintf("http://%v:%v", *node, *port)}
-	}
-	client := etcd.NewClient(conn)
+	client := etcd.NewClient(strings.Split(*peers, ","))
 
 	// Export data.
 	res, err := client.Get(*dir, true, true)

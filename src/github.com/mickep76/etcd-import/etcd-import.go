@@ -22,15 +22,11 @@ func main() {
 	// Get the FileInfo struct describing the standard input.
 	fi, _ := os.Stdin.Stat()
 
-	// Get connection env variable.
-	conn := common.GetEnv()
-
 	// Options.
 	version := flag.Bool("version", false, "Version")
+	peers := flag.String("peers", common.GetEnv(), "Comma separated list of etcd nodes")
 	force := flag.Bool("force", false, "Force delete without asking")
 	delete := flag.Bool("delete", false, "Delete entry before import")
-	node := flag.String("node", "", "etcd node")
-	port := flag.String("port", "2379", "etcd port")
 	dir := flag.String("dir", "", "etcd directory")
 	format := flag.String("format", "JSON", "Data serialization format YAML, TOML or JSON")
 	input := flag.String("input", "", "Input file")
@@ -45,20 +41,9 @@ func main() {
 	}
 
 	// Validate input.
-	if len(conn) < 1 && *node == "" {
-		log.Fatalf("You need to specify etcd host.")
-	}
-
 	if *dir == "" {
 		log.Fatalf("You need to specify etcd dir.")
 	}
-
-	/*
-		if *schema == "" {
-			s := fmt.Sprintf("/schemas/%s/schema", *dir)
-			schema = &s
-		}
-	*/
 
 	// Get data format.
 	f, err := iodatafmt.Format(*format)
@@ -67,12 +52,8 @@ func main() {
 	}
 
 	// Setup etcd client.
-	if *node != "" {
-		conn = []string{fmt.Sprintf("http://%v:%v", *node, *port)}
-	}
-	client := etcd.NewClient(conn)
+	client := etcd.NewClient(strings.Split(*peers, ","))
 
-	// TODO: Use struct for Routes
 	if !*noValidate && *schema == "" {
 		// Get routes.
 		res, err := client.Get("/routes", true, true)

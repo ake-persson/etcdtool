@@ -13,14 +13,10 @@ import (
 )
 
 func main() {
-	// Get connection env variable.
-	conn := common.GetEnv()
-
 	// Options.
 	version := flag.Bool("version", false, "Version")
+	peers := flag.String("peers", common.GetEnv(), "Comma separated list of etcd nodes")
 	force := flag.Bool("force", false, "Force delete without asking")
-	node := flag.String("node", "", "etcd node")
-	port := flag.String("port", "2379", "etcd port")
 	dir := flag.String("dir", "", "etcd directory")
 	flag.Parse()
 
@@ -31,19 +27,12 @@ func main() {
 	}
 
 	// Validate input.
-	if len(conn) < 1 && *node == "" {
-		log.Fatalf("You need to specify etcd host.")
-	}
-
 	if *dir == "" {
 		log.Fatalf("You need to specify etcd dir.")
 	}
 
 	// Setup etcd client.
-	if *node != "" {
-		conn = []string{fmt.Sprintf("http://%v:%v", *node, *port)}
-	}
-	client := etcd.NewClient(conn)
+	client := etcd.NewClient(strings.Split(*peers, ","))
 
 	if !*force {
 		fmt.Printf("Remove path: %s? [yes|no]", strings.TrimRight(*dir, "/"))

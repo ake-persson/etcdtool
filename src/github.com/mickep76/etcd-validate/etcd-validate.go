@@ -7,6 +7,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"strings"
 
 	etcd "github.com/coreos/go-etcd/etcd"
 	"github.com/mickep76/etcdmap"
@@ -23,13 +24,9 @@ type Route struct {
 }
 
 func main() {
-	// Get connection env variable.
-	conn := common.GetEnv()
-
 	// Options.
 	version := flag.Bool("version", false, "Version")
-	node := flag.String("node", "", "etcd node")
-	port := flag.String("port", "2379", "etcd port")
+	peers := flag.String("peers", common.GetEnv(), "Comma separated list of etcd nodes")
 	dir := flag.String("dir", "", "etcd directory")
 	schema := flag.String("schema", "", "etcd key for JSON schema")
 	flag.Parse()
@@ -41,30 +38,13 @@ func main() {
 	}
 
 	// Validate input.
-	if len(conn) < 1 && *node == "" {
-		log.Fatalf("You need to specify etcd host.")
-	}
-
 	if *dir == "" {
 		log.Fatalf("You need to specify etcd dir.")
 	}
 
-	/*
-		if *schema == "" {
-			s := fmt.Sprintf("/schemas/%s/schema", *dir)
-			schema = &s
-		}
-	*/
-
-	// TODO: Check dir is a dir and not a key
-
 	// Setup etcd client.
-	if *node != "" {
-		conn = []string{fmt.Sprintf("http://%v:%v", *node, *port)}
-	}
-	client := etcd.NewClient(conn)
+	client := etcd.NewClient(strings.Split(*peers, ","))
 
-	// TODO: Use struct for Routes
 	if *schema == "" {
 		// Get routes.
 		res, err := client.Get("/routes", true, true)
