@@ -146,7 +146,7 @@ Usage of bin/etcd-tree:
 # Usage etcd-edit
 
 ```
-Usage of ./bin/etcd-edit:
+Usage of etcd-edit:
   -delete
     	Delete entry before import
   -dir string
@@ -157,12 +157,16 @@ Usage of ./bin/etcd-edit:
     	Force delete without asking
   -format string
     	Data serialization format YAML, TOML or JSON (default "JSON")
+  -new
+    	Create new directory entry using template
   -no-validate
     	Skip validation using JSON schema
   -peers string
-    	Comma separated list of etcd nodes (default "http://192.168.99.100:5001")
+    	Comma separated list of etcd nodes (default "http://etcd1:5001")
   -schema string
     	etcd key for JSON schema
+  -template string
+    	etcd key for template
   -tmp-file string
     	Temporary file (default ".etcd-edit.swp")
   -version
