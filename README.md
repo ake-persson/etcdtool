@@ -86,7 +86,7 @@ Usage of ./bin/etcd-import:
 
 ## Example
 
-```
+```bash
 ./init-etcd.sh start
 eval $(./init-etcd.sh env)
 etcdctl mkdir /schemas
@@ -96,6 +96,11 @@ bin/etcd-import -input examples/ntp/ntp-site1.json -dir /ntp/site1
 bin/etcd-import -input examples/ntp/ntp-site2.json -dir /ntp/site2
 bin/etcd-export -dir /ntp
 bin/etcd-validate -dir /ntp
+```
+
+```bash
+etcdctl mkdir /templates
+etcdctl set /templates/ntp "$(cat examples/ntp/ntp_template.json)"
 ```
 
 # Usage etcd-validate

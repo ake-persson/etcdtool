@@ -32,6 +32,8 @@ func getEditor() string {
 func main() {
 	// Options.
 	version := flag.Bool("version", false, "Version")
+	new := flag.Bool("new", false, "Create new directory entry using template")
+	template := flag.String("template", "", "etcd key for template")
 	peers := flag.String("peers", common.GetEnv(), "Comma separated list of etcd nodes")
 	force := flag.Bool("force", false, "Force delete without asking")
 	delete := flag.Bool("delete", false, "Delete entry before import")
@@ -77,22 +79,39 @@ func main() {
 				}
 				if match {
 					*schema = vm["schema"].(string)
+					*template = vm["template"].(string)
 					break
 				}
 			}
 		}
 
 		if *schema == "" {
-			log.Fatalf("Couldn't determine schema to use for directory (use -no-validate to skip this): %s", *dir)
+			log.Fatalf("Couldn't determine schema and template to use for directory (use -no-validate to skip this): %s", *dir)
 		}
 	}
 
+	var m map[string]interface{}
+
 	// Export data.
-	res, err := client.Get(*dir, true, true)
-	if err != nil {
-		log.Fatal(err.Error())
+	if *new {
+		// Get JSON Schema.
+		res, err := client.Get(*template, false, false)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		m2, err2 := iodatafmt.Unmarshal([]byte(res.Node.Value), iodatafmt.JSON)
+		if err2 != nil {
+			log.Fatal(err2.Error())
+		}
+		m = m2.(map[string]interface{})
+
+	} else {
+		res, err := client.Get(*dir, true, true)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		m = etcdmap.Map(res.Node)
 	}
-	m := etcdmap.Map(res.Node)
 
 	// Write output.
 	iodatafmt.Write(*tmpFile, m, f)
