@@ -95,6 +95,7 @@ bin/etcd-import -input examples/ntp/routes.json -dir /routes -no-validate
 bin/etcd-import -input examples/ntp/ntp-site1.json -dir /ntp/site1
 bin/etcd-import -input examples/ntp/ntp-site2.json -dir /ntp/site2
 bin/etcd-export -dir /ntp
+bin/etcd-import -input examples/ntp/ntp-site2.json -dir /ntp/site2 -no-validate
 bin/etcd-validate -dir /ntp
 ```
 
