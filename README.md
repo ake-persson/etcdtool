@@ -84,7 +84,7 @@ Usage of ./bin/etcd-import:
 
 > You can also provide input by using STDIN.
 
-## Example usin schemas
+## Example using schemas
 
 ```bash
 ./init-etcd.sh start
