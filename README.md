@@ -84,7 +84,7 @@ Usage of ./bin/etcd-import:
 
 > You can also provide input by using STDIN.
 
-## Example
+## Example usin schemas
 
 ```bash
 ./init-etcd.sh start
@@ -98,9 +98,12 @@ bin/etcd-export -dir /ntp
 bin/etcd-validate -dir /ntp
 ```
 
+## Example using templates
+
 ```bash
 etcdctl mkdir /templates
 etcdctl set /templates/ntp "$(cat examples/ntp/ntp_template.json)"
+bin/etcd-edit -dir /ntp/site3 -new
 ```
 
 # Usage etcd-validate

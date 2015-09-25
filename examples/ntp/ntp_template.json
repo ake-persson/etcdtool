@@ -1,0 +1,11 @@
+{
+    "servers": {
+		"ntp.example.com": {
+			"options": "minpoll 3 maxpoll 7"
+		}
+    },
+    "driftfile": "/var/lib/ntp/drift",
+    "enable_stats": "true",
+    "statsdir": "/var/log/ntpstats",
+    "statistics": "loopstats peerstats"
+}
