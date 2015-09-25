@@ -97,6 +97,8 @@ func main() {
 	// Write output.
 	iodatafmt.Write(*tmpFile, m, f)
 
+EDIT:
+
 	_, err2 := exec.LookPath(*editor)
 	if err2 != nil {
 		log.Fatalf("Editor doesn't exist: %s", *editor)
@@ -115,7 +117,16 @@ func main() {
 	var err4 error
 	m2, err4 = iodatafmt.Load(*tmpFile, f)
 	if err4 != nil {
-		log.Fatal(err4.Error())
+		log.Printf(err4.Error())
+
+		fmt.Printf("Do you want to correct the changes? [yes|no]")
+		var query string
+		fmt.Scanln(&query)
+		if query != "yes" {
+			os.Exit(0)
+		}
+
+		goto EDIT
 	}
 
 	// Validate input.
@@ -138,14 +149,22 @@ func main() {
 			for _, e := range result.Errors() {
 				fmt.Printf("  - %s: %s\n", e.Field(), e.Description())
 			}
-			os.Exit(1)
+
+			fmt.Printf("Do you want to correct the changes? [yes|no]")
+			var query string
+			fmt.Scanln(&query)
+			if query != "yes" {
+				os.Exit(0)
+			}
+
+			goto EDIT
 		}
 	}
 
 	// Delete dir.
 	if *delete {
 		if !*force {
-			fmt.Printf("Remove path: %s? [yes|no]", strings.TrimRight(*dir, "/"))
+			fmt.Printf("Do you want to remove existing data in path: %s? [yes|no]", strings.TrimRight(*dir, "/"))
 			var query string
 			fmt.Scanln(&query)
 			if query != "yes" {
@@ -161,6 +180,13 @@ func main() {
 		// Create dir.
 		if _, err := client.CreateDir(*dir, 0); err != nil {
 			log.Fatalf(err.Error())
+		}
+	} else {
+		fmt.Printf("Do you want to overwrite existing data in path: %s? [yes|no]", strings.TrimRight(*dir, "/"))
+		var query string
+		fmt.Scanln(&query)
+		if query != "yes" {
+			os.Exit(0)
 		}
 	}
 
