@@ -145,7 +145,15 @@ func main() {
 
 	// Create dir.
 	if _, err := client.CreateDir(*dir, 0); err != nil {
-		log.Fatalf(err.Error())
+		log.Printf(err.Error())
+
+		// Should prob. check that we're actually dealing with an existing key and not something else...
+		fmt.Printf("Do you want to overwrite existing data in path: %s? [yes|no]", strings.TrimRight(*dir, "/"))
+		var query string
+		fmt.Scanln(&query)
+		if query != "yes" {
+			os.Exit(0)
+		}
 	}
 
 	// Import data.
