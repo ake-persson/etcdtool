@@ -2,5 +2,6 @@
     "ntp": {
         "regexp": "^(/ntp|/ntp/[a-z0-9]+)$",
         "schema": "/schemas/ntp"
+        "template": "/templates/ntp"
     }
 }
