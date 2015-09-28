@@ -97,7 +97,7 @@ func main() {
 
 	if !result.Valid() {
 		for _, e := range result.Errors() {
-			fmt.Printf("  - %s: %s\n", e.Field(), e.Description())
+			fmt.Printf("%s: %s\n", e.Context(), e.Description())
 		}
 	}
 }
