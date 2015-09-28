@@ -180,6 +180,7 @@ EDIT:
 		}
 	}
 
+	// TODO: Properly check if key does exist
 	// Delete dir.
 	if !*noDelete {
 		if !*force {
@@ -192,9 +193,11 @@ EDIT:
 		}
 
 		if _, err := client.Delete(strings.TrimRight(*dir, "/"), true); err != nil {
-			log.Fatalf(err.Error())
+			// Don't exit since -new dir. won't exist
+			log.Println(err.Error())
+		} else {
+			log.Printf("Removed path: %s", strings.TrimRight(*dir, "/"))
 		}
-		log.Printf("Removed path: %s", strings.TrimRight(*dir, "/"))
 
 		// Create dir.
 		if _, err := client.CreateDir(*dir, 0); err != nil {
