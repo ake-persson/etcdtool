@@ -36,7 +36,7 @@ func main() {
 	template := flag.String("template", "", "etcd key for template")
 	peers := flag.String("peers", common.GetEnv(), "Comma separated list of etcd nodes")
 	force := flag.Bool("force", false, "Force delete without asking")
-	delete := flag.Bool("delete", false, "Delete entry before import")
+	noDelete := flag.Bool("no-delete", false, "Don't delete entry before import")
 	noValidate := flag.Bool("no-validate", false, "Skip validation using JSON schema")
 	schema := flag.String("schema", "", "etcd key for JSON schema")
 	editor := flag.String("editor", getEditor(), "Editor")
@@ -181,7 +181,7 @@ EDIT:
 	}
 
 	// Delete dir.
-	if *delete {
+	if !*noDelete {
 		if !*force {
 			fmt.Printf("Do you want to remove existing data in path: %s? [yes|no]", strings.TrimRight(*dir, "/"))
 			var query string

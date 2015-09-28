@@ -88,19 +88,16 @@ func main() {
 	}
 	d := etcdmap.Map(res2.Node)
 
-	for e, v := range d {
-		docLoader := jsonschema.NewGoLoader(v)
+	docLoader := jsonschema.NewGoLoader(d)
 
-		result, err := jsonschema.Validate(schemaLoader, docLoader)
-		if err != nil {
-			panic(err.Error())
-		}
+	result, err := jsonschema.Validate(schemaLoader, docLoader)
+	if err != nil {
+		panic(err.Error())
+	}
 
-		if !result.Valid() {
-			fmt.Printf("\n%s/%s\n", *dir, e)
-			for _, e := range result.Errors() {
-				fmt.Printf("  - %s: %s\n", e.Field(), e.Description())
-			}
+	if !result.Valid() {
+		for _, e := range result.Errors() {
+			fmt.Printf("  - %s: %s\n", e.Field(), e.Description())
 		}
 	}
 }

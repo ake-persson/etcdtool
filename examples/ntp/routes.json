@@ -1,6 +1,11 @@
 {
+    "ntp_site": {
+        "regexp": "^/ntp$",
+        "schema": "/schemas/ntp_site",
+        "template": "/templates/ntp_site"
+    },
     "ntp": {
-        "regexp": "^(/ntp|/ntp/[a-z0-9]+)$",
+        "regexp": "^/ntp/[a-z0-9]+$",
         "schema": "/schemas/ntp",
         "template": "/templates/ntp"
     }
