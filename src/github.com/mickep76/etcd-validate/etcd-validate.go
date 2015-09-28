@@ -16,13 +16,6 @@ import (
 	"github.com/mickep76/common"
 )
 
-type Route struct {
-	Path   string `json:"path"`
-	Regexp string `json:"regexp"`
-	Desc   string `json:"desc"`
-	Schema string `json:"schema"`
-}
-
 func main() {
 	// Options.
 	version := flag.Bool("version", false, "Version")
@@ -97,7 +90,7 @@ func main() {
 
 	if !result.Valid() {
 		for _, e := range result.Errors() {
-			fmt.Printf("%s: %s\n", e.Context(), e.Description())
+			fmt.Printf("%s: %s\n", strings.Replace(e.Context().String("/"), "(root)", *dir, 1), e.Description())
 		}
 	}
 }
