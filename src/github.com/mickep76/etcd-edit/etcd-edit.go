@@ -166,7 +166,7 @@ EDIT:
 
 		if !result.Valid() {
 			for _, e := range result.Errors() {
-				fmt.Printf("  - %s: %s\n", e.Field(), e.Description())
+				fmt.Printf("%s: %s\n", strings.Replace(e.Context().String("/"), "(root)", *dir, 1), e.Description())
 			}
 
 			fmt.Printf("Do you want to correct the changes? [yes|no]")
