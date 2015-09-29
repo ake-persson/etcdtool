@@ -1,4 +1,4 @@
 package common
 
 // Version
-const Version = "1.9"
+const Version = "2.2"
