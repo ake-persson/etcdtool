@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IMAGE='quay.io/coreos/etcd:v0.4.6'
+IMAGE='quay.io/coreos/etcd:latest'
 NAME='etcd'
 
 case $(uname -s) in
@@ -14,58 +14,54 @@ case $(uname -s) in
 esac
 
 start() {
-    docker run -d -p 8001:8001 -p 5001:5001 --name ${NAME}1 ${IMAGE} -name ${NAME}1 \
-        -peer-addr ${IP}:8001 -addr ${IP}:5001
-    docker run -d -p 8002:8002 -p 5002:5002 --name ${NAME}2 ${IMAGE} -name ${NAME}2 \
-        -peer-addr ${IP}:8002 -addr ${IP}:5002 -peers ${IP}:8001,${IP}:8002,${IP}:8003
-    docker run -d -p 8003:8003 -p 5003:5003 --name ${NAME}3 ${IMAGE} -name ${NAME}3 \
-        -peer-addr ${IP}:8003 -addr ${IP}:5003 -peers ${IP}:8001,${IP}:8002,${IP}:8003
+    docker run -d -v /usr/share/ca-certificates/:/etc/ssl/certs -p 4001:4001 -p 2380:2380 -p 2379:2379 \
+        --name etcd quay.io/coreos/etcd:v2.0.8 \
+        -name etcd0 \
+        -advertise-client-urls http://${IP}:2379,http://${IP}:4001 \
+        -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 \
+        -initial-advertise-peer-urls http://${IP}:2380 \
+        -listen-peer-urls http://0.0.0.0:2380 \
+        -initial-cluster-token etcd-cluster-1 \
+        -initial-cluster etcd0=http://${IP}:2380 \
+        -initial-cluster-state new
 }
 
 stop() {
-    docker stop ${NAME}3
-    docker rm ${NAME}3
-    docker stop ${NAME}2
-    docker rm ${NAME}2
-    docker stop ${NAME}1
-    docker rm ${NAME}1
+    docker stop ${NAME}0
+    docker rm ${NAME}0
 }
 
 status() {
-    echo NODE1: ${NAME}1 IP: ${IP} PORT: 5001
-    echo NODE2: ${NAME}2 IP: ${IP} PORT: 5002
-    echo NODE3: ${NAME}3 IP: ${IP} PORT: 5003
-    echo
-    curl -s -L ${IP}:5001/v2/stats/leader | python -mjson.tool
+    echo NODE1: ${NAME}1 IP: ${IP} PORT: 4001
 }
 
 CMD=$1
 case ${CMD} in
     'start')
-	start
-	sleep 1
-	status
-	echo "# Run the following to export the environment"
-	echo "# eval \"\$(./init-etcd.sh env)\""
+    start
+    sleep 1
+    status
+    echo "# Run the following to export the environment"
+    echo "# eval \"\$(./init-etcd.sh env)\""
         ;;
     'stop')
-	stop
+    stop
         ;;
     'restart')
-	stop
-	start
-	sleep 1
-	status
-	;;
+    stop
+    start
+    sleep 1
+    status
+    ;;
     'status')
-	status
+    status
         ;;
     'env')
-	echo "export ETCDCTL_PEERS=\"http://${IP}:5001\""
-	echo "# Run the following to export the environment"
-	echo "# eval \"\$(./init-etcd.sh env)\""
+    echo "export ETCDCTL_PEERS=\"http://${IP}:4001\""
+    echo "# Run the following to export the environment"
+    echo "# eval \"\$(./init-etcd.sh env)\""
 
-	;;
+    ;;
     *)
         echo "Usage: $0 {start|stop|restart|status|env}"
         ;;
