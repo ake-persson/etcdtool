@@ -7,7 +7,10 @@ import (
 	"strings"
 
 	"encoding/json"
-	"github.com/coreos/go-etcd/etcd"
+	//	"github.com/coreos/go-etcd/etcd"
+
+	"github.com/coreos/etcd/Godeps/_workspace/src/golang.org/x/net/context"
+	etcd "github.com/coreos/etcd/client"
 )
 
 // Struct returns a struct from a Etcd directory.
@@ -71,8 +74,6 @@ func Map(root *etcd.Node) map[string]interface{} {
 
 // Create Etcd directory structure from a map, slice or struct.
 func Create(client *etcd.Client, path string, val reflect.Value) error {
-	// fmt.Printf("# %s : %s : %s\n", path, val.Kind(), val.Type())
-
 	switch val.Kind() {
 	case reflect.Ptr:
 		orig := val.Elem()
@@ -107,12 +108,16 @@ func Create(client *etcd.Client, path string, val reflect.Value) error {
 			Create(client, fmt.Sprintf("%s/%d", path, i), val.Index(i))
 		}
 	case reflect.String:
-		if _, err := client.Set(path, val.String(), 0); err != nil {
+		kapi := etcd.NewKeysAPI(*client)
+		_, err := kapi.Set(context.Background(), path, val.String(), nil)
+		if err != nil {
 			return err
 		}
 	case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Float32, reflect.Float64:
-		if _, err := client.Set(path, fmt.Sprintf("%v", val.Interface()), 0); err != nil {
+		kapi := etcd.NewKeysAPI(*client)
+		_, err := kapi.Set(context.Background(), path, fmt.Sprintf("%v", val.Interface()), nil)
+		if err != nil {
 			return err
 		}
 	default:

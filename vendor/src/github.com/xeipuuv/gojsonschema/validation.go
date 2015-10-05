@@ -26,6 +26,7 @@
 package gojsonschema
 
 import (
+	"encoding/json"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -78,8 +79,10 @@ func (v *subSchema) subValidateWithContext(document interface{}, context *jsonCo
 // Walker function to validate the json recursively against the subSchema
 func (v *subSchema) validateRecursive(currentSubSchema *subSchema, currentNode interface{}, result *Result, context *jsonContext) {
 
-	internalLog("validateRecursive %s", context.String())
-	internalLog(" %v", currentNode)
+	if internalLogEnabled {
+		internalLog("validateRecursive %s", context.String())
+		internalLog(" %v", currentNode)
+	}
 
 	// Handle referenced schemas, returns directly when a $ref is found
 	if currentSubSchema.refSchema != nil {
@@ -107,133 +110,28 @@ func (v *subSchema) validateRecursive(currentSubSchema *subSchema, currentNode i
 
 	} else { // Not a null value
 
-		rValue := reflect.ValueOf(currentNode)
-		rKind := rValue.Kind()
+		if isJsonNumber(currentNode) {
 
-		switch rKind {
+			value := currentNode.(json.Number)
 
-		// Slice => JSON array
+			_, isValidInt64, _ := checkJsonNumber(value)
 
-		case reflect.Slice:
-
-			if currentSubSchema.types.IsTyped() && !currentSubSchema.types.Contains(TYPE_ARRAY) {
-				result.addError(
-					new(InvalidTypeError),
-					context,
-					currentNode,
-					ErrorDetails{
-						"expected": currentSubSchema.types.String(),
-						"given":    TYPE_ARRAY,
-					},
-				)
-				return
-			}
-
-			castCurrentNode := currentNode.([]interface{})
-
-			currentSubSchema.validateSchema(currentSubSchema, castCurrentNode, result, context)
-
-			v.validateArray(currentSubSchema, castCurrentNode, result, context)
-			v.validateCommon(currentSubSchema, castCurrentNode, result, context)
-
-		// Map => JSON object
-
-		case reflect.Map:
-			if currentSubSchema.types.IsTyped() && !currentSubSchema.types.Contains(TYPE_OBJECT) {
-				result.addError(
-					new(InvalidTypeError),
-					context,
-					currentNode,
-					ErrorDetails{
-						"expected": currentSubSchema.types.String(),
-						"given":    TYPE_OBJECT,
-					},
-				)
-				return
-			}
-
-			castCurrentNode, ok := currentNode.(map[string]interface{})
-			if !ok {
-				castCurrentNode = convertDocumentNode(currentNode).(map[string]interface{})
-			}
-
-			currentSubSchema.validateSchema(currentSubSchema, castCurrentNode, result, context)
-
-			v.validateObject(currentSubSchema, castCurrentNode, result, context)
-			v.validateCommon(currentSubSchema, castCurrentNode, result, context)
-
-			for _, pSchema := range currentSubSchema.propertiesChildren {
-				nextNode, ok := castCurrentNode[pSchema.property]
-				if ok {
-					subContext := newJsonContext(pSchema.property, context)
-					v.validateRecursive(pSchema, nextNode, result, subContext)
-				}
-			}
-
-		// Simple JSON values : string, number, boolean
-
-		case reflect.Bool:
-
-			if currentSubSchema.types.IsTyped() && !currentSubSchema.types.Contains(TYPE_BOOLEAN) {
-				result.addError(
-					new(InvalidTypeError),
-					context,
-					currentNode,
-					ErrorDetails{
-						"expected": currentSubSchema.types.String(),
-						"given":    TYPE_BOOLEAN,
-					},
-				)
-				return
-			}
-
-			value := currentNode.(bool)
-
-			currentSubSchema.validateSchema(currentSubSchema, value, result, context)
-			v.validateNumber(currentSubSchema, value, result, context)
-			v.validateCommon(currentSubSchema, value, result, context)
-			v.validateString(currentSubSchema, value, result, context)
-
-		case reflect.String:
-
-			if currentSubSchema.types.IsTyped() && !currentSubSchema.types.Contains(TYPE_STRING) {
-				result.addError(
-					new(InvalidTypeError),
-					context,
-					currentNode,
-					ErrorDetails{
-						"expected": currentSubSchema.types.String(),
-						"given":    TYPE_STRING,
-					},
-				)
-				return
-			}
-
-			value := currentNode.(string)
-
-			currentSubSchema.validateSchema(currentSubSchema, value, result, context)
-			v.validateNumber(currentSubSchema, value, result, context)
-			v.validateCommon(currentSubSchema, value, result, context)
-			v.validateString(currentSubSchema, value, result, context)
-
-		case reflect.Float64:
-
-			value := currentNode.(float64)
-
-			// Note: JSON only understand one kind of numeric ( can be float or int )
-			// JSON subSchema make a distinction between fload and int
-			// An integer can be a number, but a number ( with decimals ) cannot be an integer
-			isInteger := isFloat64AnInteger(value)
-			validType := currentSubSchema.types.Contains(TYPE_NUMBER) || (isInteger && currentSubSchema.types.Contains(TYPE_INTEGER))
+			validType := currentSubSchema.types.Contains(TYPE_NUMBER) || (isValidInt64 && currentSubSchema.types.Contains(TYPE_INTEGER))
 
 			if currentSubSchema.types.IsTyped() && !validType {
+
+				givenType := TYPE_INTEGER
+				if !isValidInt64 {
+					givenType = TYPE_NUMBER
+				}
+
 				result.addError(
 					new(InvalidTypeError),
 					context,
 					currentNode,
 					ErrorDetails{
 						"expected": currentSubSchema.types.String(),
-						"given":    TYPE_INTEGER,
+						"given":    givenType,
 					},
 				)
 				return
@@ -243,7 +141,122 @@ func (v *subSchema) validateRecursive(currentSubSchema *subSchema, currentNode i
 			v.validateNumber(currentSubSchema, value, result, context)
 			v.validateCommon(currentSubSchema, value, result, context)
 			v.validateString(currentSubSchema, value, result, context)
+
+		} else {
+
+			rValue := reflect.ValueOf(currentNode)
+			rKind := rValue.Kind()
+
+			switch rKind {
+
+			// Slice => JSON array
+
+			case reflect.Slice:
+
+				if currentSubSchema.types.IsTyped() && !currentSubSchema.types.Contains(TYPE_ARRAY) {
+					result.addError(
+						new(InvalidTypeError),
+						context,
+						currentNode,
+						ErrorDetails{
+							"expected": currentSubSchema.types.String(),
+							"given":    TYPE_ARRAY,
+						},
+					)
+					return
+				}
+
+				castCurrentNode := currentNode.([]interface{})
+
+				currentSubSchema.validateSchema(currentSubSchema, castCurrentNode, result, context)
+
+				v.validateArray(currentSubSchema, castCurrentNode, result, context)
+				v.validateCommon(currentSubSchema, castCurrentNode, result, context)
+
+			// Map => JSON object
+
+			case reflect.Map:
+				if currentSubSchema.types.IsTyped() && !currentSubSchema.types.Contains(TYPE_OBJECT) {
+					result.addError(
+						new(InvalidTypeError),
+						context,
+						currentNode,
+						ErrorDetails{
+							"expected": currentSubSchema.types.String(),
+							"given":    TYPE_OBJECT,
+						},
+					)
+					return
+				}
+
+				castCurrentNode, ok := currentNode.(map[string]interface{})
+				if !ok {
+					castCurrentNode = convertDocumentNode(currentNode).(map[string]interface{})
+				}
+
+				currentSubSchema.validateSchema(currentSubSchema, castCurrentNode, result, context)
+
+				v.validateObject(currentSubSchema, castCurrentNode, result, context)
+				v.validateCommon(currentSubSchema, castCurrentNode, result, context)
+
+				for _, pSchema := range currentSubSchema.propertiesChildren {
+					nextNode, ok := castCurrentNode[pSchema.property]
+					if ok {
+						subContext := newJsonContext(pSchema.property, context)
+						v.validateRecursive(pSchema, nextNode, result, subContext)
+					}
+				}
+
+			// Simple JSON values : string, number, boolean
+
+			case reflect.Bool:
+
+				if currentSubSchema.types.IsTyped() && !currentSubSchema.types.Contains(TYPE_BOOLEAN) {
+					result.addError(
+						new(InvalidTypeError),
+						context,
+						currentNode,
+						ErrorDetails{
+							"expected": currentSubSchema.types.String(),
+							"given":    TYPE_BOOLEAN,
+						},
+					)
+					return
+				}
+
+				value := currentNode.(bool)
+
+				currentSubSchema.validateSchema(currentSubSchema, value, result, context)
+				v.validateNumber(currentSubSchema, value, result, context)
+				v.validateCommon(currentSubSchema, value, result, context)
+				v.validateString(currentSubSchema, value, result, context)
+
+			case reflect.String:
+
+				if currentSubSchema.types.IsTyped() && !currentSubSchema.types.Contains(TYPE_STRING) {
+					result.addError(
+						new(InvalidTypeError),
+						context,
+						currentNode,
+						ErrorDetails{
+							"expected": currentSubSchema.types.String(),
+							"given":    TYPE_STRING,
+						},
+					)
+					return
+				}
+
+				value := currentNode.(string)
+
+				currentSubSchema.validateSchema(currentSubSchema, value, result, context)
+				v.validateNumber(currentSubSchema, value, result, context)
+				v.validateCommon(currentSubSchema, value, result, context)
+				v.validateString(currentSubSchema, value, result, context)
+
+			}
+
 		}
+
 	}
 
 	result.incrementScore()
@@ -252,8 +265,10 @@ func (v *subSchema) validateRecursive(currentSubSchema *subSchema, currentNode i
 // Different kinds of validation there, subSchema / common / array / object / string...
 func (v *subSchema) validateSchema(currentSubSchema *subSchema, currentNode interface{}, result *Result, context *jsonContext) {
 
-	internalLog("validateSchema %s", context.String())
-	internalLog(" %v", currentNode)
+	if internalLogEnabled {
+		internalLog("validateSchema %s", context.String())
+		internalLog(" %v", currentNode)
+	}
 
 	if len(currentSubSchema.anyOf) > 0 {
 
@@ -364,8 +379,10 @@ func (v *subSchema) validateSchema(currentSubSchema *subSchema, currentNode inte
 
 func (v *subSchema) validateCommon(currentSubSchema *subSchema, value interface{}, result *Result, context *jsonContext) {
 
-	internalLog("validateCommon %s", context.String())
-	internalLog(" %v", value)
+	if internalLogEnabled {
+		internalLog("validateCommon %s", context.String())
+		internalLog(" %v", value)
+	}
 
 	// enum:
 	if len(currentSubSchema.enum) > 0 {
@@ -390,8 +407,10 @@ func (v *subSchema) validateCommon(currentSubSchema *subSchema, value interface{
 
 func (v *subSchema) validateArray(currentSubSchema *subSchema, value []interface{}, result *Result, context *jsonContext) {
 
-	internalLog("validateArray %s", context.String())
-	internalLog(" %v", value)
+	if internalLogEnabled {
+		internalLog("validateArray %s", context.String())
+		internalLog(" %v", value)
+	}
 
 	nbItems := len(value)
 
@@ -434,7 +453,7 @@ func (v *subSchema) validateArray(currentSubSchema *subSchema, value []interface
 
 	// minItems & maxItems
 	if currentSubSchema.minItems != nil {
-		if nbItems < *currentSubSchema.minItems {
+		if nbItems < int(*currentSubSchema.minItems) {
 			result.addError(
 				new(ArrayMinItemsError),
 				context,
@@ -444,7 +463,7 @@ func (v *subSchema) validateArray(currentSubSchema *subSchema, value []interface
 		}
 	}
 	if currentSubSchema.maxItems != nil {
-		if nbItems > *currentSubSchema.maxItems {
+		if nbItems > int(*currentSubSchema.maxItems) {
 			result.addError(
 				new(ArrayMaxItemsError),
 				context,
@@ -479,12 +498,14 @@ func (v *subSchema) validateArray(currentSubSchema *subSchema, value []interface
 
 func (v *subSchema) validateObject(currentSubSchema *subSchema, value map[string]interface{}, result *Result, context *jsonContext) {
 
-	internalLog("validateObject %s", context.String())
-	internalLog(" %v", value)
+	if internalLogEnabled {
+		internalLog("validateObject %s", context.String())
+		internalLog(" %v", value)
+	}
 
 	// minProperties & maxProperties:
 	if currentSubSchema.minProperties != nil {
-		if len(value) < *currentSubSchema.minProperties {
+		if len(value) < int(*currentSubSchema.minProperties) {
 			result.addError(
 				new(ArrayMinPropertiesError),
 				context,
@@ -494,7 +515,7 @@ func (v *subSchema) validateObject(currentSubSchema *subSchema, value map[string
 		}
 	}
 	if currentSubSchema.maxProperties != nil {
-		if len(value) > *currentSubSchema.maxProperties {
+		if len(value) > int(*currentSubSchema.maxProperties) {
 			result.addError(
 				new(ArrayMaxPropertiesError),
 				context,
@@ -623,8 +644,10 @@ func (v *subSchema) validateObject(currentSubSchema *subSchema, value map[string
 
 func (v *subSchema) validatePatternProperty(currentSubSchema *subSchema, key string, value interface{}, result *Result, context *jsonContext) (has bool, matched bool) {
 
-	internalLog("validatePatternProperty %s", context.String())
-	internalLog(" %s %v", key, value)
+	if internalLogEnabled {
+		internalLog("validatePatternProperty %s", context.String())
+		internalLog(" %s %v", key, value)
+	}
 
 	has = false
 
@@ -653,19 +676,26 @@ func (v *subSchema) validatePatternProperty(currentSubSchema *subSchema, key str
 
 func (v *subSchema) validateString(currentSubSchema *subSchema, value interface{}, result *Result, context *jsonContext) {
 
-	internalLog("validateString %s", context.String())
-	internalLog(" %v", value)
+	// Ignore JSON numbers
+	if isJsonNumber(value) {
+		return
+	}
 
 	// Ignore non strings
 	if !isKind(value, reflect.String) {
 		return
 	}
 
+	if internalLogEnabled {
+		internalLog("validateString %s", context.String())
+		internalLog(" %v", value)
+	}
+
 	stringValue := value.(string)
 
 	// minLength & maxLength:
 	if currentSubSchema.minLength != nil {
-		if utf8.RuneCount([]byte(stringValue)) < *currentSubSchema.minLength {
+		if utf8.RuneCount([]byte(stringValue)) < int(*currentSubSchema.minLength) {
 			result.addError(
 				new(StringLengthGTEError),
 				context,
@@ -675,7 +705,7 @@ func (v *subSchema) validateString(currentSubSchema *subSchema, value interface{
 		}
 	}
 	if currentSubSchema.maxLength != nil {
-		if utf8.RuneCount([]byte(stringValue)) > *currentSubSchema.maxLength {
+		if utf8.RuneCount([]byte(stringValue)) > int(*currentSubSchema.maxLength) {
 			result.addError(
 				new(StringLengthLTEError),
 				context,
@@ -715,23 +745,27 @@ func (v *subSchema) validateString(currentSubSchema *subSchema, value interface{
 
 func (v *subSchema) validateNumber(currentSubSchema *subSchema, value interface{}, result *Result, context *jsonContext) {
 
-	internalLog("validateNumber %s", context.String())
-	internalLog(" %v", value)
-
 	// Ignore non numbers
-	if !isKind(value, reflect.Float64) {
+	if !isJsonNumber(value) {
 		return
 	}
 
-	float64Value := value.(float64)
+	if internalLogEnabled {
+		internalLog("validateNumber %s", context.String())
+		internalLog(" %v", value)
+	}
+
+	number := value.(json.Number)
+	float64Value, _ := number.Float64()
 
 	// multipleOf:
 	if currentSubSchema.multipleOf != nil {
+
 		if !isFloat64AnInteger(float64Value / *currentSubSchema.multipleOf) {
 			result.addError(
 				new(MultipleOfError),
 				context,
-				resultErrorFormatNumber(float64Value),
+				resultErrorFormatJsonNumber(number),
 				ErrorDetails{"multiple": *currentSubSchema.multipleOf},
 			)
 		}
@@ -744,7 +778,7 @@ func (v *subSchema) validateNumber(currentSubSchema *subSchema, value interface{
 				result.addError(
 					new(NumberLTEError),
 					context,
-					resultErrorFormatNumber(float64Value),
+					resultErrorFormatJsonNumber(number),
 					ErrorDetails{
 						"min": resultErrorFormatNumber(*currentSubSchema.maximum),
 					},
@@ -755,7 +789,7 @@ func (v *subSchema) validateNumber(currentSubSchema *subSchema, value interface{
 				result.addError(
 					new(NumberLTError),
 					context,
-					resultErrorFormatNumber(float64Value),
+					resultErrorFormatJsonNumber(number),
 					ErrorDetails{
 						"min": resultErrorFormatNumber(*currentSubSchema.maximum),
 					},
@@ -771,7 +805,7 @@ func (v *subSchema) validateNumber(currentSubSchema *subSchema, value interface{
 				result.addError(
 					new(NumberGTEError),
 					context,
-					resultErrorFormatNumber(float64Value),
+					resultErrorFormatJsonNumber(number),
 					ErrorDetails{
 						"max": resultErrorFormatNumber(*currentSubSchema.minimum),
 					},
@@ -782,7 +816,7 @@ func (v *subSchema) validateNumber(currentSubSchema *subSchema, value interface{
 				result.addError(
 					new(NumberGTError),
 					context,
-					resultErrorFormatNumber(float64Value),
+					resultErrorFormatJsonNumber(number),
 					ErrorDetails{
 						"max": resultErrorFormatNumber(*currentSubSchema.minimum),
 					},

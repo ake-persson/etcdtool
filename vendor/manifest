@@ -8,6 +8,41 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/github.com/ugorji/go/codec",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "581cc5cff456ee68bd3387e05d1f54d62bb3eba3",
+			"branch": "master",
+			"path": "/Godeps/_workspace/src/github.com/ugorji/go/codec"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/golang.org/x/net/context",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "581cc5cff456ee68bd3387e05d1f54d62bb3eba3",
+			"branch": "master",
+			"path": "/Godeps/_workspace/src/golang.org/x/net/context"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/client",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "581cc5cff456ee68bd3387e05d1f54d62bb3eba3",
+			"branch": "master",
+			"path": "/client"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/pkg/pathutil",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "581cc5cff456ee68bd3387e05d1f54d62bb3eba3",
+			"branch": "master",
+			"path": "/pkg/pathutil"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/pkg/types",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "581cc5cff456ee68bd3387e05d1f54d62bb3eba3",
+			"branch": "master",
+			"path": "/pkg/types"
+		},
+		{
 			"importpath": "github.com/coreos/go-etcd/etcd",
 			"repository": "https://github.com/coreos/go-etcd",
 			"revision": "de3514f25635bbfb024fdaf2a8d5f67378492675",
@@ -17,7 +52,7 @@
 		{
 			"importpath": "github.com/mickep76/etcdmap",
 			"repository": "https://github.com/mickep76/etcdmap",
-			"revision": "87c4403f69d72d43abc584a638d78958ce22e3b4",
+			"revision": "228113261f623f627e9bb17b14228485a8dcd33f",
 			"branch": "master"
 		},
 		{
@@ -29,7 +64,7 @@
 		{
 			"importpath": "github.com/ugorji/go/codec",
 			"repository": "https://github.com/ugorji/go",
-			"revision": "1d5269ed4e89d423d40362a0914e1c99adb13cc8",
+			"revision": "45ce7596ace4534e47b69051a92aef7b64ec7b3f",
 			"branch": "master",
 			"path": "/codec"
 		},
@@ -48,13 +83,13 @@
 		{
 			"importpath": "github.com/xeipuuv/gojsonschema",
 			"repository": "https://github.com/xeipuuv/gojsonschema",
-			"revision": "888f4e6541f4d1d50161e5880e9828865089f966",
+			"revision": "32ec3b388633cd08f2ac9970a53dc2278b1bc4c6",
 			"branch": "master"
 		},
 		{
 			"importpath": "gopkg.in/yaml.v2",
 			"repository": "https://gopkg.in/yaml.v2",
-			"revision": "7ad95dd0798a40da1ccdff6dff35fd177b5edf40",
+			"revision": "53feefa2559fb8dfa8d81baad31be332c97d6c77",
 			"branch": "v2"
 		}
 	]

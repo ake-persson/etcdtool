@@ -7,22 +7,20 @@ import (
 	"os"
 	"reflect"
 	"strings"
+	"time"
 
-	etcd "github.com/coreos/go-etcd/etcd"
+	//	etcd "github.com/coreos/go-etcd/etcd"
+	"github.com/coreos/etcd/Godeps/_workspace/src/golang.org/x/net/context"
+	etcd "github.com/coreos/etcd/client"
 	"github.com/mickep76/etcdmap"
 )
 
-func getEnv() []string {
-	for _, e := range os.Environ() {
-		a := strings.Split(e, "=")
-		if a[0] == "ETCD_CONN" {
-			return []string{a[1]}
-		}
-	}
-
-	return []string{}
+// Env variables.
+type Env struct {
+	Peers string
 }
 
+// User structure.
 type User struct {
 	Name      string `json:"username" etcd:"id"`
 	Age       int    `json:"age" etcd:"age"`
@@ -31,16 +29,35 @@ type User struct {
 	LastName  string `json:"last_name" etcd:"last_name"`
 }
 
+// Group structure.
 type Group struct {
 	Name  string `json:"groupname" etcd:"id"`
 	Users []User `json:"users" etcd:"users"`
 }
 
+// getEnv variables.
+func getEnv() Env {
+	env := Env{}
+	env.Peers = "http://127.0.0.1:4001,http://127.0.0.1:2379"
+
+	for _, e := range os.Environ() {
+		a := strings.Split(e, "=")
+		switch a[0] {
+		case "ETCD_PEERS":
+			env.Peers = a[1]
+		}
+	}
+
+	return env
+}
+
 // ExampleNestedStruct creates a Etcd directory using a nested Go struct and then gets the directory as JSON.
 func Example_nestedStruct() {
-	verbose := flag.Bool("verbose", false, "Verbose")
-	node := flag.String("node", "", "Etcd node")
-	port := flag.String("port", "", "Etcd port")
+	// Get env variables.
+	env := getEnv()
+
+	// Options.
+	peers := flag.String("peers", env.Peers, "Comma separated list of etcd nodes, can be set with env. variable ETCD_PEERS")
 	flag.Parse()
 
 	// Define nested structure.
@@ -64,32 +81,34 @@ func Example_nestedStruct() {
 		},
 	}
 
-	// Connect to Etcd.
-	conn := getEnv()
-	if node == nil && port == nil {
-		conn = []string{fmt.Sprintf("http://%v:%v", *node, *port)}
+	// Connect to etcd.
+	cfg := etcd.Config{
+		Endpoints:               strings.Split(*peers, ","),
+		Transport:               etcd.DefaultTransport,
+		HeaderTimeoutPerRequest: time.Second,
 	}
 
-	if *verbose {
-		log.Printf("Connecting to: %s", conn)
+	client, err := etcd.New(cfg)
+	if err != nil {
+		log.Fatal(err)
 	}
-	client := etcd.NewClient(conn)
 
 	// Create directory structure based on struct.
-	err := etcdmap.Create(client, "/example", reflect.ValueOf(g))
-	if err != nil {
-		log.Fatal(err.Error())
+	err2 := etcdmap.Create(&client, "/example", reflect.ValueOf(g))
+	if err2 != nil {
+		log.Fatal(err2.Error())
 	}
 
 	// Get directory structure from Etcd.
-	res, err := client.Get("/example", true, true)
-	if err != nil {
-		log.Fatal(err.Error())
+	kapi := etcd.NewKeysAPI(client)
+	res, err3 := kapi.Get(context.Background(), "/example", &etcd.GetOptions{Recursive: true})
+	if err3 != nil {
+		log.Fatal(err3.Error())
 	}
 
-	j, err2 := etcdmap.JSON(res.Node)
-	if err2 != nil {
-		log.Fatal(err2.Error())
+	j, err4 := etcdmap.JSON(res.Node)
+	if err4 != nil {
+		log.Fatal(err4.Error())
 	}
 
 	fmt.Println(string(j))

@@ -27,8 +27,10 @@
 package gojsonschema
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
@@ -87,6 +89,7 @@ func (l *jsonReferenceLoader) loadJSON() (interface{}, error) {
 			filename = filepath.FromSlash(filename)
 			filename = strings.Replace(filename, "%20", " ", -1)
 		}
+
 		document, err = l.loadFromFile(filename)
 		if err != nil {
 			return nil, err
@@ -149,13 +152,8 @@ func (l *jsonReferenceLoader) loadFromHTTP(address string) (interface{}, error) 
 		return nil, err
 	}
 
-	var document interface{}
-	err = json.Unmarshal(bodyBuff, &document)
-	if err != nil {
-		return nil, err
-	}
+	return decodeJsonUsingNumber(bytes.NewReader(bodyBuff))
 
-	return document, nil
 }
 
 func (l *jsonReferenceLoader) loadFromFile(path string) (interface{}, error) {
@@ -165,13 +163,8 @@ func (l *jsonReferenceLoader) loadFromFile(path string) (interface{}, error) {
 		return nil, err
 	}
 
-	var document interface{}
-	err = json.Unmarshal(bodyBuff, &document)
-	if err != nil {
-		return nil, err
-	}
+	return decodeJsonUsingNumber(bytes.NewReader(bodyBuff))
 
-	return document, nil
 }
 
 // JSON string loader
@@ -190,14 +183,7 @@ func NewStringLoader(source string) *jsonStringLoader {
 
 func (l *jsonStringLoader) loadJSON() (interface{}, error) {
 
-	var document interface{}
-
-	err := json.Unmarshal([]byte(l.jsonSource().(string)), &document)
-	if err != nil {
-		return nil, err
-	}
-
-	return document, nil
+	return decodeJsonUsingNumber(strings.NewReader(l.jsonSource().(string)))
 
 }
 
@@ -252,14 +238,7 @@ func (l *jsonGoLoader) loadJSON() (interface{}, error) {
 		return nil, err
 	}
 
-	var document interface{}
-
-	err = json.Unmarshal(jsonBytes, &document)
-	if err != nil {
-		return nil, err
-	}
-
-	return document, nil
+	return decodeJsonUsingNumber(bytes.NewReader(jsonBytes))
 
 }
 
@@ -287,5 +266,21 @@ func (l *jsonGoLoader) loadSchema() (*Schema, error) {
 	}
 
 	return &d, nil
+
+}
+
+func decodeJsonUsingNumber(r io.Reader) (interface{}, error) {
+
+	var document interface{}
+
+	decoder := json.NewDecoder(r)
+	decoder.UseNumber()
+
+	err := decoder.Decode(&document)
+	if err != nil {
+		return nil, err
+	}
+
+	return document, nil
 
 }

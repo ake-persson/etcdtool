@@ -9,8 +9,11 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"time"
 
-	etcd "github.com/coreos/go-etcd/etcd"
+	"github.com/coreos/etcd/Godeps/_workspace/src/golang.org/x/net/context"
+	etcd "github.com/coreos/etcd/client"
+	//	etcd "github.com/coreos/go-etcd/etcd"
 	"github.com/mickep76/etcdmap"
 	"github.com/mickep76/iodatafmt"
 	jsonschema "github.com/xeipuuv/gojsonschema"
@@ -51,12 +54,22 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	// Setup etcd client.
-	client := etcd.NewClient(strings.Split(*peers, ","))
+	// Connect to etcd.
+	cfg := etcd.Config{
+		Endpoints:               strings.Split(*peers, ","),
+		Transport:               etcd.DefaultTransport,
+		HeaderTimeoutPerRequest: time.Second,
+	}
+
+	client, err := etcd.New(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if !*noValidate && *schema == "" {
 		// Get routes.
-		res, err := client.Get("/routes", true, true)
+		kapi := etcd.NewKeysAPI(client)
+		res, err := kapi.Get(context.Background(), "/routes", &etcd.GetOptions{Recursive: true})
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -106,7 +119,8 @@ func main() {
 	if !*noValidate {
 
 		// Get JSON Schema.
-		res, err := client.Get(*schema, false, false)
+		kapi := etcd.NewKeysAPI(client)
+		res, err := kapi.Get(context.Background(), *schema, &etcd.GetOptions{})
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -137,14 +151,16 @@ func main() {
 			}
 		}
 
-		if _, err := client.Delete(strings.TrimRight(*dir, "/"), true); err != nil {
+		kapi := etcd.NewKeysAPI(client)
+		if _, err = kapi.Delete(context.Background(), strings.TrimRight(*dir, "/"), &etcd.DeleteOptions{Recursive: true}); err != nil {
 			log.Fatalf(err.Error())
 		}
 		log.Printf("Removed path: %s", strings.TrimRight(*dir, "/"))
 	}
 
 	// Create dir.
-	if _, err := client.CreateDir(*dir, 0); err != nil {
+	kapi := etcd.NewKeysAPI(client)
+	if _, err := kapi.Set(context.TODO(), *dir, "", &etcd.SetOptions{Dir: true}); err != nil {
 		log.Printf(err.Error())
 
 		// Should prob. check that we're actually dealing with an existing key and not something else...
@@ -157,7 +173,7 @@ func main() {
 	}
 
 	// Import data.
-	if err = etcdmap.Create(client, strings.TrimRight(*dir, "/"), reflect.ValueOf(m)); err != nil {
+	if err = etcdmap.Create(&client, strings.TrimRight(*dir, "/"), reflect.ValueOf(m)); err != nil {
 		log.Fatal(err.Error())
 	}
 }

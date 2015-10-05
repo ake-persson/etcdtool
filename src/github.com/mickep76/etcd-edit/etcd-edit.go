@@ -9,8 +9,10 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"time"
 
-	etcd "github.com/coreos/go-etcd/etcd"
+	"github.com/coreos/etcd/Godeps/_workspace/src/golang.org/x/net/context"
+	etcd "github.com/coreos/etcd/client"
 	"github.com/mickep76/etcdmap"
 	"github.com/mickep76/iodatafmt"
 	jsonschema "github.com/xeipuuv/gojsonschema"
@@ -47,7 +49,7 @@ func main() {
 
 	// Print version.
 	if *version {
-		fmt.Printf("etcd-export %s\n", common.Version)
+		fmt.Printf("etcd-edit %s\n", common.Version)
 		os.Exit(0)
 	}
 
@@ -57,12 +59,22 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	// Setup etcd client.
-	client := etcd.NewClient(strings.Split(*peers, ","))
+	// Connect to etcd.
+	cfg := etcd.Config{
+		Endpoints:               strings.Split(*peers, ","),
+		Transport:               etcd.DefaultTransport,
+		HeaderTimeoutPerRequest: time.Second,
+	}
+
+	client, err := etcd.New(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if !*noValidate && *schema == "" {
 		// Get routes.
-		res, err := client.Get("/routes", true, true)
+		kapi := etcd.NewKeysAPI(client)
+		res, err := kapi.Get(context.Background(), "/routes", &etcd.GetOptions{Recursive: true})
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -95,7 +107,8 @@ func main() {
 	// Export data.
 	if *new {
 		// Get JSON Schema.
-		res, err := client.Get(*template, false, false)
+		kapi := etcd.NewKeysAPI(client)
+		res, err := kapi.Get(context.Background(), *schema, &etcd.GetOptions{})
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -106,7 +119,8 @@ func main() {
 		m = m2.(map[string]interface{})
 
 	} else {
-		res, err := client.Get(*dir, true, true)
+		kapi := etcd.NewKeysAPI(client)
+		res, err := kapi.Get(context.Background(), *dir, &etcd.GetOptions{Recursive: true})
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -152,7 +166,8 @@ EDIT:
 	if !*noValidate {
 
 		// Get JSON Schema.
-		res, err := client.Get(*schema, false, false)
+		kapi := etcd.NewKeysAPI(client)
+		res, err := kapi.Get(context.Background(), *schema, &etcd.GetOptions{})
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -192,7 +207,8 @@ EDIT:
 			}
 		}
 
-		if _, err := client.Delete(strings.TrimRight(*dir, "/"), true); err != nil {
+		kapi := etcd.NewKeysAPI(client)
+		if _, err = kapi.Delete(context.Background(), strings.TrimRight(*dir, "/"), &etcd.DeleteOptions{Recursive: true}); err != nil {
 			// Don't exit since -new dir. won't exist
 			log.Println(err.Error())
 		} else {
@@ -200,7 +216,7 @@ EDIT:
 		}
 
 		// Create dir.
-		if _, err := client.CreateDir(*dir, 0); err != nil {
+		if _, err := kapi.Set(context.TODO(), *dir, "", &etcd.SetOptions{Dir: true}); err != nil {
 			log.Fatalf(err.Error())
 		}
 	} else {
@@ -213,7 +229,7 @@ EDIT:
 	}
 
 	// Import data.
-	if err = etcdmap.Create(client, strings.TrimRight(*dir, "/"), reflect.ValueOf(m2)); err != nil {
+	if err = etcdmap.Create(&client, strings.TrimRight(*dir, "/"), reflect.ValueOf(m)); err != nil {
 		log.Fatal(err.Error())
 	}
 }

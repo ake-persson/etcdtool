@@ -30,6 +30,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"strconv"
 )
 
 func isKind(what interface{}, kind reflect.Kind) bool {
@@ -61,13 +62,40 @@ func marshalToJsonString(value interface{}) (*string, error) {
 	return &sBytes, nil
 }
 
+func isJsonNumber(what interface{}) bool {
+
+	switch what.(type) {
+
+	case json.Number:
+		return true
+	}
+
+	return false
+}
+
+func checkJsonNumber(what interface{}) (isValidFloat64 bool, isValidInt64 bool, isValidInt32 bool) {
+
+	jsonNumber := what.(json.Number)
+
+	_, errFloat64 := jsonNumber.Float64()
+	_, errInt64 := jsonNumber.Int64()
+
+	isValidFloat64 = errFloat64 == nil
+	isValidInt64 = errInt64 == nil
+
+	_, errInt32 := strconv.ParseInt(jsonNumber.String(), 10, 32)
+	isValidInt32 = isValidInt64 && errInt32 == nil
+
+	return
+
+}
+
 // same as ECMA Number.MAX_SAFE_INTEGER and Number.MIN_SAFE_INTEGER
 const (
 	max_json_float = float64(1<<53 - 1)  // 9007199254740991.0 	 2^53 - 1
 	min_json_float = -float64(1<<53 - 1) //-9007199254740991.0	-2^53 - 1
 )
 
-// allow for integers [-2^53, 2^53-1] inclusive
 func isFloat64AnInteger(f float64) bool {
 
 	if math.IsNaN(f) || math.IsInf(f, 0) || f < min_json_float || f > max_json_float {
@@ -79,23 +107,25 @@ func isFloat64AnInteger(f float64) bool {
 
 func mustBeInteger(what interface{}) *int {
 
-	var number int
+	if isJsonNumber(what) {
 
-	if isKind(what, reflect.Float64) {
+		number := what.(json.Number)
 
-		fnumber := what.(float64)
+		_, _, isValidInt32 := checkJsonNumber(number)
 
-		if isFloat64AnInteger(fnumber) {
-			number = int(fnumber)
-			return &number
+		if isValidInt32 {
+
+			int64Value, err := number.Int64()
+			if err != nil {
+				return nil
+			}
+
+			int32Value := int(int64Value)
+			return &int32Value
+
 		} else {
 			return nil
 		}
-
-	} else if isKind(what, reflect.Int) {
-
-		number = what.(int)
-		return &number
 
 	}
 
@@ -104,22 +134,33 @@ func mustBeInteger(what interface{}) *int {
 
 func mustBeNumber(what interface{}) *float64 {
 
-	var number float64
+	if isJsonNumber(what) {
 
-	if isKind(what, reflect.Float64) {
+		number := what.(json.Number)
+		float64Value, err := number.Float64()
 
-		number = what.(float64)
-		return &number
-
-	} else if isKind(what, reflect.Int) {
-
-		number = float64(what.(int))
-		return &number
+		if err == nil {
+			return &float64Value
+		} else {
+			return nil
+		}
 
 	}
 
 	return nil
 
+}
+
+// formats a number so that it is displayed as the smallest string possible
+func resultErrorFormatJsonNumber(n json.Number) string {
+
+	if int64Value, err := n.Int64(); err == nil {
+		return fmt.Sprintf("%d", int64Value)
+	}
+
+	float64Value, _ := n.Float64()
+
+	return fmt.Sprintf("%g", float64Value)
 }
 
 // formats a number so that it is displayed as the smallest string possible
