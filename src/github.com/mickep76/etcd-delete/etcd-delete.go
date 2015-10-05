@@ -6,8 +6,10 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
-	etcd "github.com/coreos/go-etcd/etcd"
+	"github.com/coreos/etcd/Godeps/_workspace/src/golang.org/x/net/context"
+	etcd "github.com/coreos/etcd/client"
 
 	"github.com/mickep76/common"
 )
@@ -31,8 +33,17 @@ func main() {
 		log.Fatalf("You need to specify etcd dir.")
 	}
 
-	// Setup etcd client.
-	client := etcd.NewClient(strings.Split(*peers, ","))
+	// Connect to etcd.
+	cfg := etcd.Config{
+		Endpoints:               strings.Split(*peers, ","),
+		Transport:               etcd.DefaultTransport,
+		HeaderTimeoutPerRequest: time.Second,
+	}
+
+	client, err := etcd.New(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if !*force {
 		fmt.Printf("Remove path: %s? [yes|no]", strings.TrimRight(*dir, "/"))
@@ -43,7 +54,8 @@ func main() {
 		}
 	}
 
-	if _, err := client.Delete(strings.TrimRight(*dir, "/"), true); err != nil {
+	kapi := etcd.NewKeysAPI(client)
+	if _, err = kapi.Delete(context.Background(), strings.TrimRight(*dir, "/"), &etcd.DeleteOptions{Recursive: true}); err != nil {
 		log.Fatalf(err.Error())
 	}
 	log.Printf("Removed path: %s", strings.TrimRight(*dir, "/"))

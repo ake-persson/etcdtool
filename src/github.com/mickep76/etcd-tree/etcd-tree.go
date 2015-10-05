@@ -6,8 +6,10 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
-	etcd "github.com/coreos/go-etcd/etcd"
+	"github.com/coreos/etcd/Godeps/_workspace/src/golang.org/x/net/context"
+	etcd "github.com/coreos/etcd/client"
 
 	"github.com/mickep76/common"
 )
@@ -60,11 +62,21 @@ func main() {
 		log.Fatalf("You need to specify etcd dir.")
 	}
 
-	// Setup etcd client.
-	client := etcd.NewClient(strings.Split(*peers, ","))
+	// Connect to etcd.
+	cfg := etcd.Config{
+		Endpoints:               strings.Split(*peers, ","),
+		Transport:               etcd.DefaultTransport,
+		HeaderTimeoutPerRequest: time.Second,
+	}
+
+	client, err := etcd.New(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Export data.
-	res, err := client.Get(*dir, true, true)
+	kapi := etcd.NewKeysAPI(client)
+	res, err := kapi.Get(context.Background(), *dir, &etcd.GetOptions{Recursive: true, Sort: true})
 	if err != nil {
 		log.Fatal(err.Error())
 	}
