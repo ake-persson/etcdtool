@@ -106,9 +106,9 @@ func main() {
 
 	// Export data.
 	if *new {
-		// Get JSON Schema.
+		// Get JSON template.
 		kapi := etcd.NewKeysAPI(client)
-		res, err := kapi.Get(context.Background(), *schema, &etcd.GetOptions{})
+		res, err := kapi.Get(context.Background(), *template, &etcd.GetOptions{})
 		if err != nil {
 			log.Fatal(err.Error())
 		}
