@@ -229,6 +229,7 @@ EDIT:
 	}
 
 	// Import data.
+	log.Printf("Import data to: %s", strings.TrimRight(*dir, "/"))
 	if err = etcdmap.Create(&client, strings.TrimRight(*dir, "/"), reflect.ValueOf(m)); err != nil {
 		log.Fatal(err.Error())
 	}

@@ -15,8 +15,8 @@ esac
 
 start() {
     docker run -d -v /usr/share/ca-certificates/:/etc/ssl/certs -p 4001:4001 -p 2380:2380 -p 2379:2379 \
-        --name etcd quay.io/coreos/etcd:v2.0.8 \
-        -name etcd0 \
+        --name ${NAME}0 quay.io/coreos/etcd:v2.0.8 \
+        -name ${NAME}0 \
         -advertise-client-urls http://${IP}:2379,http://${IP}:4001 \
         -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 \
         -initial-advertise-peer-urls http://${IP}:2380 \
