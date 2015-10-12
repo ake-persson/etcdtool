@@ -102,7 +102,7 @@ func main() {
 		}
 	}
 
-	var m map[string]interface{}
+	var exp map[string]interface{}
 
 	// Export data.
 	if *new {
@@ -116,7 +116,7 @@ func main() {
 		if err2 != nil {
 			log.Fatal(err2.Error())
 		}
-		m = m2.(map[string]interface{})
+		exp = m2.(map[string]interface{})
 
 	} else {
 		kapi := etcd.NewKeysAPI(client)
@@ -124,11 +124,11 @@ func main() {
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		m = etcdmap.Map(res.Node)
+		exp = etcdmap.Map(res.Node)
 	}
 
 	// Write output.
-	iodatafmt.Write(*tmpFile, m, f)
+	iodatafmt.Write(*tmpFile, exp, f)
 
 EDIT:
 
@@ -146,9 +146,9 @@ EDIT:
 	}
 
 	// Import data.
-	var m2 interface{}
+	var imp interface{}
 	var err4 error
-	m2, err4 = iodatafmt.Load(*tmpFile, f)
+	imp, err4 = iodatafmt.Load(*tmpFile, f)
 	if err4 != nil {
 		log.Printf(err4.Error())
 
@@ -172,7 +172,7 @@ EDIT:
 			log.Fatal(err.Error())
 		}
 		schemaLoader := jsonschema.NewStringLoader(res.Node.Value)
-		docLoader := jsonschema.NewGoLoader(m2)
+		docLoader := jsonschema.NewGoLoader(imp)
 
 		result, err := jsonschema.Validate(schemaLoader, docLoader)
 		if err != nil {
@@ -230,7 +230,7 @@ EDIT:
 
 	// Import data.
 	log.Printf("Import data to: %s", strings.TrimRight(*dir, "/"))
-	if err = etcdmap.Create(&client, strings.TrimRight(*dir, "/"), reflect.ValueOf(m)); err != nil {
+	if err = etcdmap.Create(&client, strings.TrimRight(*dir, "/"), reflect.ValueOf(imp)); err != nil {
 		log.Fatal(err.Error())
 	}
 }
