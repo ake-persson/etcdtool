@@ -1,6 +1,6 @@
-# etcd-Export/Import/Validate/Delete/Tree
+# etcd-export/import/edit/validate
 
-Export/Import etcd directory as JSON/YAML/TOML and validate directory using JSON schema.
+Export/Import/Edit etcd directory as JSON/YAML/TOML and validate directory using JSON schema.
 
 # Use cases
 
@@ -98,7 +98,7 @@ bin/etcd-import -input examples/ntp/ntp-site2.json -dir /ntp/site2
 bin/etcd-export -dir /ntp
 bin/etcd-import -input examples/ntp/ntp-site2.json -dir /ntp/site2 -no-validate
 bin/etcd-validate -dir /ntp
-bin/etcd-edit -dir /ntp/site2
+bin/etcd-edit -dir /ntp/site2 -format toml
 ```
 
 ## Example using templates
