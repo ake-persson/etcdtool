@@ -123,20 +123,6 @@ Usage of ./bin/etcd-validate:
     	Version
 ```
 
-# Usage etcd-delete
-
-```bash
-Usage of ./bin/etcd-delete:
-  -dir string
-    	etcd directory
-  -force
-    	Force delete without asking
-  -peers string
-    	Comma separated list of etcd nodes (default "127.0.0.1:4001,127.0.0.1:2379")
-  -version
-    	Version
-```
-
 # Usage etcd-tree
 
 ```bash
@@ -148,6 +134,8 @@ Usage of bin/etcd-tree:
   -version
     	Version
 ```
+
+> Submitted as pull req. for etcdctl: https://github.com/coreos/etcd/pull/3650
 
 # Usage etcd-edit
 
