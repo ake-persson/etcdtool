@@ -98,6 +98,7 @@ bin/etcd-import -input examples/ntp/ntp-site2.json -dir /ntp/site2
 bin/etcd-export -dir /ntp
 bin/etcd-import -input examples/ntp/ntp-site2.json -dir /ntp/site2 -no-validate
 bin/etcd-validate -dir /ntp
+bin/etcd-edit -dir /ntp/site2
 ```
 
 ## Example using templates
