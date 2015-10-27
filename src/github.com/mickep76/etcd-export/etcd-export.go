@@ -20,10 +20,16 @@ func main() {
 	// Options.
 	version := flag.Bool("version", false, "Version")
 	peers := flag.String("peers", common.GetEnv(), "Comma separated list of etcd nodes")
-	dir := flag.String("dir", "/", "etcd directory")
+	//	dir := flag.String("dir", "/", "etcd directory")
 	format := flag.String("format", "JSON", "Data serialization format YAML, TOML or JSON")
 	output := flag.String("output", "", "Output file")
 	flag.Parse()
+
+	var dir string
+	if len(flag.Args()) < 1 {
+		log.Fatal("You need to specify dir.")
+	}
+	dir = flag.Args()[0]
 
 	// Print version.
 	if *version {
@@ -51,7 +57,7 @@ func main() {
 
 	// Export data.
 	kapi := etcd.NewKeysAPI(client)
-	res, err3 := kapi.Get(context.Background(), *dir, &etcd.GetOptions{Recursive: true})
+	res, err3 := kapi.Get(context.Background(), dir, &etcd.GetOptions{Recursive: true})
 	if err3 != nil {
 		log.Fatal(err3.Error())
 	}

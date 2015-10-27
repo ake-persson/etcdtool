@@ -48,18 +48,19 @@ func main() {
 	// Options.
 	version := flag.Bool("version", false, "Version")
 	peers := flag.String("peers", common.GetEnv(), "Comma separated list of etcd nodes")
-	dir := flag.String("dir", "", "etcd directory")
 	flag.Parse()
+
+	var dir string
+	if len(flag.Args()) < 1 {
+		dir = "/"
+	} else {
+		dir = flag.Args()[0]
+	}
 
 	// Print version.
 	if *version {
 		fmt.Printf("etcd-import %s\n", common.Version)
 		os.Exit(0)
-	}
-
-	// Validate input.
-	if *dir == "" {
-		log.Fatalf("You need to specify etcd dir.")
 	}
 
 	// Connect to etcd.
@@ -76,14 +77,14 @@ func main() {
 
 	// Export data.
 	kapi := etcd.NewKeysAPI(client)
-	res, err := kapi.Get(context.Background(), *dir, &etcd.GetOptions{Recursive: true, Sort: true})
+	res, err := kapi.Get(context.Background(), dir, &etcd.GetOptions{Recursive: true, Sort: true})
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
 	numDirs = 0
 	numKeys = 0
-	fmt.Println(strings.TrimRight(*dir, "/") + "/")
+	fmt.Println(strings.TrimRight(dir, "/") + "/")
 	Tree(res.Node, "")
 	fmt.Printf("\n%d directories, %d keys\n", numDirs, numKeys)
 }

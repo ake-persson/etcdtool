@@ -22,19 +22,19 @@ func main() {
 	// Options.
 	version := flag.Bool("version", false, "Version")
 	peers := flag.String("peers", common.GetEnv(), "Comma separated list of etcd nodes")
-	dir := flag.String("dir", "", "etcd directory")
 	schema := flag.String("schema", "", "etcd key for JSON schema")
 	flag.Parse()
+
+	var dir string
+	if len(flag.Args()) < 1 {
+		log.Fatal("You need to specify dir.")
+	}
+	dir = flag.Args()[0]
 
 	// Print version.
 	if *version {
 		fmt.Printf("etcd-validate %s\n", common.Version)
 		os.Exit(0)
-	}
-
-	// Validate input.
-	if *dir == "" {
-		log.Fatalf("You need to specify etcd dir.")
 	}
 
 	// Connect to etcd.
@@ -63,7 +63,7 @@ func main() {
 			case reflect.Map:
 				var vm map[string]interface{}
 				vm = v.(map[string]interface{})
-				match, err := regexp.MatchString(vm["regexp"].(string), *dir)
+				match, err := regexp.MatchString(vm["regexp"].(string), dir)
 				if err != nil {
 					panic(err)
 				}
@@ -75,7 +75,7 @@ func main() {
 		}
 
 		if *schema == "" {
-			log.Fatalf("Couldn't determine schema to use for directory: %s", *dir)
+			log.Fatalf("Couldn't determine schema to use for directory: %s", dir)
 		}
 	}
 
@@ -89,7 +89,7 @@ func main() {
 	schemaLoader := jsonschema.NewStringLoader(res.Node.Value)
 
 	// Get etcd dir.
-	res2, err2 := kapi.Get(context.Background(), *dir, &etcd.GetOptions{Recursive: true})
+	res2, err2 := kapi.Get(context.Background(), dir, &etcd.GetOptions{Recursive: true})
 	if err2 != nil {
 		log.Fatal(err2.Error())
 	}
@@ -104,7 +104,7 @@ func main() {
 
 	if !result.Valid() {
 		for _, e := range result.Errors() {
-			fmt.Printf("%s: %s\n", strings.Replace(e.Context().String("/"), "(root)", *dir, 1), e.Description())
+			fmt.Printf("%s: %s\n", strings.Replace(e.Context().String("/"), "(root)", dir, 1), e.Description())
 		}
 	}
 }

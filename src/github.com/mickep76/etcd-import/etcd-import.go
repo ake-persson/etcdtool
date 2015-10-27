@@ -30,22 +30,22 @@ func main() {
 	peers := flag.String("peers", common.GetEnv(), "Comma separated list of etcd nodes")
 	force := flag.Bool("force", false, "Force delete without asking")
 	delete := flag.Bool("delete", false, "Delete entry before import")
-	dir := flag.String("dir", "", "etcd directory")
 	format := flag.String("format", "JSON", "Data serialization format YAML, TOML or JSON")
 	input := flag.String("input", "", "Input file")
 	noValidate := flag.Bool("no-validate", false, "Skip validation using JSON schema")
 	schema := flag.String("schema", "", "etcd key for JSON schema")
 	flag.Parse()
 
+	var dir string
+	if len(flag.Args()) < 1 {
+		log.Fatal("You need to specify dir.")
+	}
+	dir = flag.Args()[0]
+
 	// Print version.
 	if *version {
 		fmt.Printf("etcd-import %s\n", common.Version)
 		os.Exit(0)
-	}
-
-	// Validate input.
-	if *dir == "" {
-		log.Fatalf("You need to specify etcd dir.")
 	}
 
 	// Get data format.
@@ -80,7 +80,7 @@ func main() {
 			case reflect.Map:
 				var vm map[string]interface{}
 				vm = v.(map[string]interface{})
-				match, err := regexp.MatchString(vm["regexp"].(string), *dir)
+				match, err := regexp.MatchString(vm["regexp"].(string), dir)
 				if err != nil {
 					panic(err)
 				}
@@ -92,7 +92,7 @@ func main() {
 		}
 
 		if *schema == "" {
-			log.Fatalf("Couldn't determine schema to use for directory (use -no-validate to skip this): %s", *dir)
+			log.Fatalf("Couldn't determine schema to use for directory (use -no-validate to skip this): %s", dir)
 		}
 	}
 
@@ -134,7 +134,7 @@ func main() {
 
 		if !result.Valid() {
 			for _, e := range result.Errors() {
-				fmt.Printf("%s: %s\n", strings.Replace(e.Context().String("/"), "(root)", *dir, 1), e.Description())
+				fmt.Printf("%s: %s\n", strings.Replace(e.Context().String("/"), "(root)", dir, 1), e.Description())
 			}
 			os.Exit(1)
 		}
@@ -143,7 +143,7 @@ func main() {
 	// Delete dir.
 	if *delete {
 		if !*force {
-			fmt.Printf("Remove path: %s? [yes|no]", strings.TrimRight(*dir, "/"))
+			fmt.Printf("Remove path: %s? [yes|no]", strings.TrimRight(dir, "/"))
 			var query string
 			fmt.Scanln(&query)
 			if query != "yes" {
@@ -152,19 +152,19 @@ func main() {
 		}
 
 		kapi := etcd.NewKeysAPI(client)
-		if _, err = kapi.Delete(context.Background(), strings.TrimRight(*dir, "/"), &etcd.DeleteOptions{Recursive: true}); err != nil {
+		if _, err = kapi.Delete(context.Background(), strings.TrimRight(dir, "/"), &etcd.DeleteOptions{Recursive: true}); err != nil {
 			log.Fatalf(err.Error())
 		}
-		log.Printf("Removed path: %s", strings.TrimRight(*dir, "/"))
+		log.Printf("Removed path: %s", strings.TrimRight(dir, "/"))
 	}
 
 	// Create dir.
 	kapi := etcd.NewKeysAPI(client)
-	if _, err := kapi.Set(context.TODO(), *dir, "", &etcd.SetOptions{Dir: true}); err != nil {
+	if _, err := kapi.Set(context.TODO(), dir, "", &etcd.SetOptions{Dir: true}); err != nil {
 		log.Printf(err.Error())
 
 		// Should prob. check that we're actually dealing with an existing key and not something else...
-		fmt.Printf("Do you want to overwrite existing data in path: %s? [yes|no]", strings.TrimRight(*dir, "/"))
+		fmt.Printf("Do you want to overwrite existing data in path: %s? [yes|no]", strings.TrimRight(dir, "/"))
 		var query string
 		fmt.Scanln(&query)
 		if query != "yes" {
@@ -173,7 +173,7 @@ func main() {
 	}
 
 	// Import data.
-	if err = etcdmap.Create(&client, strings.TrimRight(*dir, "/"), reflect.ValueOf(m)); err != nil {
+	if err = etcdmap.Create(&client, strings.TrimRight(dir, "/"), reflect.ValueOf(m)); err != nil {
 		log.Fatal(err.Error())
 	}
 }
