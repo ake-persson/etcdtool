@@ -63,6 +63,9 @@ func main() {
 			case reflect.Map:
 				var vm map[string]interface{}
 				vm = v.(map[string]interface{})
+				if vm["regexp"] == nil {
+					continue
+				}
 				match, err := regexp.MatchString(vm["regexp"].(string), dir)
 				if err != nil {
 					panic(err)
