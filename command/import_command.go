@@ -23,10 +23,10 @@ func NewImportCommand() cli.Command {
 			cli.BoolFlag{Name: "yes", Usage: "Answer yes to any questions"},
 			cli.BoolFlag{Name: "replace", Usage: "Delete entry before import"},
 			cli.StringFlag{Name: "format", Value: "JSON", Usage: "Data serialization format YAML, TOML or JSON"},
-			cli.StringFlag{Name: "input", Value: "JSON", Usage: "Input File"},
+			cli.StringFlag{Name: "input", Value: "", Usage: "Input File"},
 		},
 		Action: func(c *cli.Context) {
-			exportCommandFunc(c, mustNewKeyAPI(c))
+			importCommandFunc(c, mustNewKeyAPI(c))
 		},
 	}
 }
