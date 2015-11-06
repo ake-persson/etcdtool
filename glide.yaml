@@ -1,0 +1,8 @@
+package: main
+import:
+  - package: github.com/coreos/etcd
+    subpackages:
+      - /Godeps/_workspace/src/github.com/codegangsta/cli
+  - package: github.com/mickep76/etcdmap
+  - package: github.com/mickep76/iodatafmt
+  - package: gopkg.in/yaml.v2

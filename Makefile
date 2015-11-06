@@ -23,6 +23,10 @@ update:
 install:
 	cp bin/* /usr/bin
 
+docker-rpm: docker-clean
+	docker pull mickep76/centos-golang:latest
+	docker run --rm -it -v "$$PWD":/go/src/${SRCDIR} -w /go/src/${SRCDIR} mickep76/centos-golang:latest "make rpm"
+
 rpm:	build
 	mkdir -p ${TMPDIR1}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 	cp -r bin ${TMPDIR1}/SOURCES
