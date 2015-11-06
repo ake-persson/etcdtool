@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"reflect"
@@ -46,13 +47,23 @@ func importCommandFunc(c *cli.Context, ki client.KeysAPI) {
 	}
 
 	// Import data.
-	if c.String("format") != "" {
+	fi, _ := os.Stdin.Stat()
+	var m interface{}
+	if (fi.Mode() & os.ModeCharDevice) == 0 {
+		b, _ := ioutil.ReadAll(os.Stdin)
+		var err error
+		m, err = iodatafmt.Unmarshal(b, f)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	} else if c.String("input") != "" {
+		var err error
+		m, err = iodatafmt.Load(c.String("input"), f)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	} else {
 		log.Fatal("No input provided")
-	}
-
-	m, err := iodatafmt.Load(c.String("input"), f)
-	if err != nil {
-		log.Fatal(err.Error())
 	}
 
 	// Delete dir.
