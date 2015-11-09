@@ -66,13 +66,27 @@ func editCommandFunc(c *cli.Context, ki client.KeysAPI) {
 	// Export to file.
 	exportFunc(key, sort, c.String("tmp-file"), f, c, ki)
 
+	// Get modified time stamp.
+	before, err := os.Stat(c.String("tmp-file"))
+	if err != nil {
+		handleError(ExitServerError, err)
+	}
+
 	// Edit file.
 	editFile(c.String("editor"), c.String("tmp-file"))
 
-	// Check if file changed modified time...
+	// Check modified time stamp.
+	after, err := os.Stat(c.String("tmp-file"))
+	if err != nil {
+		handleError(ExitServerError, err)
+	}
 
-	// Import from file.
-	importFunc(key, c.String("tmp-file"), f, c.Bool("replace"), c.Bool("yes"), c, ki)
+	// Import from file if it has changed.
+	if before.ModTime() != after.ModTime() {
+		importFunc(key, c.String("tmp-file"), f, c.Bool("replace"), c.Bool("yes"), c, ki)
+	} else {
+		fmt.Printf("File wasn't modified, skipping import\n")
+	}
 
 	// Unlink file.
 	if err := os.Remove(c.String("tmp-file")); err != nil {
