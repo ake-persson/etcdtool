@@ -74,5 +74,8 @@ func editCommandFunc(c *cli.Context, ki client.KeysAPI) {
 	// Import from file.
 	importFunc(key, c.String("tmp-file"), f, c.Bool("replace"), c.Bool("yes"), c, ki)
 
-	// Unlink file...
+	// Unlink file.
+	if err := os.Remove(c.String("tmp-file")); err != nil {
+		handleError(ExitServerError, err)
+	}
 }
