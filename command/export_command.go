@@ -7,6 +7,7 @@ import (
 	"github.com/mickep76/iodatafmt"
 )
 
+// NewExportCommand returns data from export.
 func NewExportCommand() cli.Command {
 	return cli.Command{
 		Name:  "export",

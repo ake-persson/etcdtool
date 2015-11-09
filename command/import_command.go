@@ -15,6 +15,7 @@ import (
 	"github.com/mickep76/iodatafmt"
 )
 
+// NewImportCommand sets data from input.
 func NewImportCommand() cli.Command {
 	return cli.Command{
 		Name:  "import",
