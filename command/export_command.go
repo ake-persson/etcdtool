@@ -45,7 +45,11 @@ func exportCommandFunc(c *cli.Context, ki client.KeysAPI) {
 		handleError(ExitServerError, err)
 	}
 
-	// Export data.
+	// Export and write output.
 	m := etcdmap.Map(resp.Node)
-	iodatafmt.Print(m, f)
+	if c.String("output") != "" {
+		iodatafmt.Write(c.String("output"), m, f)
+	} else {
+		iodatafmt.Print(m, f)
+	}
 }

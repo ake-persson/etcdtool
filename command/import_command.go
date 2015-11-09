@@ -62,6 +62,7 @@ func askYesNo(msg string) bool {
 	stdin := bufio.NewReader(os.Stdin)
 
 	for {
+		fmt.Printf("%s [yes/no]?", msg)
 		inp, _, err := stdin.ReadLine()
 		if err != nil {
 			handleError(ExitServerError, err)
@@ -73,7 +74,7 @@ func askYesNo(msg string) bool {
 		case "no":
 			return false
 		default:
-			fmt.Printf("Incorrect input: %s\n", inp)
+			fmt.Printf("Incorrect input: %s\n ", inp)
 		}
 	}
 }
@@ -87,10 +88,24 @@ func importCommandFunc(c *cli.Context, ki client.KeysAPI) {
 		key = c.Args()[0]
 	}
 
+	// Get data format.
+	f, err := iodatafmt.Format(c.String("format"))
+	if err != nil {
+		handleError(ExitServerError, err)
+	}
+
+	if c.String("input") == "" {
+		handleError(ExitServerError, errors.New("No input provided"))
+	}
+
+	importFunc(key, c.String("input"), f, c.Bool("replace"), c.Bool("yes"), c, ki)
+}
+
+func importFunc(key string, file string, f iodatafmt.DataFmt, replace bool, yes bool, c *cli.Context, ki client.KeysAPI) {
 	// Check if key exists and is a directory.
 	exists, err := keyExists(key, c, ki)
 	if err != nil {
-		handleError(ExitServerError, errors.New("No input provided"))
+		handleError(ExitServerError, fmt.Errorf("Specified key doesn't exist: %s", key))
 	}
 
 	if exists {
@@ -104,24 +119,14 @@ func importCommandFunc(c *cli.Context, ki client.KeysAPI) {
 		}
 	}
 
-	// Get data format.
-	f, err := iodatafmt.Format(c.String("format"))
-	if err != nil {
-		handleError(ExitServerError, errors.New("No input provided"))
-	}
-
-	// Import data.
-	if c.String("input") == "" {
-		handleError(ExitServerError, errors.New("No input provided"))
-	}
-
-	m, err := iodatafmt.Load(c.String("input"), f)
+	// Load file.
+	m, err := iodatafmt.Load(file, f)
 	if err != nil {
 		handleError(ExitServerError, err)
 	}
 
 	if exists {
-		if c.Bool("replace") {
+		if replace {
 			if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", strings.TrimRight(key, "/"))) {
 				os.Exit(1)
 			}
@@ -131,7 +136,7 @@ func importCommandFunc(c *cli.Context, ki client.KeysAPI) {
 				handleError(ExitServerError, err)
 			}
 		} else {
-			if !c.Bool("yes") {
+			if !yes {
 				if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", strings.TrimRight(key, "/"))) {
 					os.Exit(1)
 				}
