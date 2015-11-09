@@ -1,6 +1,8 @@
 package command
 
 import (
+	"strings"
+
 	"github.com/coreos/etcd/Godeps/_workspace/src/github.com/codegangsta/cli"
 	"github.com/coreos/etcd/client"
 	"github.com/mickep76/etcdmap"
@@ -27,17 +29,10 @@ func NewExportCommand() cli.Command {
 func exportCommandFunc(c *cli.Context, ki client.KeysAPI) {
 	key := "/"
 	if len(c.Args()) != 0 {
-		key = c.Args()[0]
+		key = strings.TrimRight(c.Args()[0], "/") + "/"
 	}
 
 	sort := c.Bool("sort")
-
-	ctx, cancel := contextWithTotalTimeout(c)
-	resp, err := ki.Get(ctx, key, &client.GetOptions{Sort: sort, Recursive: true})
-	cancel()
-	if err != nil {
-		handleError(ExitServerError, err)
-	}
 
 	// Get data format.
 	f, err := iodatafmt.Format(c.String("format"))
@@ -45,10 +40,22 @@ func exportCommandFunc(c *cli.Context, ki client.KeysAPI) {
 		handleError(ExitServerError, err)
 	}
 
+	exportFunc(key, sort, c.String("output"), f, c, ki)
+}
+
+// exportCommandFunc exports data as either JSON, YAML or TOML.
+func exportFunc(key string, sort bool, file string, f iodatafmt.DataFmt, c *cli.Context, ki client.KeysAPI) {
+	ctx, cancel := contextWithTotalTimeout(c)
+	resp, err := ki.Get(ctx, key, &client.GetOptions{Sort: sort, Recursive: true})
+	cancel()
+	if err != nil {
+		handleError(ExitServerError, err)
+	}
+
 	// Export and write output.
 	m := etcdmap.Map(resp.Node)
-	if c.String("output") != "" {
-		iodatafmt.Write(c.String("output"), m, f)
+	if file != "" {
+		iodatafmt.Write(file, m, f)
 	} else {
 		iodatafmt.Print(m, f)
 	}

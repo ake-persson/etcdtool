@@ -62,7 +62,7 @@ func askYesNo(msg string) bool {
 	stdin := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Printf("%s [yes/no]?", msg)
+		fmt.Printf("%s [yes/no]? ", msg)
 		inp, _, err := stdin.ReadLine()
 		if err != nil {
 			handleError(ExitServerError, err)
@@ -85,7 +85,7 @@ func importCommandFunc(c *cli.Context, ki client.KeysAPI) {
 	if len(c.Args()) == 0 {
 		handleError(ExitServerError, errors.New("You need to specify directory"))
 	} else {
-		key = c.Args()[0]
+		key = strings.TrimRight(c.Args()[0], "/") + "/"
 	}
 
 	// Get data format.
@@ -127,17 +127,17 @@ func importFunc(key string, file string, f iodatafmt.DataFmt, replace bool, yes 
 
 	if exists {
 		if replace {
-			if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", strings.TrimRight(key, "/"))) {
+			if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", key)) {
 				os.Exit(1)
 			}
 
 			// Delete dir.
-			if _, err = ki.Delete(context.TODO(), strings.TrimRight(key, "/"), &client.DeleteOptions{Recursive: true}); err != nil {
+			if _, err = ki.Delete(context.TODO(), key, &client.DeleteOptions{Recursive: true}); err != nil {
 				handleError(ExitServerError, err)
 			}
 		} else {
 			if !yes {
-				if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", strings.TrimRight(key, "/"))) {
+				if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", key)) {
 					os.Exit(1)
 				}
 			}
@@ -150,7 +150,7 @@ func importFunc(key string, file string, f iodatafmt.DataFmt, replace bool, yes 
 	}
 
 	// Import data.
-	if err = etcdmap.Create(ki, strings.TrimRight(key, "/"), reflect.ValueOf(m)); err != nil {
+	if err = etcdmap.Create(ki, key, reflect.ValueOf(m)); err != nil {
 		handleError(ExitServerError, err)
 	}
 }
