@@ -19,7 +19,7 @@ AutoReqProv: no
 
 %prep
 mkdir -p %{buildroot}/usr/bin
-cp %{sources}/bin/* %{buildroot}/usr/bin
+cp %{sources}/%{name} %{buildroot}/usr/bin
 
 %files
 %defattr(-,root,root)

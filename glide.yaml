@@ -1,12 +1,14 @@
+parent: null
 package: main
 import:
-  - package: github.com/coreos/etcd
-    subpackages:
-      - /Godeps/_workspace/src/github.com/codegangsta/cli
-  - package: github.com/mickep76/etcdmap
-  - package: github.com/mickep76/iodatafmt
-  - package: gopkg.in/yaml.v2
-  - package: golang.org/x/sys
-    subpackages:
-      - /unix
-  - package: github.com/bgentry/speakeasy
+- package: gopkg.in/yaml.v2
+- package: golang.org/x/sys
+  subpackages:
+  - /unix
+- package: github.com/bgentry/speakeasy
+- package: github.com/BurntSushi/toml
+- package: github.com/coreos/etcd
+  subpackages:
+  - /Godeps/_workspace/src/github.com/codegangsta/cli
+- package: github.com/mickep76/etcdmap
+- package: github.com/mickep76/iodatafmt
