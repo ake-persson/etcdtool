@@ -1,7 +1,0 @@
-- etcd-import ask to overwrite if dir already exist's
-- etcd-edit ask to overwrite if dir already exist's
-- etcd-edit fix validation
-- etcd-edit remove tmpFile
-- Unix style arguments
-- Single binary with positional value
-- Color logging/set verbosity
