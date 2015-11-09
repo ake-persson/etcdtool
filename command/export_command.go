@@ -1,8 +1,6 @@
 package command
 
 import (
-	"log"
-
 	"github.com/coreos/etcd/Godeps/_workspace/src/github.com/codegangsta/cli"
 	"github.com/coreos/etcd/client"
 	"github.com/mickep76/etcdmap"
@@ -14,9 +12,9 @@ func NewExportCommand() cli.Command {
 		Name:  "export",
 		Usage: "export a directory",
 		Flags: []cli.Flag{
-			cli.BoolFlag{Name: "sort", Usage: "returns result in sorted order"},
-			cli.StringFlag{Name: "format", Value: "JSON", Usage: "Data serialization format YAML, TOML or JSON"},
-			cli.StringFlag{Name: "output", Value: "", Usage: "Output file"},
+			cli.BoolFlag{Name: "sort, s", Usage: "returns result in sorted order"},
+			cli.StringFlag{Name: "format, f", Value: "JSON", Usage: "Data serialization format YAML, TOML or JSON"},
+			cli.StringFlag{Name: "output, o", Value: "", Usage: "Output file"},
 		},
 		Action: func(c *cli.Context) {
 			exportCommandFunc(c, mustNewKeyAPI(c))
@@ -43,7 +41,7 @@ func exportCommandFunc(c *cli.Context, ki client.KeysAPI) {
 	// Get data format.
 	f, err := iodatafmt.Format(c.String("format"))
 	if err != nil {
-		log.Fatal(err.Error())
+		handleError(ExitServerError, err)
 	}
 
 	// Export data.

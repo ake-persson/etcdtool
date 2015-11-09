@@ -1,9 +1,9 @@
 package command
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"os"
 	"reflect"
 	"strings"
@@ -20,10 +20,10 @@ func NewImportCommand() cli.Command {
 		Name:  "import",
 		Usage: "import a directory",
 		Flags: []cli.Flag{
-			cli.BoolFlag{Name: "yes", Usage: "Answer yes to any questions"},
-			cli.BoolFlag{Name: "replace", Usage: "Delete entry before import"},
-			cli.StringFlag{Name: "format", Value: "JSON", Usage: "Data serialization format YAML, TOML or JSON"},
-			cli.StringFlag{Name: "input", Value: "", Usage: "Input File"},
+			cli.BoolFlag{Name: "yes, y", Usage: "Answer yes to any questions"},
+			cli.BoolFlag{Name: "replace, r", Usage: "Replace data"},
+			cli.StringFlag{Name: "format, f", Value: "JSON", Usage: "Data serialization format YAML, TOML or JSON"},
+			cli.StringFlag{Name: "input, i", Value: "", Usage: "Input File"},
 		},
 		Action: func(c *cli.Context) {
 			importCommandFunc(c, mustNewKeyAPI(c))
@@ -31,74 +31,120 @@ func NewImportCommand() cli.Command {
 	}
 }
 
+func keyExists(key string, c *cli.Context, ki client.KeysAPI) (bool, error) {
+	ctx, cancel := contextWithTotalTimeout(c)
+	_, err := ki.Get(ctx, key, &client.GetOptions{})
+	cancel()
+	if err != nil {
+		if cerr, ok := err.(client.Error); ok && cerr.Code == 100 {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func isDir(key string, c *cli.Context, ki client.KeysAPI) (bool, error) {
+	ctx, cancel := contextWithTotalTimeout(c)
+	resp, err := ki.Get(ctx, key, &client.GetOptions{})
+	cancel()
+	if err != nil {
+		return false, err
+	}
+	if resp.Node.Dir {
+		return false, nil
+	}
+	return true, nil
+}
+
+func askYesNo(msg string) bool {
+	stdin := bufio.NewReader(os.Stdin)
+
+	for {
+		inp, _, err := stdin.ReadLine()
+		if err != nil {
+			handleError(ExitServerError, err)
+		}
+
+		switch strings.ToLower(string(inp)) {
+		case "yes":
+			return true
+		case "no":
+			return false
+		default:
+			fmt.Printf("Incorrect input: %s\n", inp)
+		}
+	}
+}
+
 // importCommandFunc imports data as either JSON, YAML or TOML.
 func importCommandFunc(c *cli.Context, ki client.KeysAPI) {
 	var key string
 	if len(c.Args()) == 0 {
-		log.Fatal("You need to specify directory")
+		handleError(ExitServerError, errors.New("You need to specify directory"))
 	} else {
 		key = c.Args()[0]
+	}
+
+	// Check if key exists and is a directory.
+	exists, err := keyExists(key, c, ki)
+	if err != nil {
+		handleError(ExitServerError, errors.New("No input provided"))
+	}
+
+	if exists {
+		dir, err := isDir(key, c, ki)
+		if err != nil {
+			handleError(ExitServerError, err)
+		}
+
+		if dir {
+			handleError(ExitServerError, fmt.Errorf("Specified key is not a directory: %s", key))
+		}
 	}
 
 	// Get data format.
 	f, err := iodatafmt.Format(c.String("format"))
 	if err != nil {
-		log.Fatal(err.Error())
+		handleError(ExitServerError, errors.New("No input provided"))
 	}
 
 	// Import data.
-	fi, _ := os.Stdin.Stat()
-	var m interface{}
-	if (fi.Mode() & os.ModeCharDevice) == 0 {
-		b, _ := ioutil.ReadAll(os.Stdin)
-		var err error
-		m, err = iodatafmt.Unmarshal(b, f)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-	} else if c.String("input") != "" {
-		var err error
-		m, err = iodatafmt.Load(c.String("input"), f)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-	} else {
-		log.Fatal("No input provided")
+	if c.String("input") == "" {
+		handleError(ExitServerError, errors.New("No input provided"))
 	}
 
-	// Delete dir.
-	if c.Bool("replace") {
-		if !c.Bool("yes") {
-			fmt.Printf("Do you want to replace data in directory: %s: %s? [yes|no]", strings.TrimRight(key, "/"))
-			var query string
-			fmt.Scanln(&query)
-			if strings.ToLower(query) != "yes" {
-				os.Exit(0)
+	m, err := iodatafmt.Load(c.String("input"), f)
+	if err != nil {
+		handleError(ExitServerError, err)
+	}
+
+	if exists {
+		if c.Bool("replace") {
+			if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", strings.TrimRight(key, "/"))) {
+				os.Exit(1)
+			}
+
+			// Delete dir.
+			if _, err = ki.Delete(context.TODO(), strings.TrimRight(key, "/"), &client.DeleteOptions{Recursive: true}); err != nil {
+				handleError(ExitServerError, err)
+			}
+		} else {
+			if !c.Bool("yes") {
+				if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", strings.TrimRight(key, "/"))) {
+					os.Exit(1)
+				}
 			}
 		}
-
-		if _, err = ki.Delete(context.TODO(), strings.TrimRight(key, "/"), &client.DeleteOptions{Recursive: true}); err != nil {
-			log.Fatalf(err.Error())
-		}
-	}
-
-	// Check if directory exist's
-
-	// Create dir.
-	if _, err := ki.Set(context.TODO(), key, "", &client.SetOptions{Dir: true}); err != nil {
-		log.Printf(err.Error())
-
-		// Should prob. check that we're actually dealing with an existing key and not something else...
-		fmt.Printf("Do you want to overwrite data in directory: %s? [yes|no]", strings.TrimRight(key, "/"))
-		var query string
-		fmt.Scanln(&query)
-		if strings.ToLower(query) != "yes" {
-			os.Exit(0)
+	} else {
+		// Create dir.
+		if _, err := ki.Set(context.TODO(), key, "", &client.SetOptions{Dir: true}); err != nil {
+			handleError(ExitServerError, err)
 		}
 	}
 
 	// Import data.
 	if err = etcdmap.Create(ki, strings.TrimRight(key, "/"), reflect.ValueOf(m)); err != nil {
-		log.Fatal(err.Error())
+		handleError(ExitServerError, err)
 	}
 }
