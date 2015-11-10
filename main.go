@@ -28,6 +28,7 @@ func main() {
 		command.NewImportCommand(),
 		command.NewExportCommand(),
 		command.NewEditCommand(),
+		command.NewValidateCommand(),
 	}
 
 	app.Run(os.Args)
