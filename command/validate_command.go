@@ -17,7 +17,7 @@ func NewValidateCommand() cli.Command {
 		Name:  "validate",
 		Usage: "validate a directory",
 		Flags: []cli.Flag{
-			cli.StringFlag{Name: "schema, s", Value: "", Usage: "URI for JSON schema"},
+			cli.StringFlag{Name: "schema, s", Usage: "JSON schema URI"},
 		},
 		Action: func(c *cli.Context) {
 			validateCommandFunc(c, mustNewKeyAPI(c))
@@ -32,6 +32,10 @@ func validateCommandFunc(c *cli.Context, ki client.KeysAPI) {
 		handleError(ExitServerError, errors.New("You need to specify directory"))
 	} else {
 		key = strings.TrimRight(c.Args()[0], "/") + "/"
+	}
+
+	if !c.IsSet("schema") {
+		handleError(ExitServerError, errors.New("You need to specify JSON schema URI"))
 	}
 
 	// Get directory.
