@@ -24,7 +24,6 @@ func NewImportCommand() cli.Command {
 			cli.BoolFlag{Name: "yes, y", Usage: "Answer yes to any questions"},
 			cli.BoolFlag{Name: "replace, r", Usage: "Replace data"},
 			cli.StringFlag{Name: "format, f", Value: "JSON", Usage: "Data serialization format YAML, TOML or JSON"},
-			cli.StringFlag{Name: "input, i", Value: "", Usage: "Input File"},
 		},
 		Action: func(c *cli.Context) {
 			importCommandFunc(c, mustNewKeyAPI(c))
@@ -81,12 +80,16 @@ func askYesNo(msg string) bool {
 
 // importCommandFunc imports data as either JSON, YAML or TOML.
 func importCommandFunc(c *cli.Context, ki client.KeysAPI) {
-	var key string
 	if len(c.Args()) == 0 {
-		handleError(ExitServerError, errors.New("You need to specify directory"))
-	} else {
-		key = strings.TrimRight(c.Args()[0], "/") //+ "/"
+		handleError(ExitBadArgs, errors.New("You need to specify directory"))
 	}
+	// Fix for root
+	key := strings.TrimRight(c.Args()[0], "/") //+ "/"
+
+	if len(c.Args()) == 1 {
+		handleError(ExitBadArgs, errors.New("You need to specify input file"))
+	}
+	input := c.Args()[1]
 
 	// Get data format.
 	f, err := iodatafmt.Format(c.String("format"))
@@ -94,11 +97,7 @@ func importCommandFunc(c *cli.Context, ki client.KeysAPI) {
 		handleError(ExitServerError, err)
 	}
 
-	if c.String("input") == "" {
-		handleError(ExitServerError, errors.New("No input provided"))
-	}
-
-	importFunc(key, c.String("input"), f, c.Bool("replace"), c.Bool("yes"), c, ki)
+	importFunc(key, input, f, c.Bool("replace"), c.Bool("yes"), c, ki)
 }
 
 func importFunc(key string, file string, f iodatafmt.DataFmt, replace bool, yes bool, c *cli.Context, ki client.KeysAPI) {

@@ -16,9 +16,7 @@ func NewValidateCommand() cli.Command {
 	return cli.Command{
 		Name:  "validate",
 		Usage: "validate a directory",
-		Flags: []cli.Flag{
-			cli.StringFlag{Name: "schema, s", Usage: "JSON schema URI"},
-		},
+		Flags: []cli.Flag{},
 		Action: func(c *cli.Context) {
 			validateCommandFunc(c, mustNewKeyAPI(c))
 		},
@@ -34,9 +32,10 @@ func validateCommandFunc(c *cli.Context, ki client.KeysAPI) {
 		key = strings.TrimRight(c.Args()[0], "/") + "/"
 	}
 
-	if !c.IsSet("schema") {
-		handleError(ExitServerError, errors.New("You need to specify JSON schema URI"))
+	if len(c.Args()) == 1 {
+		handleError(ExitBadArgs, errors.New("You need to specify JSON schema URI"))
 	}
+	schema := c.Args()[1]
 
 	// Get directory.
 	ctx, cancel := contextWithTotalTimeout(c)
@@ -48,7 +47,7 @@ func validateCommandFunc(c *cli.Context, ki client.KeysAPI) {
 	m := etcdmap.Map(resp.Node)
 
 	// Validate directory.
-	schemaLoader := gojsonschema.NewReferenceLoader(c.String("schema"))
+	schemaLoader := gojsonschema.NewReferenceLoader(schema)
 	docLoader := gojsonschema.NewGoLoader(m)
 	result, err := gojsonschema.Validate(schemaLoader, docLoader)
 	if err != nil {
