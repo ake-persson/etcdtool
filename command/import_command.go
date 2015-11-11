@@ -85,7 +85,7 @@ func importCommandFunc(c *cli.Context, ki client.KeysAPI) {
 	if len(c.Args()) == 0 {
 		handleError(ExitServerError, errors.New("You need to specify directory"))
 	} else {
-		key = strings.TrimRight(c.Args()[0], "/") + "/"
+		key = strings.TrimRight(c.Args()[0], "/") //+ "/"
 	}
 
 	// Get data format.
