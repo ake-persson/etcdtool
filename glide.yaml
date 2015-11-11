@@ -5,3 +5,6 @@ import:
   - package: github.com/mickep76/etcdmap
   - package: github.com/xeipuuv/gojsonschema
   - package: gopkg.in/yaml.v2
+  - package: github.com/BurntSushi/toml
+  - package: github.com/xeipuuv/gojsonreference
+  - package: github.com/xeipuuv/gojsonpointer
