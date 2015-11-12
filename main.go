@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/coreos/etcd/Godeps/_workspace/src/github.com/codegangsta/cli"
-	"github.com/mickep76/etcdfmt/command"
+	"github.com/mickep76/dcrank/command"
 )
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "etcdfmt"
+	app.Name = "dcrank"
 	app.Version = Version
 	app.Usage = "Command line tool for etcd to import, export, edit or validate data in either JSON, YAML or TOML format."
 	app.Flags = []cli.Flag{
@@ -29,6 +29,7 @@ func main() {
 		command.NewExportCommand(),
 		command.NewEditCommand(),
 		command.NewValidateCommand(),
+		command.NewTreeCommand(),
 	}
 
 	app.Run(os.Args)

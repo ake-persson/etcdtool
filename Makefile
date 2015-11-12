@@ -1,5 +1,5 @@
-NAME=etcdfmt
-SRCDIR=github.com/mickep76/etcdfmt
+NAME=dcrank
+SRCDIR=github.com/mickep76/dcrank
 BUILDDIR=.build
 VERSION:=2.5
 RELEASE:=$(shell date -u +%Y%m%d%H%M)
@@ -10,6 +10,9 @@ all: build
 clean:
 	rm -f *.rpm
 	rm -rf ${NAME} ${BUILDDIR}
+
+update:
+	glide up
 
 build: clean
 	go build
