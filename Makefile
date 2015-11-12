@@ -1,7 +1,7 @@
 NAME=etcdfmt
 SRCDIR=github.com/mickep76/etcdfmt
 BUILDDIR=.build
-VERSION:=2.4
+VERSION:=2.5
 RELEASE:=$(shell date -u +%Y%m%d%H%M)
 ARCH:=$(shell uname -p)
 
