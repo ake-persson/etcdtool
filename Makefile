@@ -1,5 +1,5 @@
-NAME=dcrank
-SRCDIR=github.com/mickep76/dcrank
+NAME=etcdtool
+SRCDIR=github.com/mickep76/etcdtool
 BUILDDIR=.build
 VERSION:=2.5
 RELEASE:=$(shell date -u +%Y%m%d%H%M)

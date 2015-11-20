@@ -23,7 +23,7 @@ func NewEditCommand() cli.Command {
 			cli.BoolFlag{Name: "replace, r", Usage: "Replace data"},
 			cli.StringFlag{Name: "format, f", Value: "JSON", Usage: "Data serialization format YAML, TOML or JSON"},
 			cli.StringFlag{Name: "editor, e", Value: "vim", Usage: "Editor", EnvVar: "EDITOR"},
-			cli.StringFlag{Name: "tmp-file, t", Value: ".dcrank.swp", Usage: "Temporary file"},
+			cli.StringFlag{Name: "tmp-file, t", Value: ".etcdtool.swp", Usage: "Temporary file"},
 		},
 		Action: func(c *cli.Context) {
 			editCommandFunc(c, mustNewKeyAPI(c))
