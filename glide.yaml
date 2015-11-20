@@ -7,3 +7,4 @@ import:
   - package: gopkg.in/yaml.v2
   - package: github.com/BurntSushi/toml
   - package: github.com/xeipuuv/gojsonreference
+  - package: github.com/xeipuuv/gojsonpointer
