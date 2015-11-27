@@ -79,7 +79,6 @@ export ETCDTOOL_PEERS="http://etcd1.example.com:2379"
 git clone https://github.com/mickep76/etcdtool.git
 cd etcdtool
 make
-bin/etcd-export --version
 ```
 
 # Build RPM
