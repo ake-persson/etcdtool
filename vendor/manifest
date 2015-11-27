@@ -8,6 +8,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/codegangsta/cli",
+			"repository": "https://github.com/codegangsta/cli",
+			"revision": "0302d3914d2a6ad61404584cdae6e6dbc9c03599",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/github.com/bgentry/speakeasy",
 			"repository": "https://github.com/coreos/etcd",
 			"revision": "a423a55b142c2b9a82811604204cddbccd0a9cf9",
@@ -92,6 +98,13 @@
 			"repository": "https://github.com/xeipuuv/gojsonschema",
 			"revision": "613dfdb30abd1fac68b350bb38f5ab14343cda4b",
 			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "55cccaa02af1a99c69ba3213e33468628b61be4b",
+			"branch": "master",
+			"path": "/context"
 		},
 		{
 			"importpath": "gopkg.in/yaml.v2",
