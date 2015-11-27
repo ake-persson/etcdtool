@@ -14,20 +14,6 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/github.com/bgentry/speakeasy",
-			"repository": "https://github.com/coreos/etcd",
-			"revision": "a423a55b142c2b9a82811604204cddbccd0a9cf9",
-			"branch": "master",
-			"path": "/Godeps/_workspace/src/github.com/bgentry/speakeasy"
-		},
-		{
-			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/github.com/codegangsta/cli",
-			"repository": "https://github.com/coreos/etcd",
-			"revision": "a423a55b142c2b9a82811604204cddbccd0a9cf9",
-			"branch": "master",
-			"path": "/Godeps/_workspace/src/github.com/codegangsta/cli"
-		},
-		{
 			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/github.com/ugorji/go/codec",
 			"repository": "https://github.com/coreos/etcd",
 			"revision": "a423a55b142c2b9a82811604204cddbccd0a9cf9",
