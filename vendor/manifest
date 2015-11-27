@@ -1,0 +1,103 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/BurntSushi/toml",
+			"repository": "https://github.com/BurntSushi/toml",
+			"revision": "056c9bc7be7190eaa7715723883caffa5f8fa3e4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/github.com/bgentry/speakeasy",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "a423a55b142c2b9a82811604204cddbccd0a9cf9",
+			"branch": "master",
+			"path": "/Godeps/_workspace/src/github.com/bgentry/speakeasy"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/github.com/codegangsta/cli",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "a423a55b142c2b9a82811604204cddbccd0a9cf9",
+			"branch": "master",
+			"path": "/Godeps/_workspace/src/github.com/codegangsta/cli"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/github.com/ugorji/go/codec",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "a423a55b142c2b9a82811604204cddbccd0a9cf9",
+			"branch": "master",
+			"path": "/Godeps/_workspace/src/github.com/ugorji/go/codec"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/golang.org/x/net/context",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "a423a55b142c2b9a82811604204cddbccd0a9cf9",
+			"branch": "master",
+			"path": "/Godeps/_workspace/src/golang.org/x/net/context"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/client",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "a423a55b142c2b9a82811604204cddbccd0a9cf9",
+			"branch": "master",
+			"path": "/client"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/pkg/pathutil",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "a423a55b142c2b9a82811604204cddbccd0a9cf9",
+			"branch": "master",
+			"path": "/pkg/pathutil"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/pkg/transport",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "a423a55b142c2b9a82811604204cddbccd0a9cf9",
+			"branch": "master",
+			"path": "/pkg/transport"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/pkg/types",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "a423a55b142c2b9a82811604204cddbccd0a9cf9",
+			"branch": "master",
+			"path": "/pkg/types"
+		},
+		{
+			"importpath": "github.com/mickep76/etcdmap",
+			"repository": "https://github.com/mickep76/etcdmap",
+			"revision": "d7dc87ed5379434eda8d86f8be9005c203bc1e80",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mickep76/iodatafmt",
+			"repository": "https://github.com/mickep76/iodatafmt",
+			"revision": "b5f35dceb02687161ea4c8e6dcbcf1fec8676131",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/xeipuuv/gojsonpointer",
+			"repository": "https://github.com/xeipuuv/gojsonpointer",
+			"revision": "e0fe6f68307607d540ed8eac07a342c33fa1b54a",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/xeipuuv/gojsonreference",
+			"repository": "https://github.com/xeipuuv/gojsonreference",
+			"revision": "e02fc20de94c78484cd5ffb007f8af96be030a45",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/xeipuuv/gojsonschema",
+			"repository": "https://github.com/xeipuuv/gojsonschema",
+			"revision": "613dfdb30abd1fac68b350bb38f5ab14343cda4b",
+			"branch": "master"
+		},
+		{
+			"importpath": "gopkg.in/yaml.v2",
+			"repository": "https://gopkg.in/yaml.v2",
+			"revision": "53feefa2559fb8dfa8d81baad31be332c97d6c77",
+			"branch": "v2"
+		}
+	]
+}

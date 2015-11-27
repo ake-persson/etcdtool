@@ -11,17 +11,17 @@ clean:
 	rm -f *.rpm
 	rm -rf ${NAME} ${BUILDDIR}
 
-update:
-	glide up
+deps:
+	go get github.com/tools/godep
 
 build: clean
-	go build
+	godep go build
 
 rpm:
 	docker pull mickep76/centos-golang:latest
 	docker run --rm -it -v "$$PWD":/go/src/${SRCDIR} -w /go/src/${SRCDIR} mickep76/centos-golang:latest make build-rpm
 
-build-rpm: build
+build-rpm: deps build
 	mkdir -p ${BUILDDIR}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 	cp -r ${NAME} ${BUILDDIR}/SOURCES
 	sed -e "s/%NAME%/${NAME}/g" -e "s/%VERSION%/${VERSION}/g" -e "s/%RELEASE%/${RELEASE}/g" \
