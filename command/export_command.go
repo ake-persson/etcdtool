@@ -16,7 +16,7 @@ func NewExportCommand() cli.Command {
 		Usage: "export a directory",
 		Flags: []cli.Flag{
 			cli.BoolFlag{Name: "sort, s", Usage: "returns result in sorted order"},
-			cli.StringFlag{Name: "format, f", Value: "JSON", Usage: "Data serialization format YAML, TOML or JSON"},
+			cli.StringFlag{Name: "format, f", EnvVar: "ETCDTOOL_FORMAT", Value: "JSON", Usage: "Data serialization format YAML, TOML or JSON"},
 			cli.StringFlag{Name: "output, o", Value: "", Usage: "Output file"},
 		},
 		Action: func(c *cli.Context) {

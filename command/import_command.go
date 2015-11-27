@@ -23,7 +23,7 @@ func NewImportCommand() cli.Command {
 		Flags: []cli.Flag{
 			cli.BoolFlag{Name: "yes, y", Usage: "Answer yes to any questions"},
 			cli.BoolFlag{Name: "replace, r", Usage: "Replace data"},
-			cli.StringFlag{Name: "format, f", Value: "JSON", Usage: "Data serialization format YAML, TOML or JSON"},
+			cli.StringFlag{Name: "format, f", Value: "JSON", EnvVar: "ETCDTOOL_FORMAT", Usage: "Data serialization format YAML, TOML or JSON"},
 		},
 		Action: func(c *cli.Context) {
 			importCommandFunc(c, mustNewKeyAPI(c))

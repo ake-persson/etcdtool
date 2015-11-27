@@ -67,7 +67,7 @@ func getPeersFlagValue(c *cli.Context) []string {
 	peerstr := c.GlobalString("endpoint")
 
 	if peerstr == "" {
-		peerstr = os.Getenv("ETCDCTL_ENDPOINT")
+		peerstr = os.Getenv("ETCDTOOL_ENDPOINT")
 	}
 
 	if peerstr == "" {
@@ -75,7 +75,7 @@ func getPeersFlagValue(c *cli.Context) []string {
 	}
 
 	if peerstr == "" {
-		peerstr = os.Getenv("ETCDCTL_PEERS")
+		peerstr = os.Getenv("ETCDTOOL_PEERS")
 	}
 
 	// If we still don't have peers, use a default
@@ -92,7 +92,7 @@ func getDomainDiscoveryFlagValue(c *cli.Context) ([]string, error) {
 	// Use an environment variable if nothing was supplied on the
 	// command line
 	if domainstr == "" {
-		domainstr = os.Getenv("ETCDCTL_DISCOVERY_SRV")
+		domainstr = os.Getenv("ETCDTOOL_DISCOVERY_SRV")
 	}
 
 	// If we still don't have domain discovery, return nothing
@@ -144,13 +144,13 @@ func getTransport(c *cli.Context) (*http.Transport, error) {
 	// Use an environment variable if nothing was supplied on the
 	// command line
 	if cafile == "" {
-		cafile = os.Getenv("ETCDCTL_CA_FILE")
+		cafile = os.Getenv("ETCDTOOL_CA_FILE")
 	}
 	if certfile == "" {
-		certfile = os.Getenv("ETCDCTL_CERT_FILE")
+		certfile = os.Getenv("ETCDTOOL_CERT_FILE")
 	}
 	if keyfile == "" {
-		keyfile = os.Getenv("ETCDCTL_KEY_FILE")
+		keyfile = os.Getenv("ETCDTOOL_KEY_FILE")
 	}
 
 	tls := transport.TLSInfo{
