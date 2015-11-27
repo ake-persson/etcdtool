@@ -8,5 +8,4 @@ if [ -z ${GOPATH:-} ]; then
 fi
 
 go get github.com/constabulary/gb/...
-#${GOPATH}/bin/gb test
 ${GOPATH}/bin/gb build all
