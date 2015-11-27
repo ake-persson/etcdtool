@@ -1,2 +1,6 @@
 .DS_Store
 etcdtool
+bin
+pkg
+.build
+*.rpm
