@@ -2,7 +2,6 @@ package command
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/codegangsta/cli"
@@ -29,7 +28,7 @@ var numKeys int
 // treeCommandFunc executes the "tree" command.
 func treeCommandFunc(c *cli.Context) {
 	if len(c.Args()) == 0 {
-		log.Fatal("You need to specify directory")
+		fatal("You need to specify directory")
 	}
 	dir := c.Args()[0]
 
@@ -49,7 +48,7 @@ func treeCommandFunc(c *cli.Context) {
 
 	resp, err := ki.Get(context.TODO(), dir, &client.GetOptions{Sort: sort, Recursive: true})
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 
 	numDirs = 0

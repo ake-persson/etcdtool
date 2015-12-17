@@ -1,8 +1,6 @@
 package command
 
 import (
-	"log"
-
 	"github.com/codegangsta/cli"
 	"github.com/mickep76/iodatafmt"
 )
@@ -29,7 +27,7 @@ func printConfigCommandFunc(c *cli.Context) {
 	// Get data format.
 	f, err := iodatafmt.Format(c.String("format"))
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 
 	iodatafmt.Print(e, f)

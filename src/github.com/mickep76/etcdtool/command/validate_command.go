@@ -2,7 +2,6 @@ package command
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 	"strings"
 
@@ -27,7 +26,7 @@ func NewValidateCommand() cli.Command {
 // validateCommandFunc validate data using JSON Schema.
 func validateCommandFunc(c *cli.Context) {
 	if len(c.Args()) == 0 {
-		log.Fatal("You need to specify directory")
+		fatal("You need to specify directory")
 	}
 	dir := c.Args()[0]
 
@@ -48,7 +47,7 @@ func validateCommandFunc(c *cli.Context) {
 	for _, r := range e.Routes {
 		match, err := regexp.MatchString(r.Regexp, dir)
 		if err != nil {
-			log.Fatal(err.Error())
+			fatal(err.Error())
 		}
 		if match {
 			schema = r.Schema
@@ -56,7 +55,7 @@ func validateCommandFunc(c *cli.Context) {
 	}
 
 	if schema == "" && len(c.Args()) == 1 {
-		log.Fatal("You need to specify JSON schema URI")
+		fatal("You need to specify JSON schema URI")
 	}
 
 	if len(c.Args()) > 1 {
@@ -68,7 +67,7 @@ func validateCommandFunc(c *cli.Context) {
 	resp, err := ki.Get(ctx, dir, &client.GetOptions{Recursive: true})
 	cancel()
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 	m := etcdmap.Map(resp.Node)
 
@@ -78,7 +77,7 @@ func validateCommandFunc(c *cli.Context) {
 	docLoader := gojsonschema.NewGoLoader(m)
 	result, err := gojsonschema.Validate(schemaLoader, docLoader)
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 
 	// Print results.
