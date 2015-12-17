@@ -79,11 +79,11 @@ func LoadConfig(c *cli.Context) Etcdtool {
 		e.User = c.GlobalString("user")
 	}
 
-	if c.IsSet("timeout") {
+	if c.GlobalDuration("timeout") != 0 {
 		e.Timeout = c.GlobalDuration("timeout")
 	}
 
-	if c.IsSet("command-timeout") {
+	if c.GlobalDuration("command-timeout") != 0 {
 		e.CommandTimeout = c.GlobalDuration("command-timeout")
 	}
 
