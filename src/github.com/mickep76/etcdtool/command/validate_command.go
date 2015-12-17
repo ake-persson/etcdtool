@@ -35,7 +35,7 @@ func validateCommandFunc(c *cli.Context) {
 	if dir != "/" {
 		dir = strings.TrimRight(dir, "/")
 	}
-	Infof(c, "Using dir: %s", dir)
+	infof(c, "Using dir: %s", dir)
 
 	// Load configuration file.
 	e := LoadConfig(c)
@@ -45,13 +45,13 @@ func validateCommandFunc(c *cli.Context) {
 
 	// Map directory to routes.
 	var schema string
-	for _, r := range e.Routes {
-		match, err := regexp.MatchString(r.Regexp, dir)
+	for _, r := range e.routes {
+		match, err := regexp.MatchString(r.regexp, dir)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
 		if match {
-			schema = r.Schema
+			schema = r.schema
 		}
 	}
 
@@ -73,7 +73,7 @@ func validateCommandFunc(c *cli.Context) {
 	m := etcdmap.Map(resp.Node)
 
 	// Validate directory.
-	Infof(c, "Using JSON schema: %s", schema)
+	infof(c, "Using JSON schema: %s", schema)
 	schemaLoader := gojsonschema.NewReferenceLoader(schema)
 	docLoader := gojsonschema.NewGoLoader(m)
 	result, err := gojsonschema.Validate(schemaLoader, docLoader)
@@ -83,8 +83,8 @@ func validateCommandFunc(c *cli.Context) {
 
 	// Print results.
 	if !result.Valid() {
-		for _, e := range result.Errors() {
-			fmt.Printf("%s: %s\n", strings.Replace(e.Context().String("/"), "(root)", dir, 1), e.Description())
+		for _, err := range result.Errors() {
+			fmt.Printf("%s: %s\n", strings.Replace(err.Context().String("/"), "(root)", dir, 1), err.Description())
 		}
 	}
 }

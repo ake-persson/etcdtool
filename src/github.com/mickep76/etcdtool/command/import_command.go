@@ -89,7 +89,7 @@ func importCommandFunc(c *cli.Context) {
 	if dir != "/" {
 		dir = strings.TrimRight(dir, "/")
 	}
-	Infof(c, "Using dir: %s", dir)
+	infof(c, "Using dir: %s", dir)
 
 	if len(c.Args()) == 1 {
 		log.Fatal("You need to specify input file")

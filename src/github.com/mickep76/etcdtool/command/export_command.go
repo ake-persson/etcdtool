@@ -37,7 +37,7 @@ func exportCommandFunc(c *cli.Context) {
 	if dir != "/" {
 		dir = strings.TrimRight(dir, "/")
 	}
-	Infof(c, "Using dir: %s", dir)
+	infof(c, "Using dir: %s", dir)
 
 	// Load configuration file.
 	e := LoadConfig(c)
