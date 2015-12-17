@@ -51,6 +51,28 @@ func Unmarshal(b []byte, f DataFmt) (interface{}, error) {
 	return d, nil
 }
 
+// Unmarshal YAML/JSON/TOML serialized data.
+func UnmarshalPtr(ptr interface{}, b []byte, f DataFmt) error {
+	switch f {
+	case YAML:
+		if err := yaml.Unmarshal(b, ptr); err != nil {
+			return err
+		}
+	case TOML:
+		if err := toml.Unmarshal(b, ptr); err != nil {
+			return err
+		}
+	case JSON:
+		if err := json.Unmarshal(b, ptr); err != nil {
+			return err
+		}
+	default:
+		return errors.New("unsupported data format")
+	}
+
+	return nil
+}
+
 // Marshal YAML/JSON/TOML serialized data.
 func Marshal(d interface{}, f DataFmt) ([]byte, error) {
 	switch f {
@@ -128,6 +150,24 @@ func Load(fn string, f DataFmt) (interface{}, error) {
 	return d, nil
 }
 
+// LoadPtr a file with serialized data.
+func LoadPtr(ptr interface{}, fn string, f DataFmt) error {
+	if _, err := os.Stat(fn); os.IsNotExist(err) {
+		return errors.New("file doesn't exist")
+	}
+
+	b, err := ioutil.ReadFile(fn)
+	if err != nil {
+		return err
+	}
+
+	if err := UnmarshalPtr(ptr, b, f); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Write a file with serialized data.
 func Write(fn string, d map[string]interface{}, f DataFmt) error {
 	b, err := Marshal(d, f)
@@ -149,7 +189,7 @@ func Write(fn string, d map[string]interface{}, f DataFmt) error {
 }
 
 // Print serialized data.
-func Print(d map[string]interface{}, f DataFmt) error {
+func Print(d interface{}, f DataFmt) error {
 	b, err := Marshal(d, f)
 	if err != nil {
 		return err
@@ -160,7 +200,7 @@ func Print(d map[string]interface{}, f DataFmt) error {
 }
 
 // Sprint return serialized data.
-func Sprint(d map[string]interface{}, f DataFmt) (string, error) {
+func Sprint(d interface{}, f DataFmt) (string, error) {
 	b, err := Marshal(d, f)
 	if err != nil {
 		return "", err
