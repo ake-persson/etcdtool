@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bgentry/speakeasy"
 	"github.com/codegangsta/cli"
 	"github.com/coreos/etcd/client"
 	"github.com/coreos/etcd/pkg/transport"
@@ -39,17 +40,14 @@ func newClient(e Etcdtool) client.Client {
 		HeaderTimeoutPerRequest: e.Timeout,
 	}
 
-	/*
-	   uFlag := c.GlobalString("username")
-	   if uFlag != "" {
-	       username, password, err := getUsernamePasswordFromFlag(uFlag)
-	       if err != nil {
-	           return nil, err
-	       }
-	       cfg.Username = username
-	       cfg.Password = password
-	   }
-	*/
+	if e.User != "" {
+		cfg.Username = e.User
+		var err error
+		cfg.Password, err = speakeasy.Ask("Password: ")
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	}
 
 	cl, err := client.New(cfg)
 	if err != nil {
