@@ -42,10 +42,10 @@ NAME:
    etcdtool - Command line tool for etcd to import, export, edit or validate data in either JSON, YAML or TOML format.
 
 USAGE:
-   ./bin/etcdtool [global options] command [command options] [arguments...]
+   ./etcdtool [global options] command [command options] [arguments...]
    
 VERSION:
-   2.6
+   2.7
    
 COMMANDS:
    import	import a directory
@@ -53,9 +53,12 @@ COMMANDS:
    edit		edit a directory
    validate	validate a directory
    tree		List directory as a tree
+   print-config	Print configuration
    help, h	Shows a list of commands or help for one command
    
 GLOBAL OPTIONS:
+   --config, -c 						Configuration file [$ETCDTOOL_CONFIG]
+   --debug, -d							Debug
    --peers, -p "http://127.0.0.1:4001,http://127.0.0.1:2379"	Comma-delimited list of hosts in the cluster [$ETCDTOOL_PEERS]
    --cert 							Identify HTTPS client using this SSL certificate file [$ETCDTOOL_CERT]
    --key 							Identify HTTPS client using this SSL key file [$ETCDTOOL_KEY]
