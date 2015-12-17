@@ -88,7 +88,7 @@ func LoadConfig(c *cli.Context) Etcdtool {
 	}
 
 	// Enable debug
-	if c.Bool("debug") {
+	if c.GlobalBool("debug") {
 		debug = true
 	}
 
