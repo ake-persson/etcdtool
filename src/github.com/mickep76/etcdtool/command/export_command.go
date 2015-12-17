@@ -21,17 +21,29 @@ func NewExportCommand() cli.Command {
 			cli.StringFlag{Name: "output, o", Value: "", Usage: "Output file"},
 		},
 		Action: func(c *cli.Context) {
-			exportCommandFunc(c, newKeyAPI(c))
+			exportCommandFunc(c)
 		},
 	}
 }
 
 // exportCommandFunc exports data as either JSON, YAML or TOML.
-func exportCommandFunc(c *cli.Context, ki client.KeysAPI) {
-	key := "/"
-	if len(c.Args()) != 0 {
-		key = strings.TrimRight(c.Args()[0], "/") + "/"
+func exportCommandFunc(c *cli.Context) {
+	if len(c.Args()) == 0 {
+		log.Fatal("You need to specify directory")
 	}
+	dir := c.Args()[0]
+
+	// Remove trailing slash.
+	if dir != "/" {
+		dir = strings.TrimRight(dir, "/")
+	}
+	Infof(c, "Using dir: %s", dir)
+
+	// Load configuration file.
+	e := LoadConfig(c)
+
+	// New dir API.
+	ki := newKeyAPI(e)
 
 	sort := c.Bool("sort")
 
@@ -41,13 +53,13 @@ func exportCommandFunc(c *cli.Context, ki client.KeysAPI) {
 		log.Fatal(err.Error())
 	}
 
-	exportFunc(key, sort, c.String("output"), f, c, ki)
+	exportFunc(dir, sort, c.String("output"), f, c, ki)
 }
 
 // exportCommandFunc exports data as either JSON, YAML or TOML.
-func exportFunc(key string, sort bool, file string, f iodatafmt.DataFmt, c *cli.Context, ki client.KeysAPI) {
+func exportFunc(dir string, sort bool, file string, f iodatafmt.DataFmt, c *cli.Context, ki client.KeysAPI) {
 	ctx, cancel := contextWithCommandTimeout(c)
-	resp, err := ki.Get(ctx, key, &client.GetOptions{Sort: sort, Recursive: true})
+	resp, err := ki.Get(ctx, dir, &client.GetOptions{Sort: sort, Recursive: true})
 	cancel()
 	if err != nil {
 		log.Fatal(err.Error())

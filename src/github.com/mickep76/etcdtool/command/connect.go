@@ -16,11 +16,11 @@ func contextWithCommandTimeout(c *cli.Context) (context.Context, context.CancelF
 	return context.WithTimeout(context.Background(), c.GlobalDuration("command-timeout"))
 }
 
-func newTransport(c *cli.Context) *http.Transport {
+func newTransport(e Etcdtool) *http.Transport {
 	tls := transport.TLSInfo{
-		CAFile:   c.GlobalString("ca"),
-		CertFile: c.GlobalString("cert"),
-		KeyFile:  c.GlobalString("key"),
+		CAFile:   e.CA,
+		CertFile: e.Cert,
+		KeyFile:  e.Key,
 	}
 
 	timeout := 30 * time.Second
@@ -32,11 +32,11 @@ func newTransport(c *cli.Context) *http.Transport {
 	return tr
 }
 
-func newClient(c *cli.Context) client.Client {
+func newClient(e Etcdtool) client.Client {
 	cfg := client.Config{
-		Transport:               newTransport(c),
-		Endpoints:               strings.Split(c.GlobalString("peers"), ","),
-		HeaderTimeoutPerRequest: c.GlobalDuration("timeout"),
+		Transport:               newTransport(e),
+		Endpoints:               strings.Split(e.Peers, ","),
+		HeaderTimeoutPerRequest: e.Timeout,
 	}
 
 	/*
@@ -50,6 +50,7 @@ func newClient(c *cli.Context) client.Client {
 	       cfg.Password = password
 	   }
 	*/
+
 	cl, err := client.New(cfg)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -58,6 +59,6 @@ func newClient(c *cli.Context) client.Client {
 	return cl
 }
 
-func newKeyAPI(c *cli.Context) client.KeysAPI {
-	return client.NewKeysAPI(newClient(c))
+func newKeyAPI(e Etcdtool) client.KeysAPI {
+	return client.NewKeysAPI(newClient(e))
 }

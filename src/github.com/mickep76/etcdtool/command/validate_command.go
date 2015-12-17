@@ -26,28 +26,27 @@ func NewValidateCommand() cli.Command {
 
 // validateCommandFunc validate data using JSON Schema.
 func validateCommandFunc(c *cli.Context) {
-	// key should be dir
 	if len(c.Args()) == 0 {
 		log.Fatal("You need to specify directory")
 	}
-	key := c.Args()[0]
+	dir := c.Args()[0]
 
 	// Remove trailing slash.
-	if key != "/" {
-		key = strings.TrimRight(key, "/")
+	if dir != "/" {
+		dir = strings.TrimRight(dir, "/")
 	}
-	Infof(c, "Using key: %s", key)
+	Infof(c, "Using dir: %s", dir)
 
 	// Load configuration file.
-	cfg := LoadConfig(c)
+	e := LoadConfig(c)
 
-	// New key API.
-	ki := newKeyAPI(c)
+	// New dir API.
+	ki := newKeyAPI(e)
 
 	// Map directory to routes.
 	var schema string
-	for _, r := range cfg.Routes {
-		match, err := regexp.MatchString(r.Regexp, key)
+	for _, r := range e.Routes {
+		match, err := regexp.MatchString(r.Regexp, dir)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -66,7 +65,7 @@ func validateCommandFunc(c *cli.Context) {
 
 	// Get directory.
 	ctx, cancel := contextWithCommandTimeout(c)
-	resp, err := ki.Get(ctx, key, &client.GetOptions{Recursive: true})
+	resp, err := ki.Get(ctx, dir, &client.GetOptions{Recursive: true})
 	cancel()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -85,7 +84,7 @@ func validateCommandFunc(c *cli.Context) {
 	// Print results.
 	if !result.Valid() {
 		for _, e := range result.Errors() {
-			fmt.Printf("%s: %s\n", strings.Replace(e.Context().String("/"), "(root)", key, 1), e.Description())
+			fmt.Printf("%s: %s\n", strings.Replace(e.Context().String("/"), "(root)", dir, 1), e.Description())
 		}
 	}
 }

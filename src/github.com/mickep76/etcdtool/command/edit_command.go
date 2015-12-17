@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/codegangsta/cli"
-	"github.com/coreos/etcd/client"
 	"github.com/mickep76/iodatafmt"
 )
 
@@ -26,7 +25,7 @@ func NewEditCommand() cli.Command {
 			cli.StringFlag{Name: "tmp-file, t", Value: ".etcdtool.swp", Usage: "Temporary file"},
 		},
 		Action: func(c *cli.Context) {
-			editCommandFunc(c, newKeyAPI(c))
+			editCommandFunc(c)
 		},
 	}
 }
@@ -47,13 +46,23 @@ func editFile(editor string, file string) error {
 }
 
 // editCommandFunc edit data as either JSON, YAML or TOML.
-func editCommandFunc(c *cli.Context, ki client.KeysAPI) {
-	var key string
+func editCommandFunc(c *cli.Context) {
 	if len(c.Args()) == 0 {
 		log.Fatal("You need to specify directory")
-	} else {
-		key = strings.TrimRight(c.Args()[0], "/") + "/"
 	}
+	dir := c.Args()[0]
+
+	// Remove trailing slash.
+	if dir != "/" {
+		dir = strings.TrimRight(dir, "/")
+	}
+	Infof(c, "Using dir: %s", dir)
+
+	// Load configuration file.
+	e := LoadConfig(c)
+
+	// New dir API.
+	ki := newKeyAPI(e)
 
 	sort := c.Bool("sort")
 
@@ -64,7 +73,7 @@ func editCommandFunc(c *cli.Context, ki client.KeysAPI) {
 	}
 
 	// Export to file.
-	exportFunc(key, sort, c.String("tmp-file"), f, c, ki)
+	exportFunc(dir, sort, c.String("tmp-file"), f, c, ki)
 
 	// Get modified time stamp.
 	before, err := os.Stat(c.String("tmp-file"))
@@ -83,7 +92,7 @@ func editCommandFunc(c *cli.Context, ki client.KeysAPI) {
 
 	// Import from file if it has changed.
 	if before.ModTime() != after.ModTime() {
-		importFunc(key, c.String("tmp-file"), f, c.Bool("replace"), c.Bool("yes"), c, ki)
+		importFunc(dir, c.String("tmp-file"), f, c.Bool("replace"), c.Bool("yes"), c, ki)
 	} else {
 		fmt.Printf("File wasn't modified, skipping import\n")
 	}

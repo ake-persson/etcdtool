@@ -4,14 +4,21 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"time"
 
 	"github.com/codegangsta/cli"
 	"github.com/mickep76/iodatafmt"
 )
 
 type Etcdtool struct {
-	Peers  string  `json:"peers" yaml:"peers" toml:"peers"`
-	Routes []Route `json:"routes" yaml:"peers" toml:"routes"`
+	Peers          string        `json:"peers,omitempty" yaml:"peers,omitempty" toml:"peers,omitempty"`
+	Cert           string        `json:"cert,omitempty" yaml:"cert,omitempty" toml:"cert,omitempty"`
+	Key            string        `json:"key,omitempty" yaml:"key,omitempty" toml:"key,omitempty"`
+	CA             string        `json:"ca,omitempty" yaml:"ca,omitempty" toml:"peers,omitempty"`
+	User           string        `json:"user,omitempty" yaml:"user,omitempty" toml:"user,omitempty"`
+	Timeout        time.Duration `json:"timeout,omitempty" yaml:"timeout,omitempty" toml:"timeout,omitempty"`
+	CommandTimeout time.Duration `json:"commandTimeout,omitempty" yaml:"commandTimeout,omitempty" toml:"commandTimoeut,omitempty"`
+	Routes         []Route       `json:"routes" yaml:"routes" toml:"routes"`
 }
 
 type Route struct {
@@ -50,6 +57,35 @@ func LoadConfig(c *cli.Context) Etcdtool {
 		if err := iodatafmt.LoadPtr(&s, fn, f); err != nil {
 			log.Fatal(err.Error())
 		}
+	}
+
+	// Override with arguments or env. variables.
+	if c.GlobalString("peers") != "" {
+		s.Peers = c.GlobalString("peers")
+	}
+
+	if c.GlobalString("cert") != "" {
+		s.Cert = c.GlobalString("cert")
+	}
+
+	if c.GlobalString("key") != "" {
+		s.CA = c.GlobalString("key")
+	}
+
+	if c.GlobalString("ca") != "" {
+		s.CA = c.GlobalString("ca")
+	}
+
+	if c.GlobalString("user") != "" {
+		s.User = c.GlobalString("user")
+	}
+
+	if c.IsSet("timeout") {
+		s.Timeout = c.GlobalDuration("timeout")
+	}
+
+	if c.IsSet("command-timeout") {
+		s.CommandTimeout = c.GlobalDuration("command-timeout")
 	}
 
 	return s

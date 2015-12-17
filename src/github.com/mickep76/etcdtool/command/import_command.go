@@ -26,14 +26,14 @@ func NewImportCommand() cli.Command {
 			cli.StringFlag{Name: "format, f", Value: "JSON", EnvVar: "ETCDTOOL_FORMAT", Usage: "Data serialization format YAML, TOML or JSON"},
 		},
 		Action: func(c *cli.Context) {
-			importCommandFunc(c, newKeyAPI(c))
+			importCommandFunc(c)
 		},
 	}
 }
 
-func keyExists(key string, c *cli.Context, ki client.KeysAPI) (bool, error) {
+func dirExists(dir string, c *cli.Context, ki client.KeysAPI) (bool, error) {
 	ctx, cancel := contextWithCommandTimeout(c)
-	_, err := ki.Get(ctx, key, &client.GetOptions{})
+	_, err := ki.Get(ctx, dir, &client.GetOptions{})
 	cancel()
 	if err != nil {
 		if cerr, ok := err.(client.Error); ok && cerr.Code == 100 {
@@ -44,9 +44,9 @@ func keyExists(key string, c *cli.Context, ki client.KeysAPI) (bool, error) {
 	return true, nil
 }
 
-func isDir(key string, c *cli.Context, ki client.KeysAPI) (bool, error) {
+func isDir(dir string, c *cli.Context, ki client.KeysAPI) (bool, error) {
 	ctx, cancel := contextWithCommandTimeout(c)
-	resp, err := ki.Get(ctx, key, &client.GetOptions{})
+	resp, err := ki.Get(ctx, dir, &client.GetOptions{})
 	cancel()
 	if err != nil {
 		return false, err
@@ -79,12 +79,17 @@ func askYesNo(msg string) bool {
 }
 
 // importCommandFunc imports data as either JSON, YAML or TOML.
-func importCommandFunc(c *cli.Context, ki client.KeysAPI) {
+func importCommandFunc(c *cli.Context) {
 	if len(c.Args()) == 0 {
 		log.Fatal("You need to specify directory")
 	}
-	// Fix for root
-	key := strings.TrimRight(c.Args()[0], "/") //+ "/"
+	dir := c.Args()[0]
+
+	// Remove trailing slash.
+	if dir != "/" {
+		dir = strings.TrimRight(dir, "/")
+	}
+	Infof(c, "Using dir: %s", dir)
 
 	if len(c.Args()) == 1 {
 		log.Fatal("You need to specify input file")
@@ -97,24 +102,30 @@ func importCommandFunc(c *cli.Context, ki client.KeysAPI) {
 		log.Fatal(err.Error())
 	}
 
-	importFunc(key, input, f, c.Bool("replace"), c.Bool("yes"), c, ki)
+	// Load configuration file.
+	e := LoadConfig(c)
+
+	// New dir API.
+	ki := newKeyAPI(e)
+
+	importFunc(dir, input, f, c.Bool("replace"), c.Bool("yes"), c, ki)
 }
 
-func importFunc(key string, file string, f iodatafmt.DataFmt, replace bool, yes bool, c *cli.Context, ki client.KeysAPI) {
-	// Check if key exists and is a directory.
-	exists, err := keyExists(key, c, ki)
+func importFunc(dir string, file string, f iodatafmt.DataFmt, replace bool, yes bool, c *cli.Context, ki client.KeysAPI) {
+	// Check if dir exists and is a directory.
+	exists, err := dirExists(dir, c, ki)
 	if err != nil {
-		log.Fatalf("Specified key doesn't exist: %s", key)
+		log.Fatalf("Specified dir doesn't exist: %s", dir)
 	}
 
 	if exists {
-		dir, err := isDir(key, c, ki)
+		dir, err := isDir(dir, c, ki)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
 
 		if dir {
-			log.Fatalf("Specified key is not a directory: %s", key)
+			log.Fatalf("Specified dir is not a directory: %s", dir)
 		}
 	}
 
@@ -126,30 +137,30 @@ func importFunc(key string, file string, f iodatafmt.DataFmt, replace bool, yes 
 
 	if exists {
 		if replace {
-			if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", key)) {
+			if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", dir)) {
 				os.Exit(1)
 			}
 
 			// Delete dir.
-			if _, err = ki.Delete(context.TODO(), key, &client.DeleteOptions{Recursive: true}); err != nil {
+			if _, err = ki.Delete(context.TODO(), dir, &client.DeleteOptions{Recursive: true}); err != nil {
 				log.Fatal(err.Error())
 			}
 		} else {
 			if !yes {
-				if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", key)) {
+				if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", dir)) {
 					os.Exit(1)
 				}
 			}
 		}
 	} else {
 		// Create dir.
-		if _, err := ki.Set(context.TODO(), key, "", &client.SetOptions{Dir: true}); err != nil {
+		if _, err := ki.Set(context.TODO(), dir, "", &client.SetOptions{Dir: true}); err != nil {
 			log.Fatal(err.Error())
 		}
 	}
 
 	// Import data.
-	if err = etcdmap.Create(ki, key, reflect.ValueOf(m)); err != nil {
+	if err = etcdmap.Create(ki, dir, reflect.ValueOf(m)); err != nil {
 		log.Fatal(err.Error())
 	}
 }
