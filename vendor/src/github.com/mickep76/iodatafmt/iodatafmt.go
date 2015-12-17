@@ -51,7 +51,7 @@ func Unmarshal(b []byte, f DataFmt) (interface{}, error) {
 	return d, nil
 }
 
-// Unmarshal YAML/JSON/TOML serialized data.
+// UnmarshalPtr YAML/JSON/TOML serialized data.
 func UnmarshalPtr(ptr interface{}, b []byte, f DataFmt) error {
 	switch f {
 	case YAML:

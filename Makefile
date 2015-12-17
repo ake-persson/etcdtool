@@ -11,6 +11,9 @@ clean:
 	rm -f *.rpm
 	rm -rf bin pkg ${NAME} ${BUILDDIR}
 
+update:
+	gb vendor update --all
+
 deps:
 	go get github.com/constabulary/gb/...
 

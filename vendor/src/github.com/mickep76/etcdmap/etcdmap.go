@@ -161,9 +161,29 @@ func JSON(root *client.Node) ([]byte, error) {
 	return j, nil
 }
 
+// JSON returns an etcd directory as JSON []byte.
+func ArrayJSON(root *client.Node) ([]byte, error) {
+	j, err := json.Marshal(Array(root))
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return j, nil
+}
+
 // JSONIndent returns an etcd directory as indented JSON []byte.
 func JSONIndent(root *client.Node, indent string) ([]byte, error) {
 	j, err := json.MarshalIndent(Map(root), "", indent)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return j, nil
+}
+
+// JSONIndent returns an etcd directory as indented JSON []byte.
+func ArrayJSONIndent(root *client.Node, indent string) ([]byte, error) {
+	j, err := json.MarshalIndent(Array(root), "", indent)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -183,6 +203,22 @@ func Map(root *client.Node) map[string]interface{} {
 			v[k] = Map(n)
 		} else {
 			v[k] = n.Value
+		}
+	}
+	return v
+}
+
+// Array returns a []interface{} including the directory name inside each entry from a etcd directory.
+func Array(root *client.Node) []interface{} {
+	v := []interface{}{}
+
+	for _, n := range root.Nodes {
+		keys := strings.Split(n.Key, "/")
+		k := keys[len(keys)-1]
+		if n.Dir {
+			m := make(map[string]interface{})
+			m = Map(n)
+			m["dir_name"] = k
 		}
 	}
 	return v
