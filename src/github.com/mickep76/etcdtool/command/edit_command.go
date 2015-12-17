@@ -2,7 +2,6 @@ package command
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -33,14 +32,14 @@ func NewEditCommand() cli.Command {
 func editFile(editor string, file string) error {
 	_, err := exec.LookPath(editor)
 	if err != nil {
-		log.Fatalf("Editor doesn't exist: %s", editor)
+		fatalf("Editor doesn't exist: %s", editor)
 	}
 
 	cmd := exec.Command(editor, file)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	if err := cmd.Run(); err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 	return nil
 }
@@ -48,7 +47,7 @@ func editFile(editor string, file string) error {
 // editCommandFunc edit data as either JSON, YAML or TOML.
 func editCommandFunc(c *cli.Context) {
 	if len(c.Args()) == 0 {
-		log.Fatal("You need to specify directory")
+		fatal("You need to specify directory")
 	}
 	dir := c.Args()[0]
 
@@ -56,7 +55,7 @@ func editCommandFunc(c *cli.Context) {
 	if dir != "/" {
 		dir = strings.TrimRight(dir, "/")
 	}
-	infof(c, "Using dir: %s", dir)
+	infof("Using dir: %s", dir)
 
 	// Load configuration file.
 	e := LoadConfig(c)
@@ -69,7 +68,7 @@ func editCommandFunc(c *cli.Context) {
 	// Get data format.
 	f, err := iodatafmt.Format(c.String("format"))
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 
 	// Export to file.
@@ -78,7 +77,7 @@ func editCommandFunc(c *cli.Context) {
 	// Get modified time stamp.
 	before, err := os.Stat(c.String("tmp-file"))
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 
 	// Edit file.
@@ -87,7 +86,7 @@ func editCommandFunc(c *cli.Context) {
 	// Check modified time stamp.
 	after, err := os.Stat(c.String("tmp-file"))
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 
 	// Import from file if it has changed.
@@ -99,6 +98,6 @@ func editCommandFunc(c *cli.Context) {
 
 	// Unlink file.
 	if err := os.Remove(c.String("tmp-file")); err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 }

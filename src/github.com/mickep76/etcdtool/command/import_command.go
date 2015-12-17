@@ -3,7 +3,6 @@ package command
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"reflect"
 	"strings"
@@ -64,7 +63,7 @@ func askYesNo(msg string) bool {
 		fmt.Printf("%s [yes/no]? ", msg)
 		inp, _, err := stdin.ReadLine()
 		if err != nil {
-			log.Fatal(err.Error())
+			fatal(err.Error())
 		}
 
 		switch strings.ToLower(string(inp)) {
@@ -81,7 +80,7 @@ func askYesNo(msg string) bool {
 // importCommandFunc imports data as either JSON, YAML or TOML.
 func importCommandFunc(c *cli.Context) {
 	if len(c.Args()) == 0 {
-		log.Fatal("You need to specify directory")
+		fatal("You need to specify directory")
 	}
 	dir := c.Args()[0]
 
@@ -89,17 +88,17 @@ func importCommandFunc(c *cli.Context) {
 	if dir != "/" {
 		dir = strings.TrimRight(dir, "/")
 	}
-	infof(c, "Using dir: %s", dir)
+	infof("Using dir: %s", dir)
 
 	if len(c.Args()) == 1 {
-		log.Fatal("You need to specify input file")
+		fatal("You need to specify input file")
 	}
 	input := c.Args()[1]
 
 	// Get data format.
 	f, err := iodatafmt.Format(c.String("format"))
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 
 	// Load configuration file.
@@ -115,24 +114,24 @@ func importFunc(dir string, file string, f iodatafmt.DataFmt, replace bool, yes 
 	// Check if dir exists and is a directory.
 	exists, err := dirExists(dir, c, ki)
 	if err != nil {
-		log.Fatalf("Specified dir doesn't exist: %s", dir)
+		fatalf("Specified dir doesn't exist: %s", dir)
 	}
 
 	if exists {
 		dir, err := isDir(dir, c, ki)
 		if err != nil {
-			log.Fatal(err.Error())
+			fatal(err.Error())
 		}
 
 		if dir {
-			log.Fatalf("Specified dir is not a directory: %s", dir)
+			fatalf("Specified dir is not a directory: %s", dir)
 		}
 	}
 
 	// Load file.
 	m, err := iodatafmt.Load(file, f)
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 
 	if exists {
@@ -143,7 +142,7 @@ func importFunc(dir string, file string, f iodatafmt.DataFmt, replace bool, yes 
 
 			// Delete dir.
 			if _, err = ki.Delete(context.TODO(), dir, &client.DeleteOptions{Recursive: true}); err != nil {
-				log.Fatal(err.Error())
+				fatal(err.Error())
 			}
 		} else {
 			if !yes {
@@ -155,12 +154,12 @@ func importFunc(dir string, file string, f iodatafmt.DataFmt, replace bool, yes 
 	} else {
 		// Create dir.
 		if _, err := ki.Set(context.TODO(), dir, "", &client.SetOptions{Dir: true}); err != nil {
-			log.Fatal(err.Error())
+			fatal(err.Error())
 		}
 	}
 
 	// Import data.
 	if err = etcdmap.Create(ki, dir, reflect.ValueOf(m)); err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 }

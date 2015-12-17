@@ -1,7 +1,6 @@
 package command
 
 import (
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -27,7 +26,7 @@ func newTransport(e etcdtool) *http.Transport {
 	timeout := 30 * time.Second
 	tr, err := transport.NewTransport(tls, timeout)
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 
 	return tr
@@ -45,13 +44,13 @@ func newClient(e etcdtool) client.Client {
 		var err error
 		cfg.Password, err = speakeasy.Ask("Password: ")
 		if err != nil {
-			log.Fatal(err.Error())
+			fatal(err.Error())
 		}
 	}
 
 	cl, err := client.New(cfg)
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 
 	return cl

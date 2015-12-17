@@ -35,7 +35,7 @@ func validateCommandFunc(c *cli.Context) {
 	if dir != "/" {
 		dir = strings.TrimRight(dir, "/")
 	}
-	infof(c, "Using dir: %s", dir)
+	infof("Using dir: %s", dir)
 
 	// Load configuration file.
 	e := LoadConfig(c)
@@ -73,7 +73,7 @@ func validateCommandFunc(c *cli.Context) {
 	m := etcdmap.Map(resp.Node)
 
 	// Validate directory.
-	infof(c, "Using JSON schema: %s", schema)
+	infof("Using JSON schema: %s", schema)
 	schemaLoader := gojsonschema.NewReferenceLoader(schema)
 	docLoader := gojsonschema.NewGoLoader(m)
 	result, err := gojsonschema.Validate(schemaLoader, docLoader)

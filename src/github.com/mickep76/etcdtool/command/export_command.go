@@ -1,7 +1,6 @@
 package command
 
 import (
-	"log"
 	"strings"
 
 	"github.com/codegangsta/cli"
@@ -29,7 +28,7 @@ func NewExportCommand() cli.Command {
 // exportCommandFunc exports data as either JSON, YAML or TOML.
 func exportCommandFunc(c *cli.Context) {
 	if len(c.Args()) == 0 {
-		log.Fatal("You need to specify directory")
+		fatal("You need to specify directory")
 	}
 	dir := c.Args()[0]
 
@@ -37,7 +36,7 @@ func exportCommandFunc(c *cli.Context) {
 	if dir != "/" {
 		dir = strings.TrimRight(dir, "/")
 	}
-	infof(c, "Using dir: %s", dir)
+	infof("Using dir: %s", dir)
 
 	// Load configuration file.
 	e := LoadConfig(c)
@@ -50,7 +49,7 @@ func exportCommandFunc(c *cli.Context) {
 	// Get data format.
 	f, err := iodatafmt.Format(c.String("format"))
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 
 	exportFunc(dir, sort, c.String("output"), f, c, ki)
@@ -62,7 +61,7 @@ func exportFunc(dir string, sort bool, file string, f iodatafmt.DataFmt, c *cli.
 	resp, err := ki.Get(ctx, dir, &client.GetOptions{Sort: sort, Recursive: true})
 	cancel()
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(err.Error())
 	}
 
 	// Export and write output.

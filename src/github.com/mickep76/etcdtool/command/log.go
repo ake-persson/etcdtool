@@ -2,26 +2,26 @@ package command
 
 import (
 	"log"
-
-	"github.com/codegangsta/cli"
 )
 
-func info(c *cli.Context, msg string) {
-	if c.GlobalBool("debug") {
+var debug bool
+
+func info(msg string) {
+	if debug {
 		log.Print(msg)
 	}
 }
 
-func infof(c *cli.Context, fmt string, args ...interface{}) {
-	if c.GlobalBool("debug") {
+func infof(fmt string, args ...interface{}) {
+	if debug {
 		log.Printf(fmt, args...)
 	}
 }
 
-func fatal(c *cli.Context, msg string) {
+func fatal(msg string) {
 	log.Fatal(msg)
 }
 
-func fatalf(c *cli.Context, fmt string, args ...interface{}) {
+func fatalf(fmt string, args ...interface{}) {
 	log.Fatalf(fmt, args...)
 }

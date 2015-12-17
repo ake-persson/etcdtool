@@ -1,7 +1,6 @@
 package command
 
 import (
-	"log"
 	"os"
 	"os/user"
 	"time"
@@ -28,9 +27,9 @@ type route struct {
 
 func LoadConfig(c *cli.Context) etcdtool {
 	if c.GlobalString("config") != "" {
-		infof(c, "Using config file: %s", c.GlobalString("config"))
+		infof("Using config file: %s", c.GlobalString("config"))
 		if _, err := os.Stat(c.GlobalString("config")); os.IsNotExist(err) {
-			log.Fatalf("Config file doesn't exist: %s", c.GlobalString("config"))
+			fatalf("Config file doesn't exist: %s", c.GlobalString("config"))
 		}
 	}
 
@@ -49,13 +48,13 @@ func LoadConfig(c *cli.Context) etcdtool {
 		if _, err := os.Stat(fn); os.IsNotExist(err) {
 			continue
 		}
-		infof(c, "Using config file: %s", fn)
+		infof("Using config file: %s", fn)
 		f, err := iodatafmt.FileFormat(fn)
 		if err != nil {
-			log.Fatal(err.Error())
+			fatal(err.Error())
 		}
 		if err := iodatafmt.LoadPtr(&e, fn, f); err != nil {
-			log.Fatal(err.Error())
+			fatal(err.Error())
 		}
 	}
 
@@ -86,6 +85,11 @@ func LoadConfig(c *cli.Context) etcdtool {
 
 	if c.IsSet("command-timeout") {
 		e.commandTimeout = c.GlobalDuration("command-timeout")
+	}
+
+	// Enable debug
+	if c.Bool("debug") {
+		debug = true
 	}
 
 	return e
