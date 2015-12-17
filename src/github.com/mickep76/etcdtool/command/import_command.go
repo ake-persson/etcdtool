@@ -118,12 +118,12 @@ func importFunc(dir string, file string, f iodatafmt.DataFmt, replace bool, yes 
 	}
 
 	if exists {
-		dir, err := isDir(dir, c, ki)
+		exist, err := isDir(dir, c, ki)
 		if err != nil {
 			fatal(err.Error())
 		}
 
-		if dir {
+		if exist {
 			fatalf("Specified dir is not a directory: %s", dir)
 		}
 	}

@@ -1,4 +1,4 @@
 package main
 
-// Version
+// Version for app.
 const Version = "2.7"

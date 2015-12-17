@@ -9,6 +9,7 @@ import (
 	"github.com/mickep76/iodatafmt"
 )
 
+// Etcdtool configuration struct.
 type Etcdtool struct {
 	Peers          string        `json:"peers,omitempty" yaml:"peers,omitempty" toml:"peers,omitempty"`
 	Cert           string        `json:"cert,omitempty" yaml:"cert,omitempty" toml:"cert,omitempty"`
@@ -20,6 +21,7 @@ type Etcdtool struct {
 	Routes         []Route       `json:"routes" yaml:"routes" toml:"routes"`
 }
 
+// Route configuration struct.
 type Route struct {
 	Regexp string `json:"regexp" yaml:"regexp" toml:"regexp"`
 	Schema string `json:"schema" yaml:"schema" toml:"schema"`

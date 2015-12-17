@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/context"
 )
 
+// NewTreeCommand print directory as a tree.
 func NewTreeCommand() cli.Command {
 	return cli.Command{
 		Name:  "tree",

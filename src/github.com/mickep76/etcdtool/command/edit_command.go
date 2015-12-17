@@ -10,7 +10,7 @@ import (
 	"github.com/mickep76/iodatafmt"
 )
 
-// NewImportCommand sets data from input.
+// NewEditCommand sets data from input.
 func NewEditCommand() cli.Command {
 	return cli.Command{
 		Name:  "edit",

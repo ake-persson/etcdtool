@@ -5,6 +5,7 @@ import (
 	"github.com/mickep76/iodatafmt"
 )
 
+// NewPrintConfigCommand print configuration.
 func NewPrintConfigCommand() cli.Command {
 	return cli.Command{
 		Name:  "print-config",
@@ -19,7 +20,6 @@ func NewPrintConfigCommand() cli.Command {
 	}
 }
 
-// printConfigCommandFunc
 func printConfigCommandFunc(c *cli.Context) {
 	// Load configuration file.
 	e := loadConfig(c)
