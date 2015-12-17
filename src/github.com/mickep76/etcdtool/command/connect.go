@@ -16,11 +16,11 @@ func contextWithCommandTimeout(c *cli.Context) (context.Context, context.CancelF
 	return context.WithTimeout(context.Background(), c.GlobalDuration("command-timeout"))
 }
 
-func newTransport(e etcdtool) *http.Transport {
+func newTransport(e Etcdtool) *http.Transport {
 	tls := transport.TLSInfo{
-		CAFile:   e.ca,
-		CertFile: e.cert,
-		KeyFile:  e.key,
+		CAFile:   e.CA,
+		CertFile: e.Cert,
+		KeyFile:  e.Key,
 	}
 
 	timeout := 30 * time.Second
@@ -32,15 +32,15 @@ func newTransport(e etcdtool) *http.Transport {
 	return tr
 }
 
-func newClient(e etcdtool) client.Client {
+func newClient(e Etcdtool) client.Client {
 	cfg := client.Config{
 		Transport:               newTransport(e),
-		Endpoints:               strings.Split(e.peers, ","),
-		HeaderTimeoutPerRequest: e.timeout,
+		Endpoints:               strings.Split(e.Peers, ","),
+		HeaderTimeoutPerRequest: e.Timeout,
 	}
 
-	if e.user != "" {
-		cfg.Username = e.user
+	if e.User != "" {
+		cfg.Username = e.User
 		var err error
 		cfg.Password, err = speakeasy.Ask("Password: ")
 		if err != nil {
@@ -56,6 +56,6 @@ func newClient(e etcdtool) client.Client {
 	return cl
 }
 
-func newKeyAPI(e etcdtool) client.KeysAPI {
+func newKeyAPI(e Etcdtool) client.KeysAPI {
 	return client.NewKeysAPI(newClient(e))
 }

@@ -45,13 +45,13 @@ func validateCommandFunc(c *cli.Context) {
 
 	// Map directory to routes.
 	var schema string
-	for _, r := range e.routes {
-		match, err := regexp.MatchString(r.regexp, dir)
+	for _, r := range e.Routes {
+		match, err := regexp.MatchString(r.Regexp, dir)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
 		if match {
-			schema = r.schema
+			schema = r.Schema
 		}
 	}
 
