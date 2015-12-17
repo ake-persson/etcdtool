@@ -58,7 +58,7 @@ func editCommandFunc(c *cli.Context) {
 	infof("Using dir: %s", dir)
 
 	// Load configuration file.
-	e := LoadConfig(c)
+	e := loadConfig(c)
 
 	// New dir API.
 	ki := newKeyAPI(e)

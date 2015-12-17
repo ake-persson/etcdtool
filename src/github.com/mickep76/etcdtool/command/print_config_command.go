@@ -22,7 +22,7 @@ func NewPrintConfigCommand() cli.Command {
 // printConfigCommandFunc
 func printConfigCommandFunc(c *cli.Context) {
 	// Load configuration file.
-	e := LoadConfig(c)
+	e := loadConfig(c)
 
 	// Get data format.
 	f, err := iodatafmt.Format(c.String("format"))

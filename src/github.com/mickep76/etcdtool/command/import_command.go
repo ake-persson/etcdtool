@@ -102,7 +102,7 @@ func importCommandFunc(c *cli.Context) {
 	}
 
 	// Load configuration file.
-	e := LoadConfig(c)
+	e := loadConfig(c)
 
 	// New dir API.
 	ki := newKeyAPI(e)

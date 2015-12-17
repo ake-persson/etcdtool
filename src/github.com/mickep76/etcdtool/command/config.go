@@ -16,7 +16,7 @@ type Etcdtool struct {
 	CA             string        `json:"ca,omitempty" yaml:"ca,omitempty" toml:"peers,omitempty"`
 	User           string        `json:"user,omitempty" yaml:"user,omitempty" toml:"user,omitempty"`
 	Timeout        time.Duration `json:"timeout,omitempty" yaml:"timeout,omitempty" toml:"timeout,omitempty"`
-	CommandTimeout time.Duration `json:"commandTimeout,omitempty" yaml:"commandTimeout,omitempty" toml:"commandTimoeut,omitempty"`
+	CommandTimeout time.Duration `json:"commandTimeout,omitempty" yaml:"commandTimeout,omitempty" toml:"commandTimeout,omitempty"`
 	Routes         []Route       `json:"routes" yaml:"routes" toml:"routes"`
 }
 
@@ -25,7 +25,7 @@ type Route struct {
 	Schema string `json:"schema" yaml:"schema" toml:"schema"`
 }
 
-func LoadConfig(c *cli.Context) Etcdtool {
+func loadConfig(c *cli.Context) Etcdtool {
 	if c.GlobalString("config") != "" {
 		infof("Using config file: %s", c.GlobalString("config"))
 		if _, err := os.Stat(c.GlobalString("config")); os.IsNotExist(err) {
@@ -33,6 +33,7 @@ func LoadConfig(c *cli.Context) Etcdtool {
 		}
 	}
 
+	// Default path for config file.
 	u, _ := user.Current()
 	cfgs := []string{
 		"/etcd/etcdtool.json",
@@ -43,6 +44,7 @@ func LoadConfig(c *cli.Context) Etcdtool {
 		u.HomeDir + "/.etcdtool.toml",
 	}
 
+	// Check if config file exists and load it.
 	e := Etcdtool{}
 	for _, fn := range cfgs {
 		if _, err := os.Stat(fn); os.IsNotExist(err) {
