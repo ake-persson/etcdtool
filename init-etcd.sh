@@ -35,6 +35,14 @@ status() {
     echo NODE1: ${NAME}1 IP: ${IP} PORT: 4001
 }
 
+error() {
+    echo "$1" >&2
+    exit 1
+}
+
+which docker &>/dev/null || error "Docker binary is not in the \$PATH"
+docker ps &>/dev/null || error "Can't talk to the Docker daemon, either start the daemon or setup the required env. variables"
+
 CMD=$1
 case ${CMD} in
     'start')
