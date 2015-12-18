@@ -1,0 +1,15 @@
+[[routes]]
+regexp = "^/hosts$"
+schema = "file://schemas/all_hosts.json"
+
+[[routes]]
+regexp = "^/hosts/[a-z]([a-z0-9-]+\\.)+[a-z]+$"
+schema = "file://schemas/host.json"
+
+[[routes]]
+regexp = "^/host/[a-z]([a-z0-9-]+\\.)+[a-z]+/interfaces$"
+schema = "file://schemas/all_interfaces.json"
+
+[[routes]]
+regexp = "^/host/[a-z]([a-z0-9-]+\\.)+[a-z]+/interfaces/.+$"
+schema = "file://schemas/interface.json"

@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Interface Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "gw": {
+      "format": "ipv4"
+    },
+    "hwaddr": {
+      "$ref": "types.json#/definitions/hwaddr"
+    },
+    "ip": {
+      "format": "ipv4"
+    },
+    "netmask": {
+      "format": "ipv4"
+    }
+  }
+}

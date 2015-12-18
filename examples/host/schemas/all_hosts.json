@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Host Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "patternProperties": {
+    ".+": {
+      "$ref": "host.json#"
+    }
+  }
+}

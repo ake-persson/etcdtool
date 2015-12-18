@@ -58,6 +58,7 @@ case ${CMD} in
         ;;
     'env')
     echo "export ETCDCTL_PEERS=\"http://${IP}:4001\""
+    echo "export ETCDTOOL_PEERS=\"http://${IP}:4001\""
     echo "# Run the following to export the environment"
     echo "# eval \"\$(./init-etcd.sh env)\""
 

@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Host Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "site"
+  ],
+  "properties": {
+    "interfaces": {
+      "type": "object",
+      "patternProperties": {
+        ".+": {
+          "$ref": "interface.json#"
+        }
+      }
+    },
+    "site": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-_]+$"
+    },
+    "tenant": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-_]+$"
+    }
+  }
+}
