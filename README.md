@@ -36,7 +36,7 @@ brew install etcdtool
 
 # Example
 
-First make sure you have docker running.
+Make sure you have Docker configured.
 
 **Start etcd:**
 
