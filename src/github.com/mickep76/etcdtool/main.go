@@ -1,10 +1,5 @@
 package main
 
-// TODO
-// Allow config file in etcd path like etcd://...
-// Default looking for config file in etcd://etcdtool
-// Add --validate flag to import/edit
-
 import (
 	"os"
 	"time"
