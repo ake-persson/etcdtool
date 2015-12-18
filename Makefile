@@ -1,7 +1,7 @@
 NAME=etcdtool
 BUILDDIR=.build
 SRCDIR=github.com/mickep76/$(NAME)
-VERSION:=2.8
+VERSION:=2.9
 RELEASE:=$(shell date -u +%Y%m%d%H%M)
 ARCH:=$(shell uname -p)
 
