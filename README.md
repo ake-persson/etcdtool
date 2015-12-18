@@ -34,6 +34,13 @@ brew tap mickep76/funk-gnarge
 brew install etcdtool
 ```
 
+**Update**
+
+```bash
+brew update
+brew upgrade --all
+```
+
 # Example
 
 Make sure you have Docker configured.
