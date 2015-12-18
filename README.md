@@ -60,47 +60,6 @@ brew tap mickep76/funk-gnarge
 brew install etcdtool
 ```
 
-# Usage etcdtool
-
-```bash
-NAME:
-   etcdtool - Command line tool for etcd to import, export, edit or validate data in either JSON, YAML or TOML format.
-
-USAGE:
-   ./etcdtool [global options] command [command options] [arguments...]
-   
-VERSION:
-   2.7
-   
-COMMANDS:
-   import	import a directory
-   export	export a directory
-   edit		edit a directory
-   validate	validate a directory
-   tree		List directory as a tree
-   print-config	Print configuration
-   help, h	Shows a list of commands or help for one command
-   
-GLOBAL OPTIONS:
-   --config, -c 						Configuration file [$ETCDTOOL_CONFIG]
-   --debug, -d							Debug
-   --peers, -p "http://127.0.0.1:4001,http://127.0.0.1:2379"	Comma-delimited list of hosts in the cluster [$ETCDTOOL_PEERS]
-   --cert 							Identify HTTPS client using this SSL certificate file [$ETCDTOOL_CERT]
-   --key 							Identify HTTPS client using this SSL key file [$ETCDTOOL_KEY]
-   --ca 							Verify certificates of HTTPS-enabled servers using this CA bundle [$ETCDTOOL_CA]
-   --user, -u 							User
-   --timeout, -t "1s"						Connection timeout
-   --command-timeout, -T "5s"					Command timeout
-   --help, -h							show help
-   --version, -v						print the version
-```
-
-> You can also set an env. variable for the etcd node and port.
-
-```bash
-export ETCDTOOL_PEERS="http://etcd1.example.com:2379"
-```
-
 # Example
 
 First make sure you have docker running, for running etcd.
