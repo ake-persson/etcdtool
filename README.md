@@ -95,3 +95,22 @@ etcdtool -d -c etcdtool.toml validate /hosts/test2.example.com
 etcdtool -d -c etcdtool.toml validate /hosts/test2.example.com/interfaces
 etcdtool -d -c etcdtool.toml validate /hosts/test2.example.com/interfaces/eth0
 ```
+
+**Fix validation error:**
+
+```
+etcdtool edit -f toml /hosts/test2.example.com
+```
+
+```
+---
+    gw = "1.192.168.0.1"
++++
+    gw = "192.168.0.1"
+```
+
+**Re-validate data:**
+
+```
+etcdtool -d -c etcdtool.toml validate /hosts
+```
