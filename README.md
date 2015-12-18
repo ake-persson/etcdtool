@@ -9,32 +9,6 @@ Export/Import/Edit etcd directory as JSON/YAML/TOML and validate directory using
 - Store configuration in Git and use import to populate etcd.
 - Validate directory entries using JSON schema.
 
-# Caveats
-
-- etcd doesn't support list's, this is handled by using the index as the key:
-
-**JSON Input:**
-
-```json
-{
-    "users": [
-        { "username": "jblack", "first_name": "John", "last_name": "Blackbeard" },
-        { "username": "ltrier", "first_name": "Lars", "last_name": "Von Trier" }
-    ]
-}
-```      
-
-**Result in etcd:**
-
-```
-users/0/username: jblack
-users/0/first_name: John
-users/0/last_name: Blackbeard
-users/1/username: ltrier
-users/1/first_name: Ludwig
-users/1/last_name: Von Treimer
-```
-
 # Build
 
 ```bash
@@ -62,7 +36,7 @@ brew install etcdtool
 
 # Example
 
-First make sure you have docker running, for running etcd.
+First make sure you have docker running.
 
 **Start etcd:**
 
@@ -113,4 +87,30 @@ etcdtool edit -f toml /hosts/test2.example.com
 
 ```
 etcdtool -d -c etcdtool.toml validate /hosts
+```
+
+# Caveats
+
+- etcd doesn't support list's, this is handled by using the index as the key:
+
+**JSON Input:**
+
+```json
+{
+    "users": [
+        { "username": "jblack", "first_name": "John", "last_name": "Blackbeard" },
+        { "username": "ltrier", "first_name": "Lars", "last_name": "Von Trier" }
+    ]
+}
+```
+
+**Result in etcd:**
+
+```
+users/0/username: jblack
+users/0/first_name: John
+users/0/last_name: Blackbeard
+users/1/username: ltrier
+users/1/first_name: Ludwig
+users/1/last_name: Von Treimer
 ```
