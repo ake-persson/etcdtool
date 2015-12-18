@@ -19,6 +19,7 @@ func NewEditCommand() cli.Command {
 			cli.BoolFlag{Name: "sort, s", Usage: "returns result in sorted order"},
 			cli.BoolFlag{Name: "yes, y", Usage: "Answer yes to any questions"},
 			cli.BoolFlag{Name: "replace, r", Usage: "Replace data"},
+			cli.BoolFlag{Name: "validate, v", Usage: "Validate data before import"},
 			cli.StringFlag{Name: "format, f", Value: "JSON", EnvVar: "ETCDTOOL_FORMAT", Usage: "Data serialization format YAML, TOML or JSON"},
 			cli.StringFlag{Name: "editor, e", Value: "vim", Usage: "Editor", EnvVar: "EDITOR"},
 			cli.StringFlag{Name: "tmp-file, t", Value: ".etcdtool.swp", Usage: "Temporary file"},
@@ -91,7 +92,7 @@ func editCommandFunc(c *cli.Context) {
 
 	// Import from file if it has changed.
 	if before.ModTime() != after.ModTime() {
-		importFunc(dir, c.String("tmp-file"), f, c.Bool("replace"), c.Bool("yes"), c, ki)
+		importFunc(dir, c.String("tmp-file"), f, c.Bool("replace"), c.Bool("yes"), e, c, ki)
 	} else {
 		fmt.Printf("File wasn't modified, skipping import\n")
 	}

@@ -87,3 +87,48 @@ func validateCommandFunc(c *cli.Context) {
 		}
 	}
 }
+
+func validateFunc(e Etcdtool, dir string, d interface{}) {
+	// Map directory to routes.
+	var schema string
+	for _, r := range e.Routes {
+		match, err := regexp.MatchString(r.Regexp, dir)
+		if err != nil {
+			fatal(err.Error())
+		}
+		if match {
+			schema = r.Schema
+		}
+	}
+
+	if schema == "" {
+		fatal("Couldn't determine which JSON schema to use for validation")
+	}
+
+	/*
+	   if schema == "" && len(c.Args()) == 1 {
+	       fatal("You need to specify JSON schema URI")
+	   }
+
+	   if len(c.Args()) > 1 {
+	       schema = c.Args()[1]
+	   }
+	*/
+
+	// Validate directory.
+	infof("Using JSON schema: %s", schema)
+	schemaLoader := gojsonschema.NewReferenceLoader(schema)
+	docLoader := gojsonschema.NewGoLoader(d)
+	result, err := gojsonschema.Validate(schemaLoader, docLoader)
+	if err != nil {
+		fatal(err.Error())
+	}
+
+	// Print results.
+	if !result.Valid() {
+		for _, err := range result.Errors() {
+			fmt.Printf("%s: %s\n", strings.Replace(err.Context().String("/"), "(root)", dir, 1), err.Description())
+		}
+		fatal("Data validation failed aborting")
+	}
+}

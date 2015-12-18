@@ -22,6 +22,7 @@ func NewImportCommand() cli.Command {
 		Flags: []cli.Flag{
 			cli.BoolFlag{Name: "yes, y", Usage: "Answer yes to any questions"},
 			cli.BoolFlag{Name: "replace, r", Usage: "Replace data"},
+			cli.BoolFlag{Name: "validate, v", Usage: "Validate data before import"},
 			cli.StringFlag{Name: "format, f", Value: "JSON", EnvVar: "ETCDTOOL_FORMAT", Usage: "Data serialization format YAML, TOML or JSON"},
 		},
 		Action: func(c *cli.Context) {
@@ -107,10 +108,10 @@ func importCommandFunc(c *cli.Context) {
 	// New dir API.
 	ki := newKeyAPI(e)
 
-	importFunc(dir, input, f, c.Bool("replace"), c.Bool("yes"), c, ki)
+	importFunc(dir, input, f, c.Bool("replace"), c.Bool("yes"), e, c, ki)
 }
 
-func importFunc(dir string, file string, f iodatafmt.DataFmt, replace bool, yes bool, c *cli.Context, ki client.KeysAPI) {
+func importFunc(dir string, file string, f iodatafmt.DataFmt, replace bool, yes bool, e Etcdtool, c *cli.Context, ki client.KeysAPI) {
 	// Check if dir exists and is a directory.
 	exists, err := dirExists(dir, c, ki)
 	if err != nil {
@@ -132,6 +133,11 @@ func importFunc(dir string, file string, f iodatafmt.DataFmt, replace bool, yes 
 	m, err := iodatafmt.Load(file, f)
 	if err != nil {
 		fatal(err.Error())
+	}
+
+	// Validate data.
+	if c.Bool("validate") {
+		validateFunc(e, dir, m)
 	}
 
 	if exists {
