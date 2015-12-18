@@ -28,11 +28,9 @@ type Route struct {
 }
 
 func loadConfig(c *cli.Context) Etcdtool {
-	if c.GlobalString("config") != "" {
-		infof("Using config file: %s", c.GlobalString("config"))
-		if _, err := os.Stat(c.GlobalString("config")); os.IsNotExist(err) {
-			fatalf("Config file doesn't exist: %s", c.GlobalString("config"))
-		}
+	// Enable debug
+	if c.GlobalBool("debug") {
+		debug = true
 	}
 
 	// Default path for config file.
@@ -44,6 +42,14 @@ func loadConfig(c *cli.Context) Etcdtool {
 		u.HomeDir + "/.etcdtool.json",
 		u.HomeDir + "/.etcdtool.yaml",
 		u.HomeDir + "/.etcdtool.toml",
+	}
+
+	// Check if we have an arg. for config file and that it exist's.
+	if c.GlobalString("config") != "" {
+		if _, err := os.Stat(c.GlobalString("config")); os.IsNotExist(err) {
+			fatalf("Config file doesn't exist: %s", c.GlobalString("config"))
+		}
+		cfgs = append([]string{c.GlobalString("config")}, cfgs...)
 	}
 
 	// Check if config file exists and load it.
@@ -89,11 +95,6 @@ func loadConfig(c *cli.Context) Etcdtool {
 
 	if c.GlobalDuration("command-timeout") != 0 {
 		e.CommandTimeout = c.GlobalDuration("command-timeout")
-	}
-
-	// Enable debug
-	if c.GlobalBool("debug") {
-		debug = true
 	}
 
 	return e
