@@ -35,6 +35,31 @@ users/1/first_name: Ludwig
 users/1/last_name: Von Treimer
 ```
 
+# Build
+
+```bash
+git clone https://github.com/mickep76/etcdtool.git
+cd etcdtool
+make
+```
+
+# Build RPM
+
+Make sure you have Docker configured.
+
+```bash
+git clone https://github.com/mickep76/etcdtool.git
+cd etcdtool
+make rpm
+```
+
+# Install using Homebrew on Mac OS X
+
+```bash
+brew tap mickep76/funk-gnarge
+brew install etcdtool
+```
+
 # Usage etcdtool
 
 ```bash
@@ -76,27 +101,38 @@ GLOBAL OPTIONS:
 export ETCDTOOL_PEERS="http://etcd1.example.com:2379"
 ```
 
-# Build
+# Example
 
-```bash
-git clone https://github.com/mickep76/etcdtool.git
-cd etcdtool
-make
+First make sure you have docker running, for running etcd.
+
+**Start etcd:**
+
+```
+./init-etcd.sh start
+eval "$(./init-etcd.sh env)"
 ```
 
-# Build RPM
+**Import some data:**
 
-Make sure you have Docker configured.
-
-```bash
-git clone https://github.com/mickep76/etcdtool.git
-cd etcdtool
-make rpm
+```
+cd examples/host/
+etcdtool import /hosts/test1.example.com test1.example.com.json
+etcdtool import /hosts/test2.example.com test2.example.com.json
 ```
 
-# Install using Homebrew on Mac OS X
+**Inspect the content:**
 
-```bash
-brew tap mickep76/funk-gnarge
-brew install etcdtool
+```
+etcdtool tree /
+etcdtool export /
+```
+
+**Validate data with different routes:**
+
+```
+etcdtool -d -c etcdtool.toml validate /
+etcdtool -d -c etcdtool.toml validate /hosts
+etcdtool -d -c etcdtool.toml validate /hosts/test2.example.com
+etcdtool -d -c etcdtool.toml validate /hosts/test2.example.com/interfaces
+etcdtool -d -c etcdtool.toml validate /hosts/test2.example.com/interfaces/eth0
 ```
