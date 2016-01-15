@@ -80,13 +80,13 @@ etcdtool -d -c etcdtool.toml validate /hosts/test2.example.com/interfaces/eth0
 **Import with validation**:
 
 ```
-etcdtool import -v /hosts/test3.example.com test2.example.com.json
+etcdtool -d -c etcdtool.toml import -v /hosts/test3.example.com test2.example.com.json
 ```
 
 **Fix validation error:**
 
 ```
-etcdtool edit -v -f toml /hosts/test2.example.com
+etcdtool -d -c etcdtool.toml edit -v -f toml /hosts/test2.example.com
 ```
 
 ```
