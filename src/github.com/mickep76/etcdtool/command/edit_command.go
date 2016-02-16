@@ -75,8 +75,16 @@ func editCommandFunc(c *cli.Context) {
 	// Temporary file append file type to support syntax highlighting
 	tmpfile := c.String("tmp-file") + "." + strings.ToLower(c.String("format"))
 
-	// Export to file.
-	exportFunc(dir, sort, tmpfile, f, c, ki)
+	// If file exist's resume editing?
+	if _, err := os.Stat(tmpfile); os.IsNotExist(err) {
+		// Export to file.
+		exportFunc(dir, sort, tmpfile, f, c, ki)
+	} else {
+		if !askYesNo(fmt.Sprintf("Temp. file already exist's resume editing")) {
+			// Export to file.
+			exportFunc(dir, sort, tmpfile, f, c, ki)
+		}
+	}
 
 	// Get modified time stamp.
 	before, err := os.Stat(tmpfile)

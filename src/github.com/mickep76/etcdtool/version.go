@@ -1,4 +1,4 @@
 package main
 
 // Version for app.
-const Version = "3.0"
+const Version = "3.1"
