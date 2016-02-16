@@ -7,7 +7,9 @@ import (
 	"strings"
 
 	"github.com/codegangsta/cli"
+	"github.com/coreos/etcd/client"
 	"github.com/mickep76/iodatafmt"
+	"golang.org/x/net/context"
 )
 
 // NewEditCommand sets data from input.
@@ -74,6 +76,24 @@ func editCommandFunc(c *cli.Context) {
 
 	// Temporary file append file type to support syntax highlighting
 	tmpfile := c.String("tmp-file") + "." + strings.ToLower(c.String("format"))
+
+	// Check if dir exists and is a directory.
+	exists, err := dirExists(dir, c, ki)
+	if err != nil {
+		fatal(err.Error())
+	}
+
+	if !exists {
+		if askYesNo(fmt.Sprintf("Dir. doesn't exist: %s create it", dir)) {
+			// Create dir.
+			if _, err := ki.Set(context.TODO(), dir, "", &client.SetOptions{Dir: true}); err != nil {
+				fatal(err.Error())
+			}
+			exists = true
+		} else {
+			os.Exit(1)
+		}
+	}
 
 	// If file exist's resume editing?
 	if _, err := os.Stat(tmpfile); os.IsNotExist(err) {
