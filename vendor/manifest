@@ -4,7 +4,7 @@
 		{
 			"importpath": "github.com/BurntSushi/toml",
 			"repository": "https://github.com/BurntSushi/toml",
-			"revision": "056c9bc7be7190eaa7715723883caffa5f8fa3e4",
+			"revision": "5c4df71dfe9ac89ef6287afc05e4c1b16ae65a1e",
 			"branch": "master"
 		},
 		{
@@ -16,61 +16,61 @@
 		{
 			"importpath": "github.com/codegangsta/cli",
 			"repository": "https://github.com/codegangsta/cli",
-			"revision": "b5232bb2934f606f9f27a1305f1eea224e8e8b88",
+			"revision": "0ab42fd482c27cf2c95e7794ad3bb2082c2ab2d7",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/github.com/ugorji/go/codec",
 			"repository": "https://github.com/coreos/etcd",
-			"revision": "9b0b15c9be660695082d683bee6d0b5ea59904c4",
+			"revision": "30e4d7d6aa97040c5040ffd2344ac0d6effe3d23",
 			"branch": "master",
 			"path": "/Godeps/_workspace/src/github.com/ugorji/go/codec"
 		},
 		{
 			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/golang.org/x/net/context",
 			"repository": "https://github.com/coreos/etcd",
-			"revision": "9b0b15c9be660695082d683bee6d0b5ea59904c4",
+			"revision": "30e4d7d6aa97040c5040ffd2344ac0d6effe3d23",
 			"branch": "master",
 			"path": "/Godeps/_workspace/src/golang.org/x/net/context"
 		},
 		{
 			"importpath": "github.com/coreos/etcd/client",
 			"repository": "https://github.com/coreos/etcd",
-			"revision": "9b0b15c9be660695082d683bee6d0b5ea59904c4",
+			"revision": "30e4d7d6aa97040c5040ffd2344ac0d6effe3d23",
 			"branch": "master",
 			"path": "/client"
 		},
 		{
 			"importpath": "github.com/coreos/etcd/pkg/pathutil",
 			"repository": "https://github.com/coreos/etcd",
-			"revision": "9b0b15c9be660695082d683bee6d0b5ea59904c4",
+			"revision": "30e4d7d6aa97040c5040ffd2344ac0d6effe3d23",
 			"branch": "master",
 			"path": "/pkg/pathutil"
 		},
 		{
 			"importpath": "github.com/coreos/etcd/pkg/transport",
 			"repository": "https://github.com/coreos/etcd",
-			"revision": "9b0b15c9be660695082d683bee6d0b5ea59904c4",
+			"revision": "30e4d7d6aa97040c5040ffd2344ac0d6effe3d23",
 			"branch": "master",
 			"path": "/pkg/transport"
 		},
 		{
 			"importpath": "github.com/coreos/etcd/pkg/types",
 			"repository": "https://github.com/coreos/etcd",
-			"revision": "9b0b15c9be660695082d683bee6d0b5ea59904c4",
+			"revision": "30e4d7d6aa97040c5040ffd2344ac0d6effe3d23",
 			"branch": "master",
 			"path": "/pkg/types"
 		},
 		{
 			"importpath": "github.com/mickep76/etcdmap",
 			"repository": "https://github.com/mickep76/etcdmap",
-			"revision": "7128b59ea24bc4ad44b1eb0e1c9998459c01fc80",
+			"revision": "7251bb03b7f4fe0199e096014bb5b61db0348e91",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/mickep76/iodatafmt",
 			"repository": "https://github.com/mickep76/iodatafmt",
-			"revision": "b597e16ba86d5b61a9fc26e0d7cfa92682009e1d",
+			"revision": "b8a6f28eabf7e2ece95de10eadbbe88c2e065081",
 			"branch": "master"
 		},
 		{
@@ -94,7 +94,7 @@
 		{
 			"importpath": "golang.org/x/net/context",
 			"repository": "https://go.googlesource.com/net",
-			"revision": "d28a91ad269180318493156412990f060d721258",
+			"revision": "cbbbe2bc0f2efdd2afb318d93f1eadb19350e4a3",
 			"branch": "master",
 			"path": "/context"
 		},

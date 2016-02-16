@@ -22,7 +22,7 @@ func NewEditCommand() cli.Command {
 			cli.BoolFlag{Name: "validate, v", EnvVar: "ETCDTOOL_VALIDATE", Usage: "Validate data before import"},
 			cli.StringFlag{Name: "format, f", Value: "JSON", EnvVar: "ETCDTOOL_FORMAT", Usage: "Data serialization format YAML, TOML or JSON"},
 			cli.StringFlag{Name: "editor, e", Value: "vim", Usage: "Editor", EnvVar: "EDITOR"},
-			cli.StringFlag{Name: "tmp-file, t", Value: ".etcdtool.swp", Usage: "Temporary file"},
+			cli.StringFlag{Name: "tmp-file, t", Value: ".etcdtool", Usage: "Temporary file"},
 		},
 		Action: func(c *cli.Context) {
 			editCommandFunc(c)
@@ -72,33 +72,36 @@ func editCommandFunc(c *cli.Context) {
 		fatal(err.Error())
 	}
 
+	// Temporary file append file type to support syntax highlighting
+	tmpfile := c.String("tmp-file") + "." + strings.ToLower(c.String("format"))
+
 	// Export to file.
-	exportFunc(dir, sort, c.String("tmp-file"), f, c, ki)
+	exportFunc(dir, sort, tmpfile, f, c, ki)
 
 	// Get modified time stamp.
-	before, err := os.Stat(c.String("tmp-file"))
+	before, err := os.Stat(tmpfile)
 	if err != nil {
 		fatal(err.Error())
 	}
 
 	// Edit file.
-	editFile(c.String("editor"), c.String("tmp-file"))
+	editFile(c.String("editor"), tmpfile)
 
 	// Check modified time stamp.
-	after, err := os.Stat(c.String("tmp-file"))
+	after, err := os.Stat(tmpfile)
 	if err != nil {
 		fatal(err.Error())
 	}
 
 	// Import from file if it has changed.
 	if before.ModTime() != after.ModTime() {
-		importFunc(dir, c.String("tmp-file"), f, c.Bool("replace"), c.Bool("yes"), e, c, ki)
+		importFunc(dir, tmpfile, f, c.Bool("replace"), c.Bool("yes"), e, c, ki)
 	} else {
 		fmt.Printf("File wasn't modified, skipping import\n")
 	}
 
 	// Unlink file.
-	if err := os.Remove(c.String("tmp-file")); err != nil {
+	if err := os.Remove(tmpfile); err != nil {
 		fatal(err.Error())
 	}
 }

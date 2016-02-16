@@ -3,7 +3,9 @@ package cli
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"io/ioutil"
+	"strings"
 	"testing"
 )
 
@@ -41,5 +43,55 @@ func TestCommandFlagParsing(t *testing.T) {
 
 		expect(t, err, c.expectedErr)
 		expect(t, []string(context.Args()), c.testArgs)
+	}
+}
+
+func TestCommand_Run_DoesNotOverwriteErrorFromBefore(t *testing.T) {
+	app := NewApp()
+	app.Commands = []Command{
+		Command{
+			Name:   "bar",
+			Before: func(c *Context) error { return fmt.Errorf("before error") },
+			After:  func(c *Context) error { return fmt.Errorf("after error") },
+		},
+	}
+
+	err := app.Run([]string{"foo", "bar"})
+	if err == nil {
+		t.Fatalf("expected to receive error from Run, got none")
+	}
+
+	if !strings.Contains(err.Error(), "before error") {
+		t.Errorf("expected text of error from Before method, but got none in \"%v\"", err)
+	}
+	if !strings.Contains(err.Error(), "after error") {
+		t.Errorf("expected text of error from After method, but got none in \"%v\"", err)
+	}
+}
+
+func TestCommand_OnUsageError_WithWrongFlagValue(t *testing.T) {
+	app := NewApp()
+	app.Commands = []Command{
+		Command{
+			Name:   "bar",
+			Flags: []Flag{
+				IntFlag{Name: "flag"},
+			},
+			OnUsageError: func(c *Context, err error) error {
+				if !strings.HasPrefix(err.Error(), "invalid value \"wrong\"") {
+					t.Errorf("Expect an invalid value error, but got \"%v\"", err)
+				}
+				return errors.New("intercepted: " + err.Error())
+			},
+		},
+	}
+
+	err := app.Run([]string{"foo", "bar", "--flag=wrong"})
+	if err == nil {
+		t.Fatalf("expected to receive error from Run, got none")
+	}
+
+	if !strings.HasPrefix(err.Error(), "intercepted: invalid value") {
+		t.Errorf("Expect an intercepted error, but got \"%v\"", err)
 	}
 }

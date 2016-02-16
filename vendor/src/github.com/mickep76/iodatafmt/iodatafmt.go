@@ -89,7 +89,7 @@ func Marshal(d interface{}, f DataFmt) ([]byte, error) {
 		}
 		return b.Bytes(), nil
 	case JSON:
-		b, err := json.MarshalIndent(&d, "", "    ")
+		b, err := json.MarshalIndent(&d, "", "  ")
 		if err != nil {
 			return nil, err
 		}
