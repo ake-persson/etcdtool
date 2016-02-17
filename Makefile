@@ -34,7 +34,11 @@ binary:
 	mkdir release || true
 	mv bin/etcdtool release/etcdtool-${VERSION}-${RELEASE}.linux.x86_64
 
-release: clean darwin rpm binary
+set-version:
+	sed -i .tmp "s/const Version =.*/const Version = \"${VERSION}\"/" src/${SRCDIR}/version.go
+	rm -f src/${SRCDIR}/version.go.tmp
+
+release: clean set-version darwin rpm binary
 
 build-binary: deps
 	gb build
