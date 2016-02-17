@@ -127,3 +127,6 @@ users/1/username: ltrier
 users/1/first_name: Ludwig
 users/1/last_name: Von Treimer
 ```
+
+# TODO
+- Add detection of format for import based on file type
