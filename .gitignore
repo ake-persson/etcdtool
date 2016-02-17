@@ -2,4 +2,4 @@
 .build
 bin
 pkg
-*.rpm
+release
