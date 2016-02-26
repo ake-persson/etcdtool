@@ -1,6 +1,6 @@
-etcdtool - Export/Import/Edit etcd directory as JSON/YAML/TOML and validate directory using JSON schema
+etcdtool
 
-Copyright (c) 2015 Michael Persson
+Copyright (c), 2015 Michael Persson
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
