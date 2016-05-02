@@ -16,41 +16,41 @@
 		{
 			"importpath": "github.com/codegangsta/cli",
 			"repository": "https://github.com/codegangsta/cli",
-			"revision": "ff84ca213d003974c6900fdbde23332111d661c6",
+			"revision": "415b5e766a61c4e9272f9e72742fc777fca0c224",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/coreos/etcd/client",
 			"repository": "https://github.com/coreos/etcd",
-			"revision": "b9ea5f6d90cbedb378de1d4187d0a078c94c90b8",
+			"revision": "a8139e2b0e23181491cc2d2ee248992aabda3ec2",
 			"branch": "master",
 			"path": "/client"
 		},
 		{
 			"importpath": "github.com/coreos/etcd/pkg/pathutil",
 			"repository": "https://github.com/coreos/etcd",
-			"revision": "b9ea5f6d90cbedb378de1d4187d0a078c94c90b8",
+			"revision": "a8139e2b0e23181491cc2d2ee248992aabda3ec2",
 			"branch": "master",
 			"path": "/pkg/pathutil"
 		},
 		{
 			"importpath": "github.com/coreos/etcd/pkg/tlsutil",
 			"repository": "https://github.com/coreos/etcd",
-			"revision": "b9ea5f6d90cbedb378de1d4187d0a078c94c90b8",
+			"revision": "a8139e2b0e23181491cc2d2ee248992aabda3ec2",
 			"branch": "master",
 			"path": "/pkg/tlsutil"
 		},
 		{
 			"importpath": "github.com/coreos/etcd/pkg/transport",
 			"repository": "https://github.com/coreos/etcd",
-			"revision": "b9ea5f6d90cbedb378de1d4187d0a078c94c90b8",
+			"revision": "a8139e2b0e23181491cc2d2ee248992aabda3ec2",
 			"branch": "master",
 			"path": "/pkg/transport"
 		},
 		{
 			"importpath": "github.com/coreos/etcd/pkg/types",
 			"repository": "https://github.com/coreos/etcd",
-			"revision": "b9ea5f6d90cbedb378de1d4187d0a078c94c90b8",
+			"revision": "a8139e2b0e23181491cc2d2ee248992aabda3ec2",
 			"branch": "master",
 			"path": "/pkg/types"
 		},
@@ -63,7 +63,7 @@
 		{
 			"importpath": "github.com/mickep76/iodatafmt",
 			"repository": "https://github.com/mickep76/iodatafmt",
-			"revision": "b8a6f28eabf7e2ece95de10eadbbe88c2e065081",
+			"revision": "f18fde15e7294cc81a4bb52af69487751d34a9c4",
 			"branch": "master"
 		},
 		{

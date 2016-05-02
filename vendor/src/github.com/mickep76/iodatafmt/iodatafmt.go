@@ -11,9 +11,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	// Local packages.
+	yaml "github.com/mickep76/iodatafmt/yaml_mapstr"
+
 	// Third party packages.
 	"github.com/BurntSushi/toml"
-	"gopkg.in/yaml.v2"
 )
 
 // DataFmt represents which data serialization is used YAML, JSON or TOML.
