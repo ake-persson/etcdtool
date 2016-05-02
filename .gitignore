@@ -1,5 +1,4 @@
 .DS_Store
-.build
-bin
-pkg
-release
+/.build
+/bin
+/pkg
