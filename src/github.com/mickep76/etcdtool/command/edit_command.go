@@ -26,8 +26,9 @@ func NewEditCommand() cli.Command {
 			cli.StringFlag{Name: "editor, e", Value: "vim", Usage: "Editor", EnvVar: "EDITOR"},
 			cli.StringFlag{Name: "tmp-file, t", Value: ".etcdtool", Usage: "Temporary file"},
 		},
-		Action: func(c *cli.Context) {
+		Action: func(c *cli.Context) error {
 			editCommandFunc(c)
+			return nil
 		},
 	}
 }

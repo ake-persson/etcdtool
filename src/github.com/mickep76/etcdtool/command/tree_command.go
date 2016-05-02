@@ -17,8 +17,9 @@ func NewTreeCommand() cli.Command {
 		Flags: []cli.Flag{
 			cli.BoolFlag{Name: "sort", Usage: "returns result in sorted order"},
 		},
-		Action: func(c *cli.Context) {
+		Action: func(c *cli.Context) error {
 			treeCommandFunc(c)
+			return nil
 		},
 	}
 }

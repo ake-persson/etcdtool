@@ -17,8 +17,9 @@ func NewValidateCommand() cli.Command {
 		Name:  "validate",
 		Usage: "validate a directory",
 		Flags: []cli.Flag{},
-		Action: func(c *cli.Context) {
+		Action: func(c *cli.Context) error {
 			validateCommandFunc(c)
+			return nil
 		},
 	}
 }

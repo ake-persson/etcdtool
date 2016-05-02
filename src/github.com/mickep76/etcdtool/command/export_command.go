@@ -19,8 +19,9 @@ func NewExportCommand() cli.Command {
 			cli.StringFlag{Name: "format, f", EnvVar: "ETCDTOOL_FORMAT", Value: "JSON", Usage: "Data serialization format YAML, TOML or JSON"},
 			cli.StringFlag{Name: "output, o", Value: "", Usage: "Output file"},
 		},
-		Action: func(c *cli.Context) {
+		Action: func(c *cli.Context) error {
 			exportCommandFunc(c)
+			return nil
 		},
 	}
 }

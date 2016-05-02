@@ -25,8 +25,9 @@ func NewImportCommand() cli.Command {
 			cli.BoolFlag{Name: "validate, v", EnvVar: "ETCDTOOL_VALIDATE", Usage: "Validate data before import"},
 			cli.StringFlag{Name: "format, f", Value: "JSON", EnvVar: "ETCDTOOL_FORMAT", Usage: "Data serialization format YAML, TOML or JSON"},
 		},
-		Action: func(c *cli.Context) {
+		Action: func(c *cli.Context) error {
 			importCommandFunc(c)
+			return nil
 		},
 	}
 }

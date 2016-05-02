@@ -14,8 +14,9 @@ func NewPrintConfigCommand() cli.Command {
 			cli.BoolFlag{Name: "sort", Usage: "returns result in sorted order"},
 			cli.StringFlag{Name: "format, f", EnvVar: "ETCDTOOL_FORMAT", Value: "JSON", Usage: "Data serialization format YAML, TOML or JSON"},
 		},
-		Action: func(c *cli.Context) {
+		Action: func(c *cli.Context) error {
 			printConfigCommandFunc(c)
+			return nil
 		},
 	}
 }
