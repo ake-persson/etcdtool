@@ -35,6 +35,22 @@ func Test_ShowAppHelp_NoVersion(t *testing.T) {
 	}
 }
 
+func Test_ShowAppHelp_HideVersion(t *testing.T) {
+	output := new(bytes.Buffer)
+	app := NewApp()
+	app.Writer = output
+
+	app.HideVersion = true
+
+	c := NewContext(app, nil, nil)
+
+	ShowAppHelp(c)
+
+	if bytes.Index(output.Bytes(), []byte("VERSION:")) != -1 {
+		t.Errorf("expected\n%snot to include %s", output.String(), "VERSION:")
+	}
+}
+
 func Test_Help_Custom_Flags(t *testing.T) {
 	oldFlag := HelpFlag
 	defer func() {
@@ -50,10 +66,11 @@ func Test_Help_Custom_Flags(t *testing.T) {
 		Flags: []Flag{
 			BoolFlag{Name: "foo, h"},
 		},
-		Action: func(ctx *Context) {
+		Action: func(ctx *Context) error {
 			if ctx.Bool("h") != true {
 				t.Errorf("custom help flag not set")
 			}
+			return nil
 		},
 	}
 	output := new(bytes.Buffer)
@@ -79,10 +96,11 @@ func Test_Version_Custom_Flags(t *testing.T) {
 		Flags: []Flag{
 			BoolFlag{Name: "foo, v"},
 		},
-		Action: func(ctx *Context) {
+		Action: func(ctx *Context) error {
 			if ctx.Bool("v") != true {
 				t.Errorf("custom version flag not set")
 			}
+			return nil
 		},
 	}
 	output := new(bytes.Buffer)
