@@ -1,6 +1,7 @@
 package command
 
 import (
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -42,9 +43,17 @@ func newClient(e Etcdtool) client.Client {
 	if e.User != "" {
 		cfg.Username = e.User
 		var err error
-		cfg.Password, err = speakeasy.Ask("Password: ")
-		if err != nil {
-			fatal(err.Error())
+		if e.PasswordFilePath != "" {
+			passBytes, err := ioutil.ReadFile(e.PasswordFilePath)
+			if err != nil {
+				fatal(err.Error())
+			}
+			cfg.Password = strings.TrimRight(string(passBytes), "\n")
+		} else {
+			cfg.Password, err = speakeasy.Ask("Password: ")
+			if err != nil {
+				fatal(err.Error())
+			}
 		}
 	}
 
