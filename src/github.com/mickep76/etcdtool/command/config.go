@@ -11,14 +11,15 @@ import (
 
 // Etcdtool configuration struct.
 type Etcdtool struct {
-	Peers          string        `json:"peers,omitempty" yaml:"peers,omitempty" toml:"peers,omitempty"`
-	Cert           string        `json:"cert,omitempty" yaml:"cert,omitempty" toml:"cert,omitempty"`
-	Key            string        `json:"key,omitempty" yaml:"key,omitempty" toml:"key,omitempty"`
-	CA             string        `json:"ca,omitempty" yaml:"ca,omitempty" toml:"peers,omitempty"`
-	User           string        `json:"user,omitempty" yaml:"user,omitempty" toml:"user,omitempty"`
-	Timeout        time.Duration `json:"timeout,omitempty" yaml:"timeout,omitempty" toml:"timeout,omitempty"`
-	CommandTimeout time.Duration `json:"commandTimeout,omitempty" yaml:"commandTimeout,omitempty" toml:"commandTimeout,omitempty"`
-	Routes         []Route       `json:"routes" yaml:"routes" toml:"routes"`
+	Peers            string        `json:"peers,omitempty" yaml:"peers,omitempty" toml:"peers,omitempty"`
+	Cert             string        `json:"cert,omitempty" yaml:"cert,omitempty" toml:"cert,omitempty"`
+	Key              string        `json:"key,omitempty" yaml:"key,omitempty" toml:"key,omitempty"`
+	CA               string        `json:"ca,omitempty" yaml:"ca,omitempty" toml:"peers,omitempty"`
+	User             string        `json:"user,omitempty" yaml:"user,omitempty" toml:"user,omitempty"`
+	Timeout          time.Duration `json:"timeout,omitempty" yaml:"timeout,omitempty" toml:"timeout,omitempty"`
+	CommandTimeout   time.Duration `json:"commandTimeout,omitempty" yaml:"commandTimeout,omitempty" toml:"commandTimeout,omitempty"`
+	Routes           []Route       `json:"routes" yaml:"routes" toml:"routes"`
+	PasswordFilePath string
 }
 
 // Route configuration struct.
@@ -95,6 +96,11 @@ func loadConfig(c *cli.Context) Etcdtool {
 
 	if c.GlobalDuration("command-timeout") != 0 {
 		e.CommandTimeout = c.GlobalDuration("command-timeout")
+	}
+
+	// Add password file path if set
+	if c.GlobalString("password-file") != "" {
+		e.PasswordFilePath = c.GlobalString("password-file")
 	}
 
 	return e

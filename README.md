@@ -102,6 +102,18 @@ etcdtool -d -c etcdtool.toml edit -v -f toml /hosts/test2.example.com
 etcdtool -d -c etcdtool.toml validate /hosts
 ```
 
+**Authentication**
+
+These commands will prompt you for the password for the user. Alternatively, you
+can pass the password in a file with `--password-file` or `-F`:  
+
+```
+cat /path/to/passwordfile
+passwordstring
+
+etcdtool -password-file /path/to/passwordfile validate /hosts
+```
+
 # Caveats
 
 - etcd doesn't support list's, this is handled by using the index as the key:
