@@ -76,15 +76,16 @@ func validateCommandFunc(c *cli.Context) {
 	infof("Using JSON schema: %s", schema)
 	schemaLoader := gojsonschema.NewReferenceLoader(schema)
 	docLoader := gojsonschema.NewGoLoader(m)
+	fmt.Println("Validating...")
 	result, err := gojsonschema.Validate(schemaLoader, docLoader)
 	if err != nil {
-		fatal(err.Error())
+		fatal(fmt.Sprintf("Error attempting to validate: %v", err.Error()))
 	}
 
 	// Print results.
 	if !result.Valid() {
 		for _, err := range result.Errors() {
-			fmt.Printf("%s: %s\n", strings.Replace(err.Context().String("/"), "(root)", dir, 1), err.Description())
+			fmt.Printf("%s: %s [value: %s]\n", strings.Replace(err.Context().String("/"), "(root)", dir, 1), err.Description(), err.Value())
 		}
 	}
 }
@@ -128,7 +129,7 @@ func validateFunc(e Etcdtool, dir string, d interface{}) {
 	// Print results.
 	if !result.Valid() {
 		for _, err := range result.Errors() {
-			fmt.Printf("%s: %s\n", strings.Replace(err.Context().String("/"), "(root)", dir, 1), err.Description())
+			fmt.Printf("%s: %s [value: %s]\n", strings.Replace(err.Context().String("/"), "(root)", dir, 1), err.Description(), err.Value())
 		}
 		fatal("Data validation failed aborting")
 	}
