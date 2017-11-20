@@ -143,8 +143,10 @@ func importFunc(dir string, file string, f iodatafmt.DataFmt, replace bool, yes 
 
 	if exists {
 		if replace {
-			if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", dir)) {
-				os.Exit(1)
+			if !yes {
+				if !askYesNo(fmt.Sprintf("Do you want to overwrite data in directory: %s", dir)) {
+					os.Exit(1)
+				}
 			}
 
 			// Delete dir.
