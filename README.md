@@ -65,6 +65,9 @@ etcdtool import /hosts/test2.example.com test2.example.com.json
 ```
 etcdtool tree /
 etcdtool export /
+
+**Export the content and infer numbers lists to keep original json:**
+etcdtool export / --num-infer-list
 ```
 
 **Validate data with different routes:**
