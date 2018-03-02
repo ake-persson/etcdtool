@@ -21,7 +21,6 @@ func main() {
 		cli.StringFlag{Name: "ca", Value: "", EnvVar: "ETCDTOOL_CA", Usage: "Verify certificates of HTTPS-enabled servers using this CA bundle"},
 		cli.StringFlag{Name: "user, u", Value: "", Usage: "User"},
 		cli.StringFlag{Name: "password-file, F", Value: "", Usage: "File path to the user's password"},
-		cli.BoolFlag{Name: "num-infer-list", Usage: "Remove extra levels created of arrays"},
 		cli.DurationFlag{Name: "timeout, t", Value: time.Second, Usage: "Connection timeout"},
 		cli.DurationFlag{Name: "command-timeout, T", Value: 5 * time.Second, Usage: "Command timeout"},
 	}

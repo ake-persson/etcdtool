@@ -15,5 +15,5 @@
     }
   },
   "array_test":["first_elem","second_elem","third_elem"],
-  "array_two_levels":[["first_elem","second_elem"],["third_elem"]]
+  "array_two_levels":[["first_elem","second_elem"],["third_elem"], 5, 5.0, true]
 }
