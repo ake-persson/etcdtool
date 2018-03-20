@@ -1,0 +1,19 @@
+{
+  "site": "emea-nl-1",
+  "tenant": "ops",
+  "interfaces": {
+    "eth0": {
+      "gw": "192.168.0.1",
+      "hwaddr": "00:01:02:03:04:05",
+      "ip": "192.168.0.2",
+      "netmask": "255.255.255.0",
+      "array_insice_map":[
+        { "key1": "value1"},
+        { "key2": "value2"},
+        { "key3": "value3"}
+      ]
+    }
+  },
+  "array_test":["first_elem","second_elem","third_elem"],
+  "array_two_levels":[["first_elem","second_elem"],["third_elem"], 5, 5.0, true]
+}
