@@ -197,6 +197,11 @@ func assignValue(result map[string]interface{}, key string, value interface{}, i
 
 func checkAllKeysAreNumbers(numbersMap interface{}) bool {
 
+    // zero length map shouldn't be regarded as an array
+    if (len(numbersMap.(map[string]interface{})) == 0) {
+        return false
+    }
+
 	allKeyNumbers := true
 	for k, _ := range numbersMap.(map[string]interface{}) {
 		_, err := strconv.Atoi(k)
