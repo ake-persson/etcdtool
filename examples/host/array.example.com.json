@@ -7,10 +7,12 @@
       "hwaddr": "00:01:02:03:04:05",
       "ip": "192.168.0.2",
       "netmask": "255.255.255.0",
-      "array_insice_map":[
+      "array_inside_map":[
         { "key1": "value1"},
         { "key2": "value2"},
-        { "key3": "value3"}
+        { "key3": "value3"},
+        { "key": "another_value_fro_key","value":"true"},
+        { "key4": "True"}
       ]
     }
   },
