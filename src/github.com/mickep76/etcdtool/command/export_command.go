@@ -2,14 +2,19 @@ package command
 
 import (
 	"strings"
-
 	"github.com/codegangsta/cli"
 	"github.com/coreos/etcd/client"
 	"github.com/mickep76/etcdmap"
 	"github.com/mickep76/iodatafmt"
 	"strconv"
 	"sort"
+	"regexp"
 )
+
+const flatten_fake_key = "flatten_fake_key"
+const num_infer_list_flag = "num-infer-list"
+const infer_types_flag = "infer-types"
+const keep_format_path_flag = "keep-format-path"
 
 // NewExportCommand returns data from export.
 func NewExportCommand() cli.Command {
@@ -20,8 +25,9 @@ func NewExportCommand() cli.Command {
 			cli.BoolFlag{Name: "sort, s", Usage: "returns result in sorted order"},
 			cli.StringFlag{Name: "format, f", EnvVar: "ETCDTOOL_FORMAT", Value: "JSON", Usage: "Data serialization format YAML, TOML or JSON"},
 			cli.StringFlag{Name: "output, o", Value: "", Usage: "Output file"},
-			cli.BoolFlag{Name: "num-infer-list", Usage: "returns result without extra levels of arrays"},
-			cli.BoolFlag{Name: "infer-types", Usage: "convert to original type if conversion is possible"},
+			cli.BoolFlag{Name: num_infer_list_flag, Usage: "returns result without extra levels of arrays"},
+			cli.BoolFlag{Name: infer_types_flag, Usage: "convert to original type if conversion is possible"},
+			cli.StringSliceFlag{ Name: keep_format_path_flag, Usage: "set one or more paths (allow regex) to keep the string format. Each field or level should be separated by '.'"},
 		},
 		Action: func(c *cli.Context) error {
 			exportCommandFunc(c)
@@ -60,6 +66,9 @@ func exportCommandFunc(c *cli.Context) {
 	exportFunc(dir, sort, c.String("output"), f, c, ki)
 }
 
+var keep_formatted_paths []*regexp.Regexp
+
+
 // exportCommandFunc exports data as either JSON, YAML or TOML.
 func exportFunc(dir string, sort bool, file string, f iodatafmt.DataFmt, c *cli.Context, ki client.KeysAPI) {
 	ctx, cancel := contextWithCommandTimeout(c)
@@ -70,8 +79,14 @@ func exportFunc(dir string, sort bool, file string, f iodatafmt.DataFmt, c *cli.
 	}
 
 	m := etcdmap.Map(resp.Node)
-	if c.Bool("num-infer-list") || c.Bool("infer-types") {
-		m1 := removeExtraNumbersLevels(m, c.Bool("num-infer-list"), c.Bool("infer-types"))
+	if c.Bool(num_infer_list_flag) || c.Bool(infer_types_flag) {
+		if c.StringSlice(keep_format_path_flag) != nil {
+			for _,path := range(c.StringSlice(keep_format_path_flag)){
+				keep_formatted_paths =append(keep_formatted_paths,regexp.MustCompile(path))
+			}
+		}
+
+		m1 := removeExtraNumbersLevels(m, c.Bool(num_infer_list_flag), c.Bool(infer_types_flag), "")
 		value, ok := m1.(map[string]interface{})
 		if ok {
 			m = value
@@ -87,7 +102,7 @@ func exportFunc(dir string, sort bool, file string, f iodatafmt.DataFmt, c *cli.
 }
 
 // Remove extra levels of numbers created in etcd and infer numbers
-func removeExtraNumbersLevels(etcdmapObject interface{}, numInferList bool, inferTypes bool) interface{} {
+func removeExtraNumbersLevels(etcdmapObject interface{}, numInferList bool, inferTypes bool, path string) interface{} {
 
 	var result map[string]interface{} = make(map[string]interface{})
 	// TRAVERSE MAP
@@ -95,6 +110,15 @@ func removeExtraNumbersLevels(etcdmapObject interface{}, numInferList bool, infe
 	case map[string]interface{}: // map {string, K} case
 
 		for k, v := range etcdmapObject.(map[string]interface{}) {
+			var path_aux string = k
+			if len(path) > 0  {
+				if k == flatten_fake_key {
+					path_aux = path
+				}else {
+					path_aux = path + "." + k
+				}
+			}
+
 			// TRAVERSE VALUES TYPE
 			switch v.(type) {
 			case map[string]interface{}:
@@ -105,7 +129,7 @@ func removeExtraNumbersLevels(etcdmapObject interface{}, numInferList bool, infe
 
 					value, ok := v.(map[string]interface{})
 					if ok {
-						results = extractArrayFromFirstLevel(value,numInferList,numInferList)
+						results = extractArrayFromFirstLevel(value,numInferList,numInferList, path_aux)
 					}
 
 					// set the processed subkeys to the result map
@@ -117,10 +141,10 @@ func removeExtraNumbersLevels(etcdmapObject interface{}, numInferList bool, infe
 					}
 				} else {
 					// set a normal key and removeExtraNumbersLevels in the subsequent levels
-					result[k] = removeExtraNumbersLevels(v, numInferList, inferTypes)
+					result[k] = removeExtraNumbersLevels(v, numInferList, inferTypes, path_aux)
 				}
 			default:
-				assignValue(result, k, v, inferTypes)
+				assignValue(result, k, v, inferTypes,path_aux)
 			}
 		}
 	case string:
@@ -131,7 +155,7 @@ func removeExtraNumbersLevels(etcdmapObject interface{}, numInferList bool, infe
 	return result
 }
 
-func extractArrayFromFirstLevel(originalMap map[string]interface{}, numInferList bool, inferTypes bool) []interface{} {
+func extractArrayFromFirstLevel(originalMap map[string]interface{}, numInferList bool, inferTypes bool, path string) []interface{} {
 	// sort the keys to ensure the list will be in order
 	keys := make([]int, 0)
 	for k, _ := range originalMap {
@@ -143,7 +167,7 @@ func extractArrayFromFirstLevel(originalMap map[string]interface{}, numInferList
 		}
 	}
 	sort.Ints(keys)
-	
+
 	// process the map and extract the first level to build the array
 	var results []interface{}
 	for  _, k := range keys {
@@ -151,14 +175,13 @@ func extractArrayFromFirstLevel(originalMap map[string]interface{}, numInferList
 		// create temporal map with a fake top level to be in accordance
 		// with the logic of the function
 		temporal_map := make(map[string]interface{})
-		fake_key := "flatten_fake_key"
-		temporal_map[fake_key] = allKeyNumbersValue
+		temporal_map[flatten_fake_key] = allKeyNumbersValue
 		// flat the temporal map
-		flatten := removeExtraNumbersLevels(temporal_map, numInferList, inferTypes)
+		flatten := removeExtraNumbersLevels(temporal_map, numInferList, inferTypes, path)
 		// set the results depends on the type of the map returned
 		value, ok := flatten.(map[string]interface{})
 		if ok {
-			results = append(results, value[fake_key])
+			results = append(results, value[flatten_fake_key])
 		} else {
 			results = append(results, flatten)
 		}
@@ -167,28 +190,41 @@ func extractArrayFromFirstLevel(originalMap map[string]interface{}, numInferList
 }
 
 
-func assignValue(result map[string]interface{}, key string, value interface{}, inferTypes bool) {
+func assignValue(result map[string]interface{}, key string, value interface{}, inferTypes bool, path string) {
 	isString, ok := value.(string)
 	if ok && inferTypes {
-		// process a normal value
-		val, err := strconv.Atoi(isString)
-		if err == nil {
-			result[key] = val
-		} else {
-			val, err := strconv.ParseFloat(isString, 64)
-			if err == nil {
-				result[key] = val
-			} else {
-				val, err := strconv.ParseBool(isString)
-				if err == nil {
-					result[key] = val
-				} else {
-					result[key] = isString
 
-				}
+		var keep_original_format bool=false
+		for _,reg := range(keep_formatted_paths){
+			if reg.MatchString(path){
+				keep_original_format = true
+				break
 			}
 		}
 
+		if keep_original_format {
+			result[key]=isString
+		}else {
+
+			// process a normal value
+			val, err := strconv.Atoi(isString)
+			if err == nil {
+				result[key] = val
+			} else {
+				val, err := strconv.ParseFloat(isString, 64)
+				if err == nil {
+					result[key] = val
+				} else {
+					val, err := strconv.ParseBool(isString)
+					if err == nil {
+						result[key] = val
+					} else {
+						result[key] = isString
+
+					}
+				}
+			}
+		}
 	} else {
 		result[key] = value
 	}
