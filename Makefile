@@ -10,14 +10,8 @@ all: build
 clean:
 	rm -rf bin pkg ${NAME} ${BUILDDIR} release
 
-update:
-	gb vendor update --all
-
-deps:
-	go get github.com/constabulary/gb/...
-
 build: clean
-	gb build
+	go build
 
 darwin:
 	gb build
@@ -40,10 +34,10 @@ set-version:
 
 release: clean set-version darwin rpm binary
 
-build-binary: deps
+build-binary:
 	gb build
 
-build-rpm: deps
+build-rpm:
 	gb build
 	mkdir -p ${BUILDDIR}/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 	cp bin/${NAME} ${BUILDDIR}/SOURCES
