@@ -28,6 +28,7 @@ func main() {
 	app.Commands = []cli.Command{
 		command.NewImportCommand(),
 		command.NewExportCommand(),
+		command.NewLsCommand(),
 		command.NewEditCommand(),
 		command.NewValidateCommand(),
 		command.NewTreeCommand(),
