@@ -33,6 +33,9 @@ func readStandardConfig() Config {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
 		keyvals := strings.Split(line, " ")
 		if len(keyvals) != 2 {
 			log.Fatalf("Bad line in config file %s, line: %s", cfg, line)
